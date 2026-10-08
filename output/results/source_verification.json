@@ -1,5 +1,12 @@
 {
   "upstream_commit": "655ada13a043a4226a239b0c0a65bcdefef87a02",
   "compatibility_patch_reverse_check": "PASS",
-  "regression_tests": 4
+  "regression_tests": 4,
+  "unchanged_upstream_files": 148,
+  "modified_algorithm_files": [
+    "data_preparation/prepare_single_tables.py",
+    "maqp.py",
+    "rspn/learning/structure_learning.py"
+  ],
+  "removed_hdf_model_replay": "PASS"
 }
