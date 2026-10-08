@@ -1,0 +1,30 @@
+{
+  "status": "PASS",
+  "row_counts": {
+    "title": 2528312,
+    "movie_info_idx": 1380035,
+    "movie_info": 14835720,
+    "cast_info": 36244344,
+    "movie_keyword": 4523930,
+    "movie_companies": 2609129
+  },
+  "full_tables": true,
+  "raw_data_ground_truth_checks": [
+    {
+      "query_no": 0,
+      "actual": 715,
+      "expected": 715
+    },
+    {
+      "query_no": 1,
+      "actual": 9,
+      "expected": 9
+    },
+    {
+      "query_no": 2,
+      "actual": 47,
+      "expected": 47
+    }
+  ],
+  "note": "Three counts recomputed directly from raw CSVs. Remaining official truths not independently recomputed."
+}

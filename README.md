@@ -1,357 +1,102 @@
-# DeepDB: Learn from Data, not from Queries!
+# DeepDB 论文复现 · DSC5003
 
-DeepDB is a data-driven learned database component achieving state-of-the-art-performance in cardinality estimation and 
-approximate query processing (AQP). This is the implementation described in 
+论文：Benjamin Hilprecht 等，**DeepDB: Learn from Data, not from Queries!**，VLDB 2020。
+[论文](https://arxiv.org/abs/1909.00607) · [作者代码](https://github.com/DataManagementLab/deepdb-public)
 
-Benjamin Hilprecht, Andreas Schmidt, Moritz Kulessa, Alejandro Molina, Kristian Kersting, Carsten Binnig: 
-"DeepDB: Learn from Data, not from Queries!", VLDB'2020. [[PDF]](https://arxiv.org/abs/1909.00607)
+本项目先复现作者提供的 **JOB-light 双表关系基础模型**：下载完整 IMDb 快照中的六张表，
+预处理数据，每个关系抽取 1,000,000 个连接样本训练一个 RSPN，共训练五个模型，
+评估原始的 70 条 SQL 查询，再从保存的模型重新计算所有预测。
+训练不使用查询真值。
 
-![DeepDB Overview](baselines/plots/overview.png "DeepDB Overview")
+这是论文复现的第一阶段。基础模型与论文优化的 RDC ensemble 配置不同，
+不能据此宣称已经复现论文的全部性能、对比实验、增量更新、SSB 或 Flights 实验。
 
-# Setup
-Tested with python3.7 and python3.8
-```
-git clone https://github.com/DataManagementLab/deepdb-public.git
-cd deepdb-public
-sudo apt install -y libpq-dev gcc python3-dev
-python3 -m venv venv
-source venv/bin/activate
-pip3 install -r requirements.txt
-```
+2026-10-08 本机验证：五个模型训练完成，70 条查询全部评估，重新载入模型后 70 条预测一致，
+4 项回归检查通过。q-error 中位数 **1.500**，95 分位数 **6.901**，平均查询耗时 **7.03 ms**。
+完整记录见 [本次结果](output/results/RESULTS.md)。
 
-For python3.8: Sometimes spflow fails, in this case remove spflow from requirements.txt, install them and run
-```
-pip3 install spflow --no-deps
-```
+## 文件布局
 
-# Reproduce Experiments
-
-## Cardinality Estimation
-Download the [Job dataset](http://homepages.cwi.nl/~boncz/job/imdb.tgz).
-Generate hdf files from csvs.
-```
-python3 maqp.py --generate_hdf
-    --dataset imdb-light
-    --csv_seperator ,
-    --csv_path ../imdb-benchmark
-    --hdf_path ../imdb-benchmark/gen_single_light
-    --max_rows_per_hdf_file 100000000
+```text
+Deep DB/
+  code/                 作者算法、查询集和本地复现脚本
+    tests/              需要保留的回归检查，不是临时调试脚本
+  data/
+    imdb/               六张完整原始 CSV（不上传 GitHub）
+    manifest.json       来源、文件大小与 SHA256
+  output/
+    models/             训练完成的模型（不上传 GitHub）
+    results/            查询结果、数值复核和数据审计
+    logs/               本地正式运行日志
+  docs/                 源码来源与兼容性修改记录
+  .venv/                独立 Python 环境（不上传 GitHub）
+  .runtime/             本地 Python 3.8（不上传 GitHub）
 ```
 
-Generate sampled hdf files from csvs.
-```
-python3 maqp.py --generate_sampled_hdfs
-    --dataset imdb-light
-    --hdf_path ../imdb-benchmark/gen_single_light
-    --max_rows_per_hdf_file 100000000
-    --hdf_sample_size 10000
+原始 PDF 留在本地。下载压缩包、构建缓存、调试产物和核验后不再使用的 HDF 不进入仓库。
+
+## 在 Windows 上运行
+
+在项目根目录打开 PowerShell。需要 Git、curl 和 uv；uv 可通过 `python -m pip install uv` 安装。
+本项目使用 Python 3.8.20，以尽量保持论文时代的依赖行为。
+
+```powershell
+# 创建独立环境；已存在且可用时无需重复安装
+powershell -ExecutionPolicy Bypass -File setup.ps1
+
+# 下载、校验 SHA256 / gzip CRC、只提取六张所需表
+.venv/Scripts/python.exe code/download_data.py
+
+# 检查兼容性修改
+.venv/Scripts/python.exe -m pytest
+
+# 完整原始数据预处理、五个模型训练、70 条查询评估及模型重载复核
+.venv/Scripts/python.exe code/reproduce.py all
+
+# 直接从原始 CSV 审计行数并重算前三条查询的真值
+.venv/Scripts/python.exe code/audit_data.py
 ```
 
-Learn ensemble with the optimized rdc strategy (requires postgres with imdb dataset)
-```
-python3 maqp.py --generate_ensemble
-    --dataset imdb-light 
-    --samples_per_spn 10000000 10000000 1000000 1000000 1000000
-    --ensemble_strategy rdc_based
-    --hdf_path ../imdb-benchmark/gen_single_light
-    --max_rows_per_hdf_file 100000000
-    --samples_rdc_ensemble_tests 10000
-    --ensemble_path ../imdb-benchmark/spn_ensembles
-    --database_name imdb
-    --post_sampling_factor 10 10 5 1 1
-    --ensemble_budget_factor 5
-    --ensemble_max_no_joins 3
-    --pairwise_rdc_path ../imdb-benchmark/spn_ensembles/pairwise_rdc.pkl
+原始数据约 2.81 GB（十进制字节）；下载包约 1.26 GB。预处理阶段还需要额外磁盘空间。
+数据已存在且哈希一致时下载脚本会跳过下载；模型已存在时 `all` 会直接评估。
+不要覆盖已验证实验的模型：更改代码、数据或参数后请使用独立实验目录或先备份旧结果。
+
+只重新评估，无需 HDF：
+
+```powershell
+.venv/Scripts/python.exe code/reproduce.py evaluate
+.venv/Scripts/python.exe code/verify_results.py
 ```
 
-Alternatively: Learn base ensemble over different tables with naive strategy. 
-(Does not work with different dataset sizes because join sizes are hard coded but does not require postgres)
-```
-python3 maqp.py --generate_ensemble
-    --dataset imdb-light 
-    --samples_per_spn 1000000 1000000 1000000 1000000 1000000
-    --ensemble_strategy relationship
-    --hdf_path ../imdb-benchmark/gen_single_light
-    --ensemble_path ../imdb-benchmark/spn_ensembles
-    --max_rows_per_hdf_file 100000000
-    --post_sampling_factor 10 10 5 1 1
-```
+若模型不存在而只想单独执行一步，可使用 `prepare`、`train`、`evaluate`。
+`--samples` 可指定每个模型的样本量；不同样本量的模型和结果文件分开命名。
+固定 NumPy/Python 随机种子及 Python 哈希种子，限制数值库线程；跨系统结果仍可能有浮点差异。
 
-Evaluate performance for queries.
-```
-python3 maqp.py --evaluate_cardinalities
-    --rdc_spn_selection
-    --max_variants 1
-    --pairwise_rdc_path ../imdb-benchmark/spn_ensembles/pairwise_rdc.pkl
-    --dataset imdb-light
-    --target_path ./baselines/cardinality_estimation/results/deepDB/imdb_light_model_based_budget_5.csv
-    --ensemble_location ../imdb-benchmark/spn_ensembles/ensemble_join_3_budget_5_10000000.pkl
-    --query_file_location ./benchmarks/job-light/sql/job_light_queries.sql
-    --ground_truth_file_location ./benchmarks/job-light/sql/job_light_true_cardinalities.csv
-```
+Linux 可创建 Python 3.8 venv，安装 `requirements.txt`，再执行
+`pip install --no-deps spflow==0.0.40`。随后使用相同 Python 脚本。
+当前实测平台为 Windows；尚未实测 Linux。
 
-## Updates
+## 结果与验证边界
 
-Conditional incremental learning (i.e., initial learning of all films before 2013, newer films learn incremental)
-```
-python3 maqp.py  --generate_ensemble
-    --dataset imdb-light
-    --samples_per_spn 10000000 10000000 1000000 1000000 1000000
-    --ensemble_strategy rdc_based
-    --hdf_path ../imdb-benchmark/gen_single_light
-    --max_rows_per_hdf_file 100000000
-    --samples_rdc_ensemble_tests 10000
-    --ensemble_path ../imdb-benchmark/spn_ensembles
-    --database_name JOB-light
-    --post_sampling_factor 10 10 5 1 1
-    --ensemble_budget_factor 0
-    --ensemble_max_no_joins 3
-    --pairwise_rdc_path ../imdb-benchmark/spn_ensembles/pairwise_rdc.pkl
-    --incremental_condition "title.production_year<2013"
-```
+- `output/results/job_light_1000000.csv`：70 条查询逐条估计、官方真值及耗时。
+- `output/results/verification_1000000.json`：q-error 分位数、模型结构检查、70 条预测重算是否一致。
+- `output/results/data_audit.json`：六张表实际行数；前三条查询由原始 CSV 独立计算，与官方真值核对。
+- `output/results/run_1000000.json`：参数、阶段命令、时长、模型 SHA256。
 
-## Optimized Inference
-Generate the C++ code. (Currently only works for cardinality estimation).
-```
-python3 maqp.py --code_generation 
-    --ensemble_path ../imdb-benchmark/spn_ensembles/ensemble_join_3_budget_5_10000000.pkl
-```
+q-error 定义为 `max(估计值/真值, 真值/估计值)`，越接近 1 越好。
+这里使用官方提供的 70 条真值；只独立重算其中前三条，不能声称所有真值都已重新计算。
+耗时来自本机 Python 推理，不能直接与论文的硬件或 C++ 优化推理耗时比较。
 
-Compile it in a venv with pybind installed. 
-Sometimes installing this yields: `ModuleNotFoundError: No module named 'pip.req'`
-One workaround is to downgrade pip `pip3 install pip==9.0.3` as described [here](https://stackoverflow.com/questions/25192794/no-module-named-pip-req).
+下一阶段可以在独立分支复现优化的 RDC ensemble（作者流程需要加载 IMDb 的 PostgreSQL），
+以及 200 条泛化查询、增量更新、SSB、Flights、优化推理和其他方法的对比。
+本轮没有部署 PostgreSQL，也没有执行这些实验。
 
-The command below works for ubuntu 18.04. Make sure the generated .so file is in the root directory of the project.
-```
-g++ -O3 -Wall -shared -std=c++11 -ftemplate-depth=2048 -ftime-report -fPIC `python3 -m pybind11 --includes` optimized_inference.cpp -o optimized_inference`python3-config --extension-suffix`
-```
+## 来源、环境与协作
 
-If you now want to leverage the module you have to specify it for cardinalities.
-```
-python3 maqp.py --evaluate_cardinalities 
-    --rdc_spn_selection 
-    --max_variants 1 
-    --pairwise_rdc_path ../imdb-benchmark/spn_ensembles/pairwise_rdc.pkl 
-    --dataset imdb-light 
-    --target_path ./baselines/cardinality_estimation/results/deepDB/imdb_light_model_based_budget_5.csv 
-    --ensemble_location ../imdb-benchmark/spn_ensembles/ensemble_join_3_budget_5_10000000.pkl 
-    --query_file_location ./benchmarks/job-light/sql/job_light_queries.sql 
-    --ground_truth_file_location ./benchmarks/job-light/sql/job_light_true_cardinalities.csv 
-    --use_generated_code
-```
+作者版本固定为 `655ada13a043a4226a239b0c0a65bcdefef87a02`。
+保留作者 MIT 许可证，修改详见 `docs/UPSTREAM.md` 和 `docs/compatibility.patch`。
+`requirements.txt` 是运行所需的依赖；`requirements-lock.txt` 记录本次实际环境。
+SPFlow 的完整历史依赖包含本实验不用的可选组件，因此按作者建议单独以 `--no-deps` 安装。
 
-## AQP
-### SSB pipeline
-
-Generate standard SSB dataset (Scale Factor=500) and use the correct seperator.
-```
-for i in `ls *.tbl`; do
-    sed 's/|$//' $i > $TMP_DIR/${i/tbl/csv} &
-    echo $i;
-done
-```
-Create lineorder sample
-```
-cat lineorder.csv | awk 'BEGIN {srand()} !/^$/ { if (rand() <= .003333) print $0}' > lineorder_sampled.csv
-```
-
-Generate hdf files from csvs.
-```
-python3 maqp.py --generate_hdf
-    --dataset ssb-500gb
-    --csv_seperator \|
-    --csv_path ../mqp-data/ssb-benchmark
-    --hdf_path ../mqp-data/ssb-benchmark/gen_hdf
-```
-
-Learn the ensemble with a naive strategy.
-```
-python3 maqp.py --generate_ensemble 
-    --dataset ssb-500gb
-    --samples_per_spn 1000000
-    --ensemble_strategy single 
-    --hdf_path ../mqp-data/ssb-benchmark/gen_hdf 
-    --ensemble_path ../mqp-data/ssb-benchmark/spn_ensembles
-    --rdc_threshold 0.3
-    --post_sampling_factor 10
-```
-
-Optional: Compute ground truth for AQP queries (requires postgres with ssb schema).
-```
-python3 maqp.py --aqp_ground_truth
-    --query_file_location ./benchmarks/ssb/sql/aqp_queries.sql
-    --target_path ./benchmarks/ssb/ground_truth_500GB.pkl
-    --database_name ssb
-```
-
-Evaluate the AQP queries.
-```
-python3 maqp.py --evaluate_aqp_queries
-    --dataset ssb-500gb
-    --target_path ./baselines/aqp/results/deepDB/ssb_500gb_model_based.csv
-    --ensemble_location ../mqp-data/ssb-benchmark/spn_ensembles/ensemble_single_ssb-500gb_1000000.pkl
-    --query_file_location ./benchmarks/ssb/sql/aqp_queries.sql
-    --ground_truth_file_location ./benchmarks/ssb/ground_truth_500GB.pkl
-```
-
-Optional: Create the ground truth for confidence interval. (with 10M because we also use 10M samples for the training)
-```
-python3 maqp.py --aqp_ground_truth
-    --query_file_location ./benchmarks/ssb/sql/confidence_queries.sql
-    --target_path ./benchmarks/ssb/confidence_intervals/confidence_interval_10M.pkl
-    --database_name ssb
-```
-
-Evaluate the confidence intervals.
-```
-python3 maqp.py --evaluate_confidence_intervals
-    --dataset ssb-500gb
-    --target_path ./baselines/aqp/results/deepDB/ssb500GB_confidence_intervals.csv
-    --ensemble_location ../mqp-data/ssb-benchmark/spn_ensembles/ensemble_single_ssb-500gb_1000000.pkl
-    --query_file_location ./benchmarks/ssb/sql/aqp_queries.sql
-    --ground_truth_file_location ./benchmarks/ssb/confidence_intervals/confidence_interval_10M.pkl
-    --confidence_upsampling_factor 300
-    --confidence_sample_size 10000000
-```
-
-### Flights pipeline
-Generate flights dataset with scale factor 1 billion using [IDEBench](https://github.com/IDEBench/IDEBench-public) and generate a sample using
-```
-cat dataset.csv | awk 'BEGIN {srand()} !/^$/ { if (rand() <= .01) print $0}' > dataset_sampled.csv
-```
-
-Generate hdf files from csvs.
-```
-python3 maqp.py --generate_hdf
-    --dataset flights1B
-    --csv_seperator ,
-    --csv_path ../mqp-data/flights-benchmark
-    --hdf_path ../mqp-data/flights-benchmark/gen_hdf
-```
-
-Learn the ensemble.
-```
-python3 maqp.py --generate_ensemble 
-    --dataset flights1B
-    --samples_per_spn 10000000 
-    --ensemble_strategy single 
-    --hdf_path ../mqp-data/flights-benchmark/gen_hdf 
-    --ensemble_path ../mqp-data/flights-benchmark/spn_ensembles
-    --rdc_threshold 0.3
-    --post_sampling_factor 10
-```
-
-Optional: Compute ground truth
-```
-python3 maqp.py --aqp_ground_truth
-    --dataset flights1B
-    --query_file_location ./benchmarks/flights/sql/aqp_queries.sql
-    --target_path ./benchmarks/flights/ground_truth_1B.pkl
-    --database_name flights   
-```
-
-Evaluate the AQP queries.
-```  
-python3 maqp.py --evaluate_aqp_queries
-    --dataset flights1B
-    --target_path ./baselines/aqp/results/deepDB/flights1B_model_based.csv
-    --ensemble_location ../mqp-data/flights-benchmark/spn_ensembles/ensemble_single_flights1B_10000000.pkl
-    --query_file_location ./benchmarks/flights/sql/aqp_queries.sql
-    --ground_truth_file_location ./benchmarks/flights/ground_truth_1B.pkl
-```
-
-Optional: Create the ground truth for confidence interval. (with 10M because we also use 10M samples for the training)
-```
-python3 maqp.py --aqp_ground_truth
-    --dataset flights1B
-    --query_file_location ./benchmarks/flights/sql/confidence_queries.sql
-    --target_path ./benchmarks/flights/confidence_intervals/confidence_interval_10M.pkl
-    --database_name flights10M_origsample 
-```
-
-Evaluate the confidence intervals.
-```
-python3 maqp.py --evaluate_confidence_intervals
-    --dataset flights1B
-    --target_path ./baselines/aqp/results/deepDB/flights1B_confidence_intervals.csv
-    --ensemble_location ../mqp-data/flights-benchmark/spn_ensembles/ensemble_single_flights1B_10000000.pkl
-    --query_file_location ./benchmarks/flights/sql/aqp_queries.sql
-    --ground_truth_file_location ./benchmarks/flights/confidence_intervals/confidence_interval_10M.pkl
-    --confidence_upsampling_factor 100
-    --confidence_sample_size 10000000
-```
-
-### TPC-DS (Single Table) pipeline
-As an additional example on how to work with DeepDB, we provide an example on just a single table of the TPC-DS schema for the queries in `./benchmarks/tpc_ds_single_table/sql/aqp_queries.sql`. As a prerequisite, you need a 10 million tuple sample of the store_sales table in the directory `../mqp-data/tpc-ds-benchmark/store_sales_sampled.csv`. Afterwards, 
-you can run the following commands. To compute the ground truth, you need a postgres instance with a 1T TPC-DS dataset.
-
-Generate hdf files from csvs
-```
-python3 maqp.py --generate_hdf
-    --dataset tpc-ds-1t
-    --csv_seperator |
-    --csv_path ../mqp-data/tpc-ds-benchmark
-    --hdf_path ../mqp-data/tpc-ds-benchmark/gen_hdf
-```
-
-Learn the ensemble
-```
-python3 maqp.py --generate_ensemble 
-    --dataset tpc-ds-1t
-    --samples_per_spn 10000000 
-    --ensemble_strategy single 
-    --hdf_path ../mqp-data/tpc-ds-benchmark/gen_hdf
-    --ensemble_path ../mqp-data/tpc-ds-benchmark/spn_ensembles 
-    --rdc_threshold 0.3 
-    --post_sampling_factor 10
-```
-
-Compute ground truth
-```
-python3 maqp.py --aqp_ground_truth
-    --dataset tpc-ds-1t
-    --query_file_location ./benchmarks/tpc_ds_single_table/sql/aqp_queries.sql
-    --target_path ./benchmarks/tpc_ds_single_table/ground_truth_1t.pkl
-    --database_name tcpds
-```
-
-Evaluate the AQP queries
-```
-python3 maqp.py --evaluate_aqp_queries
-    --dataset tpc-ds-1t
-    --target_path ./baselines/aqp/results/deepDB/tpcds1t_model_based.csv
-    --ensemble_location ../mqp-data/tpc-ds-benchmark/spn_ensembles/ensemble_single_tpc-ds-1t_10000000.pkl
-    --query_file_location ./benchmarks/tpc_ds_single_table/sql/aqp_queries.sql
-    --ground_truth_file_location ./benchmarks/tpc_ds_single_table/ground_truth_1t.pkl
-```
-
-# How to experiment with DeepDB on a new Dataset
-- Specify a new schema in the schemas folder 
-- Due to the current implementation, make sure to declare
-    - the primary key,
-    - the filename of the csv sample file,
-    - the correct table size and sample rate,
-    - the relationships among tables if you do not just run queries over a single table,
-    - any non-key functional dependencies (this is rather an implementation detail),
-    - and include all columns in the no-compression list by default (as done for the IMDB benchmark),
-- To further reduce the training time, you can exclude columns you do not need in your experiments (also done in the IMDB benchmark)
-- Generate the HDF/sampled HDF files and learn the RSPN ensemble
-- Use the RSPN ensemble to answer queries
-- For reference, please check the commands to reproduce the results of the paper
-
-
-# Reference
-If you find this repository useful in your work, please cite our paper:
-
-```
-@inproceedings{deepdb,
-  title={DeepDB: Learn from Data, not from Queries!},
-  author = {Benjamin Hilprecht and Andreas Schmidt and Moritz Kulessa and Alejandro Molina and Kristian Kersting and Carsten Binnig},
-  journal={Proceedings of the VLDB Endowment},
-  volume={13},
-  number={7},
-  pages={992--1005},
-  year={2020},
-  publisher={VLDB Endowment}
-}
-```
+组员按 [CONTRIBUTING.md](CONTRIBUTING.md) 使用分支和 Pull Request 协作。
+请勿提交原始数据、账户凭据、虚拟环境、模型大文件或私人文档。

@@ -1,0 +1,112 @@
+--- a/code/data_preparation/prepare_single_tables.py
++++ b/code/data_preparation/prepare_single_tables.py
+@@ -12,12 +12,13 @@
+     """
+     Reads csv from path, renames columns and drops unnecessary columns
+     """
++    # Project before loading: free-text IMDb columns are discarded by the original
++    # routine anyway, but materializing them can exhaust a laptop's memory.
++    relevant = [i for i, attr in enumerate(table_obj.attributes)
++                if attr not in table_obj.irrelevant_attributes]
+     df_rows = pd.read_csv(table_obj.csv_file_location, header=None, escapechar='\\', encoding='utf-8', quotechar='"',
+-                          sep=csv_seperator)
+-    df_rows.columns = [table_obj.table_name + '.' + attr for attr in table_obj.attributes]
+-
+-    for attribute in table_obj.irrelevant_attributes:
+-        df_rows = df_rows.drop(table_obj.table_name + '.' + attribute, axis=1)
++                          sep=csv_seperator, usecols=relevant)
++    df_rows.columns = [table_obj.table_name + '.' + table_obj.attributes[i] for i in relevant]
+ 
+     return df_rows.apply(pd.to_numeric, errors="ignore")
+     # return df_rows.convert_objects()
+@@ -105,8 +106,10 @@
+         # fix for new pandas version
+         table_data.index.name = None
+         neighbor_table_data.index.name = None
+-        muls = table_data.join(neighbor_table_data, how='left')[[table_primary_key, right_attribute]] \
+-            .groupby([table_primary_key]).count()
++        # PK/FK fan-out counts do not require materializing the expanded join.
++        counts = neighbor_table_data.groupby(right_attribute)[right_attribute].count()
++        muls = counts.reindex(table_data[table_primary_key]).fillna(0).to_frame()
++        muls.index.name = None
+ 
+         mu_nn_col_name = relationship_obj.end + '.' + relationship_obj.multiplier_attribute_name_nn
+         mu_col_name = relationship_obj.end + '.' + relationship_obj.multiplier_attribute_name
+@@ -234,9 +237,11 @@
+         table_data = table_data.set_index(left_attribute, drop=False)
+         neighbor_table_data = read_table_csv(neighbor_table_obj, csv_seperator=csv_seperator).set_index(right_attribute,
+                                                                                                         drop=False)
+-        null_tuples = table_data.join(neighbor_table_data, how='left')
+-        null_tuples = null_tuples.loc[null_tuples[neighbor_primary_key].isna(),
+-                                      [table + '.' + attr for attr in relevant_attributes]]
++        # A valid child primary key identifies a matching row in the original
++        # left join. Restrict the key set likewise, preserving NULL semantics.
++        matching_keys = neighbor_table_data.loc[neighbor_table_data[neighbor_primary_key].notna(), right_attribute]
++        null_tuples = table_data.loc[~table_data[left_attribute].isin(matching_keys),
++                                    [table + '.' + attr for attr in relevant_attributes]]
+         if len(null_tuples) > 0 and neighbor_table_obj.sample_rate < 1:
+             logger.warning(f"For {relationship_obj.identifier} {len(null_tuples)} tuples without a join partner were "
+                            f"found. This is potentially due to the sampling rate of {neighbor_table_obj.sample_rate}.")
+--- a/code/rspn/learning/structure_learning.py
++++ b/code/rspn/learning/structure_learning.py
+@@ -1,11 +1,8 @@
+ import logging
+-import multiprocessing
+-import os
+ from collections import deque
+ from enum import Enum
+ 
+ import numpy as np
+-from spn.algorithms.StructureLearning import default_slicer
+ from spn.structure.Base import assign_ids, Product
+ 
+ from rspn.algorithms.transform_structure import Prune
+@@ -21,13 +18,12 @@
+ 
+     perf_counter = time
+ 
+-parallel = True
+-
+-if parallel:
+-    cpus = max(1, os.cpu_count() - 2)  # - int(os.getloadavg()[2])
+-else:
+-    cpus = 1
+-pool = multiprocessing.Pool(processes=cpus)
++def default_slicer(data, cols, num_cond_cols=None):
++    # Importing SPFlow 0.0.40's slicer also creates a global process pool.
++    # Express the same projection locally so Windows spawn never recurses.
++    if num_cond_cols is None:
++        return data[:, cols]
++    return np.concatenate((data[:, cols], data[:, -num_cond_cols:]), axis=1)
+ 
+ 
+ class Operation(Enum):
+@@ -264,7 +260,9 @@
+                 child_data_slice = data_slicer(local_data, [col], num_conditional_cols)
+                 local_children_params.append((child_data_slice, ds_context, [scope[col]]))
+ 
+-            result_nodes = pool.starmap(create_leaf, local_children_params)
++            # Leaf construction is deterministic and small; sequential execution
++            # avoids serializing the training arrays into Windows workers.
++            result_nodes = [create_leaf(*params) for params in local_children_params]
+ 
+             for child_pos, child in zip(local_tasks, result_nodes):
+                 node.children[child_pos] = child
+--- a/code/maqp.py
++++ b/code/maqp.py
+@@ -1,6 +1,7 @@
+ import argparse
+ import logging
+ import os
++import random
+ import shutil
+ import time
+ 
+@@ -19,6 +20,7 @@
+ from schemas.tpc_ds.schema import gen_1t_tpc_ds_schema
+ 
+ np.random.seed(1)
++random.seed(1)
+ 
+ if __name__ == '__main__':
+ 
