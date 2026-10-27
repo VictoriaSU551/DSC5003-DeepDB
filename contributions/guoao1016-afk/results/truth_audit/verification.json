@@ -1,0 +1,39 @@
+{
+  "status": "PASS",
+  "executed": 70,
+  "matched": 70,
+  "mismatched": 0,
+  "unresolved": [],
+  "checks": [
+    "All 70 original SQL strings and ordered IDs match reference",
+    "Actual database counts equal reference counts",
+    "All differences zero",
+    "CSV counts match saved execution-attempt log",
+    "Audit script SHA256 matches recorded source",
+    "Equivalent grouped SQL matches four original-SQL execution results",
+    "Prior-run scripts match recorded source hashes"
+  ],
+  "original_sql_successes": 69,
+  "factorized_exact_sql_successes": 1,
+  "factorized_query_ids": [
+    59
+  ],
+  "actual_source": "69 direct original SQL executions; query 59 by exact multiplicity aggregation over the same base tables",
+  "attempts_recorded": 76,
+  "timeout_attempts": 3,
+  "run_seconds": 54.479849900000005,
+  "cumulative_active_run_seconds": 1834.9993621,
+  "large_retry_query_ids": [
+    59
+  ],
+  "error_attempts": 3,
+  "successful_count_seconds_total": 757.0202370000001,
+  "median_query_seconds": 5.3623855,
+  "max_query_seconds": 97.865735,
+  "slowest_query_no": 57,
+  "truth_counts_sha256": "cf7dadc7a71685aba585d7d7c2e6e4470fa582be29f45a9422bea401425adacb",
+  "attempts_sha256": "a2abacd3da2ef0c758e19e5c0350ae640cc5cd2e23b976b5316082c8b47c6c13",
+  "query_sha256": "e61da91710ce62d3669be70a8ded2499c6de1d759fcfac9a954b939465e76fdb",
+  "official_truth_sha256": "87e66a3a5977d38a5e32db43451f7213776d1046f57ea2f85da854c04ba79acc",
+  "scope": "Independent local SQL recomputation on the same imported data; 69 raw SQL plus 1 equivalent exact grouped SQL, not 70 direct original-SQL successes."
+}

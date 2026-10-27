@@ -1,0 +1,53 @@
+{
+  "cases": [
+    {
+      "query_no": 34,
+      "sql": "SELECT COUNT(*) FROM title t,movie_info mi,movie_info_idx mi_idx,movie_companies mc WHERE t.id=mi.movie_id AND t.id=mi_idx.movie_id AND t.id=mc.movie_id AND mi_idx.info_type_id=113 AND mi.info_type_id=105;",
+      "true": 72,
+      "predictions": [
+        0.3528676310969191,
+        0.3773700302652147,
+        108.38794059448227
+      ],
+      "q_errors": [
+        204.0425180858382,
+        190.79416547572308,
+        1.5053880638122539
+      ]
+    },
+    {
+      "query_no": 14,
+      "sql": "SELECT COUNT(*) FROM movie_keyword mk,title t,cast_info ci WHERE t.id=mk.movie_id AND t.id=ci.movie_id AND t.production_year>2010 AND mk.keyword_id=8200;",
+      "true": 1224,
+      "predictions": [
+        37.6876,
+        36.57441000000001,
+        19.377982964725195
+      ],
+      "q_errors": [
+        32.47752576444241,
+        33.46602173486872,
+        63.164468780270596
+      ]
+    },
+    {
+      "query_no": 64,
+      "sql": "SELECT COUNT(*) FROM title t,movie_keyword mk,movie_companies mc,movie_info mi WHERE t.id=mk.movie_id AND t.id=mc.movie_id AND t.id=mi.movie_id AND mk.keyword_id=398 AND mc.company_type_id=2 AND t.production_year=1998;",
+      "true": 19006,
+      "predictions": [
+        538049.3322333373,
+        71138.7238086461,
+        131154.62174249004
+      ],
+      "q_errors": [
+        28.309446081939246,
+        3.742961370548569,
+        6.900695661501107
+      ]
+    }
+  ],
+  "improved": 43,
+  "worsened": 27,
+  "unchanged": 0,
+  "selection": "Illustrative cases, not random; no causal claim"
+}

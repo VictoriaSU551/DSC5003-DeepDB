@@ -1,0 +1,122 @@
+Latest update: all nine runs (three seeds by three sample sizes) are complete. Earlier Figures 01/02 and query cases refer to seed 1; the final section and Figures 05/06 cover the repeated experiments.
+
+Training Sample Size Experiment: Simple Explanation
+
+Research question
+Does learning from more data improve estimates? How much additional training time is needed?
+
+Method
+We used the same IMDb dataset, computer and model settings for all three configurations.
+Each configuration contained five base models, with 10,000, 100,000 or 1,000,000 training samples per model.
+All configurations were evaluated on the same 70 JOB-light queries.
+The ground-truth answers to these queries were not used for training.
+
+Results
+Samples/model    Training time including sampling    Median q-error    95th-percentile q-error
+10,000           70.07 seconds                      1.97              49.73
+100,000          94.39 seconds                      1.54              16.78
+1,000,000        247.09 seconds                      1.50              6.90
+
+How to read the figures
+Figure 1: lower bars mean smaller errors. The ideal q-error is 1.
+The median represents the middle of the error distribution; the 95th percentile describes its upper tail.
+Figure 2: higher bars mean longer training times.
+Training time excludes downloading, preprocessing, evaluation and verification, so it differs from the total runtime previously recorded.
+
+Report paragraph
+We studied the effect of training sample size on the DeepDB base ensemble. On the same computer, we trained models with 10,000, 100,000 and 1,000,000 samples per model and evaluated each configuration on the same 70 JOB-light queries. As sample size increased, median q-error fell from 1.97 to 1.50 and 95th-percentile q-error fell from 49.73 to 6.90. Training time for the five models, including sampling, increased from about 70 to 247 seconds. In this experiment, more training samples improved estimation quality at the cost of longer training. Increasing the sample size from 100,000 to 1,000,000 produced a small improvement in median error but a larger improvement in upper-tail error.
+
+Scope and limitations
+Each configuration was run once with random seed 1. Results do not establish behavior across all random seeds or databases.
+This is a sample-size experiment on the base ensemble, not a reproduction of all paper experiments or the optimized RDC ensemble.
+All 70 predictions in each configuration passed the model-reload consistency check.
+Ground-truth answers came from the official files; we did not independently recompute all of them.
+Improved aggregate metrics do not imply that every individual query improved.
+
+Sources
+DeepDB/output/results/verification_10000.json, verification_100000.json and verification_1000000.json, and train.seconds in the corresponding run_*.json files.
+The English figures use the same recorded values as the Chinese figures.
+Packaging steps: copy the Chinese figures and explanation, translate the figure labels and explanation, and save both language versions.
+Generation command, from the DeepDB folder: .venv/Scripts/python.exe ../tools/create_bilingual_figures.py
+No models were retrained when creating these materials.
+
+Query Case Studies (2026-10-10)
+
+IDs follow the zero-based query_no field. IDs 34, 14 and 64 are queries 35, 15 and 65.
+Counts refer to joined rows, not distinct movies. True counts come from the official answer file.
+
+ID 34
+Joins title, movie_info, movie_info_idx and movie_companies, filtering the two information tables by info_type_id=105 and 113. The true join count is only 72.
+True count: 72
+Samples | Estimated count | q-error
+10,000 | 0.35 | 204.04
+100,000 | 0.38 | 190.79
+1,000,000 | 108.39 | 1.51
+The estimate rose from less than one row to about 108 rows. Q-error fell from 204.04 to 1.51, showing a large improvement at one million samples. Estimates can be fractional.
+SQL: SELECT COUNT(*) FROM title t,movie_info mi,movie_info_idx mi_idx,movie_companies mc WHERE t.id=mi.movie_id AND t.id=mi_idx.movie_id AND t.id=mc.movie_id AND mi_idx.info_type_id=113 AND mi.info_type_id=105;
+
+ID 14
+Joins title, movie_keyword and cast_info, with production_year>2010 and keyword_id=8200. The true join count is 1,224.
+True count: 1,224
+Samples | Estimated count | q-error
+10,000 | 37.69 | 32.48
+100,000 | 36.57 | 33.47
+1,000,000 | 19.38 | 63.16
+All three estimates were far below the true count. Q-error increased from 32.48 to 63.16. This query also had the largest error in the one-million-sample run. More samples did not solve this case.
+SQL: SELECT COUNT(*) FROM movie_keyword mk,title t,cast_info ci WHERE t.id=mk.movie_id AND t.id=ci.movie_id AND t.production_year>2010 AND mk.keyword_id=8200;
+
+ID 64
+Joins title, movie_keyword, movie_companies and movie_info, with keyword_id=398, company_type_id=2 and production_year=1998. The true join count is 19,006.
+True count: 19,006
+Samples | Estimated count | q-error
+10,000 | 538049.33 | 28.31
+100,000 | 71138.72 | 3.74
+1,000,000 | 131154.62 | 6.90
+Q-error fell from 28.31 to 3.74, then rose to 6.90. One million samples still outperformed 10,000, but 100,000 gave the best estimate for this query.
+SQL: SELECT COUNT(*) FROM title t,movie_keyword mk,movie_companies mc,movie_info mi WHERE t.id=mk.movie_id AND t.id=mc.movie_id AND t.id=mi.movie_id AND mk.keyword_id=398 AND mc.company_type_id=2 AND t.production_year=1998;
+
+Across all 70 queries, from 10,000 to 1,000,000 samples: 43 improved, 27 worsened and 0 were unchanged within an absolute tolerance of 1e-9.
+Conclusion: overall performance improved with more samples, but individual queries could worsen. Aggregate metrics alone do not tell the whole story.
+Possible explanations, not established causes: sampling variation, learned model partitions and approximations of cross-table dependencies may affect individual queries. These results alone do not establish causality. Multiple-seed runs or deeper model analysis would be needed.
+Selection: ID 34 illustrates a large improvement; ID 14 is the worst final case; ID 64 illustrates non-monotonic behavior. Cases were chosen for illustration, not sampled randomly.
+This analysis used existing outputs only. No models were retrained and no ground-truth counts were recomputed.
+
+Repeated Training-Seed Experiments (2026-10-10)
+
+Purpose: check whether the sample-size observations depend on one random choice. We reused seed 1 and added seeds 2 and 3.
+Each seed has 10K, 100K and 1M samples per model: nine runs in total, six new runs. Data and the 70 test queries are unchanged.
+Only global Python/NumPy training seeds vary. Internal KMeans and dedicated RandomState seeds remain 17; Python hash and evaluation seeds remain 1.
+
+Samples | Seed | Median q-error | P95 q-error | Maximum q-error | Training seconds (including sampling)
+10000 | 1 | 1.9701 | 49.7339 | 2600.6137 | 70.07
+10000 | 2 | 1.8788 | 32.6268 | 344.8353 | 157.18
+10000 | 3 | 1.8904 | 151.6677 | 3024.5007 | 107.78
+100000 | 1 | 1.5422 | 16.7784 | 190.7942 | 94.39
+100000 | 2 | 1.5761 | 7.8309 | 33.1974 | 149.94
+100000 | 3 | 1.5514 | 7.4752 | 33.0000 | 170.33
+1000000 | 1 | 1.4997 | 6.9010 | 63.1645 | 247.09
+1000000 | 2 | 1.6874 | 6.3468 | 33.0000 | 278.28
+1000000 | 3 | 1.6261 | 6.1186 | 33.0000 | 480.71
+
+Summary across three seeds: mean [minimum, maximum]
+10000: median 1.9131 [1.8788, 1.9701]; P95 78.0095 [32.6268, 151.6677]
+100000: median 1.5566 [1.5422, 1.5761]; P95 10.6948 [7.4752, 16.7784]
+1000000: median 1.6044 [1.4997, 1.6874]; P95 6.4555 [6.1186, 6.9010]
+
+How to interpret these results:
+Mean of the three per-seed medians: 10K 1.913, 100K 1.557, 1M 1.604. Mean P95 values are 78.010, 10.695 and 6.455, respectively.
+The median worsens from 100K to 1M for seed(s) 2, 3. More samples therefore do not guarantee an improvement in every run.
+For all three seeds, P95 is lower at 1M than at 100K and ranges from 6.12 to 6.90; at 10K it ranges from 32.63 to 151.67. This supports better tail-error performance and less P95 variation in these runs, not improvement for every query.
+Figure 05 compares accuracy and seed variation; Figure 06 compares training time. This is an extension experiment in the group task allocation.
+
+Aggregation: calculate median and P95 over 70 queries within each run, then take the mean and range of those metrics across seeds; do not pool 210 query results.
+All nine runs passed model-reload prediction consistency checks. Seed-1 results are the earlier local measurements, not new reruns.
+Earlier single-run statements and case studies refer to the original seed-1 experiment; this section adds the seed comparison.
+Limitations: only three global seeds, one dataset and one workload; no statistical significance test. Results cannot establish universal stability. Timing is affected by session and system load.
+Sources: original output/results and new output/seed_experiments. Each new run.json records commands, configuration, durations, file hashes and verification status.
+
+PostgreSQL Baseline Update (2026-10-15)
+Added 70 PostgreSQL estimates, matched against all nine DeepDB runs. Configuration, results and limitations are in 09_postgresql_baseline_report.txt; new Figures 07/08 show the comparison.
+
+Full True-Count Audit Update (2026-10-27)
+All 70 counts were independently computed and match official values: 69 direct original SQL successes and ID 59 by equivalent grouped SQL, cross-checked against four original-SQL results. Earlier pending-audit statements refer to an earlier stage. See report 10/Figure 11; estimation errors are unchanged.

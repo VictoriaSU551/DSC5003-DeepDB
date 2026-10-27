@@ -1,0 +1,20 @@
+{
+  "status": "PASS",
+  "queries": 70,
+  "spns": 5,
+  "replayed_predictions": 70,
+  "samples_per_spn": 100000,
+  "q_error": {
+    "50": 1.5513952083647857,
+    "90": 6.491333593708792,
+    "95": 7.475243779538641,
+    "99": 16.165741085481912,
+    "100": 33.0
+  },
+  "q_error_mean": 3.224827559942535,
+  "latency_mean_ms": 7.904305714285712,
+  "latency_median_ms": 7.031349999999881,
+  "model_sha256": "6d18876f7a1ef9253762c05e33f028a79341f099c1d86812c817fbcff255f116",
+  "scope": "JOB-light official relationship baseline. Not full paper or optimized RDC reproduction.",
+  "ground_truth": "Official benchmark counts, checked query-by-query; see separate raw-data audit."
+}

@@ -1,0 +1,58 @@
+diff --git a/code/maqp.py b/code/maqp.py
+index f7f245c..b6b1928 100644
+--- a/code/maqp.py
++++ b/code/maqp.py
+@@ -25,6 +25,7 @@ random.seed(1)
+ if __name__ == '__main__':
+ 
+     parser = argparse.ArgumentParser()
++    parser.add_argument('--seed', type=int, default=1, help='NumPy and Python training random seed')
+     parser.add_argument('--dataset', default='ssb-500gb', help='Which dataset to be used')
+ 
+     # generate hdf
+@@ -99,6 +100,8 @@ if __name__ == '__main__':
+     parser.add_argument('--log_level', type=int, default=logging.DEBUG)
+ 
+     args = parser.parse_args()
++    np.random.seed(args.seed)
++    random.seed(args.seed)
+     args.exploit_overlapping = not args.no_exploit_overlapping
+     args.merge_indicator_exp = not args.no_merge_indicator_exp
+ 
+diff --git a/code/verify_results.py b/code/verify_results.py
+index 7bd70b0..6c91afa 100644
+--- a/code/verify_results.py
++++ b/code/verify_results.py
+@@ -10,11 +10,12 @@ import sys
+ def main():
+     parser = argparse.ArgumentParser(description=__doc__)
+     parser.add_argument('--samples', type=int, default=1000000)
++    parser.add_argument('--output-root', type=Path, default=None)
+     args = parser.parse_args()
+     if os.environ.get('PYTHONHASHSEED') != '1':
+         import subprocess
+         env = dict(os.environ, PYTHONHASHSEED='1', OMP_NUM_THREADS='1', OPENBLAS_NUM_THREADS='1', MKL_NUM_THREADS='1')
+-        subprocess.run([sys.executable, __file__, '--samples', str(args.samples)], env=env, check=True)
++        subprocess.run([sys.executable, __file__] + sys.argv[1:], env=env, check=True)
+         return
+ 
+     import numpy as np
+@@ -26,7 +27,8 @@ def main():
+ 
+     root = Path(__file__).resolve().parents[1]
+     benchmark = root / 'code/benchmarks/job-light/sql'
+-    results = root / 'output/results'
++    output = args.output_root.resolve() if args.output_root else root / 'output'
++    results = output / 'results'
+     frame = pd.read_csv(results / ('job_light_%d.csv' % args.samples))
+     truth = pd.read_csv(benchmark / 'job_light_true_cardinalities.csv')
+     queries = (benchmark / 'job_light_queries.sql').read_text().splitlines()
+@@ -39,7 +41,7 @@ def main():
+     values = frame[['cardinality_predict', 'cardinality_true', 'latency_ms']].values
+     assert np.isfinite(values).all() and (values[:, :2] > 0).all() and (values[:, 2] >= 0).all()
+ 
+-    model = root / 'output/models' / ('ensemble_relationships_imdb-light_%d.pkl' % args.samples)
++    model = output / 'models' / ('ensemble_relationships_imdb-light_%d.pkl' % args.samples)
+     ensemble = read_ensemble(str(model), build_reverse_dict=True)
+     schema = gen_job_light_imdb_schema(str(root / 'data/imdb/{}.csv'))
+     assert len(ensemble.spns) == 5

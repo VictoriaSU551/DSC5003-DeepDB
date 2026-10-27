@@ -1,0 +1,78 @@
+{
+  "status": "PASS",
+  "started_at": "2026-10-27T15:34:26.253006+08:00",
+  "scope": "Execute raw workload COUNT queries, not EXPLAIN estimates",
+  "query_timeout_seconds": 600,
+  "retry_timeout_seconds": 900,
+  "overall_limit_seconds": 7200,
+  "large_query_retry": true,
+  "prior_elapsed_seconds": 1780.5195122,
+  "exact_rewrite_mode": true,
+  "attempts": 1,
+  "tables": {
+    "title": 2528312,
+    "movie_info_idx": 1380035,
+    "movie_info": 14835720,
+    "cast_info": 36244344,
+    "movie_keyword": 4523930,
+    "movie_companies": 2609129
+  },
+  "settings": {
+    "transaction_read_only": "on",
+    "max_parallel_workers_per_gather": "2",
+    "work_mem": "64MB",
+    "jit": "off",
+    "temp_file_limit": "16GB",
+    "enable_nestloop": "off",
+    "data_directory": "D:/codex/deepdb-postgresql-20261027/data"
+  },
+  "output_directory": "<LOCAL_PROJECT>\\DeepDB\\output\\truth_audit_20261027",
+  "path_repairs": "Moved project: venv home repaired; new ASCII junction points to current PostgreSQL storage.",
+  "query_sha256": "e61da91710ce62d3669be70a8ded2499c6de1d759fcfac9a954b939465e76fdb",
+  "official_truth_sha256": "87e66a3a5977d38a5e32db43451f7213776d1046f57ea2f85da854c04ba79acc",
+  "script_sha256": "d4b6e45be75ce05691c375218666ed472fc7df153f577c25e76d00e9eb0645ac",
+  "completed_queries": 70,
+  "matched_queries": 70,
+  "mismatched_queries": 0,
+  "unresolved_queries": [],
+  "elapsed_seconds": 54.479849900000005,
+  "cumulative_wall_seconds": 1834.9993621,
+  "postgresql_version": "PostgreSQL 16.15, compiled by Visual C++ build 1944, 64-bit",
+  "factorized_source_sha256": "f35cdbf63fae427f0feb013b19d41af9b2072b75fe53cf1b11b527d1fee65d7d",
+  "factorized_cross_checks": [
+    {
+      "query_no": 0,
+      "original_count": 715,
+      "grouped_count": 715,
+      "seconds": 0.8559825000000032,
+      "original_sql": "SELECT COUNT(*) FROM movie_companies mc,title t,movie_info_idx mi_idx WHERE t.id=mc.movie_id AND t.id=mi_idx.movie_id AND mi_idx.info_type_id=112 AND mc.company_type_id=2;",
+      "executed_sql": "WITH exact_titles AS (SELECT t.id FROM title t),\nexact_g0 AS (SELECT mc.movie_id, COUNT(*)::numeric AS n FROM movie_companies mc WHERE mc.company_type_id=2 GROUP BY mc.movie_id),\nexact_g1 AS (SELECT mi_idx.movie_id, COUNT(*)::numeric AS n FROM movie_info_idx mi_idx WHERE mi_idx.info_type_id=112 GROUP BY mi_idx.movie_id)\nSELECT COALESCE(SUM(exact_g0.n * exact_g1.n),0) FROM exact_titles exact_t JOIN exact_g0 ON exact_g0.movie_id=exact_t.id JOIN exact_g1 ON exact_g1.movie_id=exact_t.id;"
+    },
+    {
+      "query_no": 14,
+      "original_count": 1224,
+      "grouped_count": 1224,
+      "seconds": 11.430726700000001,
+      "original_sql": "SELECT COUNT(*) FROM movie_keyword mk,title t,cast_info ci WHERE t.id=mk.movie_id AND t.id=ci.movie_id AND t.production_year>2010 AND mk.keyword_id=8200;",
+      "executed_sql": "WITH exact_titles AS (SELECT t.id FROM title t WHERE t.production_year>2010),\nexact_g0 AS (SELECT mk.movie_id, COUNT(*)::numeric AS n FROM movie_keyword mk WHERE mk.keyword_id=8200 GROUP BY mk.movie_id),\nexact_g1 AS (SELECT ci.movie_id, COUNT(*)::numeric AS n FROM cast_info ci GROUP BY ci.movie_id)\nSELECT COALESCE(SUM(exact_g0.n * exact_g1.n),0) FROM exact_titles exact_t JOIN exact_g0 ON exact_g0.movie_id=exact_t.id JOIN exact_g1 ON exact_g1.movie_id=exact_t.id;"
+    },
+    {
+      "query_no": 34,
+      "original_count": 72,
+      "grouped_count": 72,
+      "seconds": 1.4680678,
+      "original_sql": "SELECT COUNT(*) FROM title t,movie_info mi,movie_info_idx mi_idx,movie_companies mc WHERE t.id=mi.movie_id AND t.id=mi_idx.movie_id AND t.id=mc.movie_id AND mi_idx.info_type_id=113 AND mi.info_type_id=105;",
+      "executed_sql": "WITH exact_titles AS (SELECT t.id FROM title t),\nexact_g0 AS (SELECT mi.movie_id, COUNT(*)::numeric AS n FROM movie_info mi WHERE mi.info_type_id=105 GROUP BY mi.movie_id),\nexact_g1 AS (SELECT mi_idx.movie_id, COUNT(*)::numeric AS n FROM movie_info_idx mi_idx WHERE mi_idx.info_type_id=113 GROUP BY mi_idx.movie_id),\nexact_g2 AS (SELECT mc.movie_id, COUNT(*)::numeric AS n FROM movie_companies mc GROUP BY mc.movie_id)\nSELECT COALESCE(SUM(exact_g0.n * exact_g1.n * exact_g2.n),0) FROM exact_titles exact_t JOIN exact_g0 ON exact_g0.movie_id=exact_t.id JOIN exact_g1 ON exact_g1.movie_id=exact_t.id JOIN exact_g2 ON exact_g2.movie_id=exact_t.id;"
+    },
+    {
+      "query_no": 57,
+      "original_count": 1352809555,
+      "grouped_count": 1352809555,
+      "seconds": 10.611466900000003,
+      "original_sql": "SELECT COUNT(*) FROM title t,movie_info mi,movie_companies mc,cast_info ci,movie_keyword mk WHERE t.id=mi.movie_id AND t.id=mc.movie_id AND t.id=ci.movie_id AND t.id=mk.movie_id AND ci.role_id=2 AND mi.info_type_id=16 AND t.production_year>2010;",
+      "executed_sql": "WITH exact_titles AS (SELECT t.id FROM title t WHERE t.production_year>2010),\nexact_g0 AS (SELECT mi.movie_id, COUNT(*)::numeric AS n FROM movie_info mi WHERE mi.info_type_id=16 GROUP BY mi.movie_id),\nexact_g1 AS (SELECT mc.movie_id, COUNT(*)::numeric AS n FROM movie_companies mc GROUP BY mc.movie_id),\nexact_g2 AS (SELECT ci.movie_id, COUNT(*)::numeric AS n FROM cast_info ci WHERE ci.role_id=2 GROUP BY ci.movie_id),\nexact_g3 AS (SELECT mk.movie_id, COUNT(*)::numeric AS n FROM movie_keyword mk GROUP BY mk.movie_id)\nSELECT COALESCE(SUM(exact_g0.n * exact_g1.n * exact_g2.n * exact_g3.n),0) FROM exact_titles exact_t JOIN exact_g0 ON exact_g0.movie_id=exact_t.id JOIN exact_g1 ON exact_g1.movie_id=exact_t.id JOIN exact_g2 ON exact_g2.movie_id=exact_t.id JOIN exact_g3 ON exact_g3.movie_id=exact_t.id;"
+    }
+  ],
+  "database_stopped": true,
+  "ended_at": "2026-10-27T15:35:20.731706+08:00"
+}

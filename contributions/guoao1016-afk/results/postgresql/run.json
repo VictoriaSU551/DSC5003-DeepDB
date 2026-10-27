@@ -1,0 +1,170 @@
+{
+  "status": "PASS",
+  "started_at": "2026-10-15T10:23:48.626977+08:00",
+  "scope": "PostgreSQL estimates only; official truth; no workload execution or RDC training",
+  "port": 55432,
+  "tables": {
+    "title": {
+      "rows": 2528312,
+      "expected_rows": 2528312,
+      "seconds": 3.8627644999999973
+    },
+    "movie_info_idx": {
+      "rows": 1380035,
+      "expected_rows": 1380035,
+      "seconds": 0.8548967000000012
+    },
+    "movie_info": {
+      "rows": 14835720,
+      "expected_rows": 14835720,
+      "seconds": 24.3753693
+    },
+    "cast_info": {
+      "rows": 36244344,
+      "expected_rows": 36244344,
+      "seconds": 46.55712799999999
+    },
+    "movie_keyword": {
+      "rows": 4523930,
+      "expected_rows": 4523930,
+      "seconds": 3.6561994999999996
+    },
+    "movie_companies": {
+      "rows": 2609129,
+      "expected_rows": 2609129,
+      "seconds": 3.0332228000000043
+    }
+  },
+  "stages": {
+    "import_seconds": 82.3669727,
+    "indexes_analyze_and_counts_seconds": 129.2481937
+  },
+  "postgres_home": "D:\\codex\\deepdb-postgresql-local",
+  "invocation": "python -u code/postgres_baseline.py (DEEPDB_PG_HOME points to local PostgreSQL directory)",
+  "previous_attempt": {
+    "status": "FAILED_OR_STOPPED",
+    "started_at": "2026-10-15T10:22:46.626101+08:00",
+    "scope": "PostgreSQL estimates only; official truth; no workload execution or RDC training",
+    "port": 55432,
+    "tables": {},
+    "stages": {},
+    "stage": "2/6 Initialize isolated local database (localhost only)",
+    "elapsed_seconds": 6.566779,
+    "script_sha256": "d55ef1ffe64034e0c5330702ffa608113e19cb9c64dee2ef06fdeb86f722352e",
+    "manifest_sha256": "ae6a5cef66340bae23325722f0f0d29ee616850851b99b6989ab1d5b6a6f3e13",
+    "error": "initdb failed: The files belonging to this database system will be owned by user \"gaxhg\".\nThis user must also own the server process.\n\nThe database cluster will be initialized with locale \"C\".\nThe default text search configuration will be set to \"english\".\n\nData page checksums are disabled.\n\ncreating directory D:/��С�����ļ�/�Ͽ�����/dsc5003/team project/tools/postgresql/data ... ok\ncreating subdirectories ... ok\nselecting dynamic shared memory implementation ... windows\nselecting default max_connections ... 100\nselecting default shared_buffers ... 128MB\nselecting default time zone ... Asia/Shanghai\ncreating configuration files ... ok\nrunning bootstrap script ... ok\nperforming post-bootstrap initialization ... 2026-10-15 10:22:53.037 CST [23324] FATAL:  invalid byte sequence for encoding \"UTF8\": 0xb9\nchild process exited with exit code 1\ninitdb: removing data directory \"D:/��С�����ļ�/�Ͽ�����/dsc5003/team project/tools/postgresql/data\"\n"
+  },
+  "stage": "6/6 Save baseline; generate bilingual comparison report",
+  "elapsed_seconds": 227.8914117,
+  "script_sha256": "04d4e8041e156513c79ee67a629fa6d492813ba801fb303fe8347981f7cd89b2",
+  "manifest_sha256": "ae6a5cef66340bae23325722f0f0d29ee616850851b99b6989ab1d5b6a6f3e13",
+  "schema_source": "code/benchmarks/job-light/setup-sql/alternative_schema.sql; six tables only",
+  "indexes": [
+    {
+      "name": "company_id_movie_companies",
+      "table": "movie_companies",
+      "column": "company_id"
+    },
+    {
+      "name": "company_type_id_movie_companies",
+      "table": "movie_companies",
+      "column": "company_type_id"
+    },
+    {
+      "name": "info_type_id_movie_info_idx",
+      "table": "movie_info_idx",
+      "column": "info_type_id"
+    },
+    {
+      "name": "info_type_id_movie_info",
+      "table": "movie_info",
+      "column": "info_type_id"
+    },
+    {
+      "name": "keyword_id_movie_keyword",
+      "table": "movie_keyword",
+      "column": "keyword_id"
+    },
+    {
+      "name": "kind_id_title",
+      "table": "title",
+      "column": "kind_id"
+    },
+    {
+      "name": "movie_id_cast_info",
+      "table": "cast_info",
+      "column": "movie_id"
+    },
+    {
+      "name": "movie_id_movie_companies",
+      "table": "movie_companies",
+      "column": "movie_id"
+    },
+    {
+      "name": "movie_id_movie_info_idx",
+      "table": "movie_info_idx",
+      "column": "movie_id"
+    },
+    {
+      "name": "movie_id_movie_keyword",
+      "table": "movie_keyword",
+      "column": "movie_id"
+    },
+    {
+      "name": "movie_id_movie_info",
+      "table": "movie_info",
+      "column": "movie_id"
+    },
+    {
+      "name": "person_id_cast_info",
+      "table": "cast_info",
+      "column": "person_id"
+    },
+    {
+      "name": "person_role_id_cast_info",
+      "table": "cast_info",
+      "column": "person_role_id"
+    },
+    {
+      "name": "role_id_cast_info",
+      "table": "cast_info",
+      "column": "role_id"
+    }
+  ],
+  "foreign_keys": "No foreign-key constraints added; six-table schema primary keys and selected fk.sql indexes only.",
+  "postgresql_version": "PostgreSQL 16.15, compiled by Visual C++ build 1944, 64-bit",
+  "settings": {
+    "shared_buffers": "512MB",
+    "work_mem": "16MB",
+    "maintenance_work_mem": "256MB",
+    "default_statistics_target": "100",
+    "max_parallel_workers_per_gather": "0",
+    "max_parallel_maintenance_workers": "0",
+    "jit": "off",
+    "autovacuum": "off",
+    "random_page_cost": "4",
+    "effective_cache_size": "4GB",
+    "seq_page_cost": "1",
+    "cpu_tuple_cost": "0.01",
+    "geqo_threshold": "12",
+    "server_encoding": "UTF8"
+  },
+  "database_bytes": 7167360023,
+  "query_file_sha256": "e61da91710ce62d3669be70a8ded2499c6de1d759fcfac9a954b939465e76fdb",
+  "truth_file_sha256": "87e66a3a5977d38a5e32db43451f7213776d1046f57ea2f85da854c04ba79acc",
+  "summary": {
+    "queries": 70,
+    "q_error": {
+      "50": 8.68741204687915,
+      "90": 163.24425949456202,
+      "95": 842.784562789362,
+      "99": 3065.761254623046,
+      "100": 3606.4054054054054
+    },
+    "planning_ms_mean_of_per_query_medians": 0.3113142857142857,
+    "client_ms_mean_of_per_query_medians": 0.7607257142865365
+  },
+  "method": "Original COUNT(*) EXPLAIN JSON; Plan Rows of sole child below top Aggregate; parallel workers disabled; default stats target 100; one ANALYZE snapshot; 1 warmup + 5 repeats per query.",
+  "timing_limit": "PostgreSQL planning and client EXPLAIN time differ from DeepDB Python estimator latency; no direct speedup claim.",
+  "ended_at": "2026-10-15T10:27:36.517871+08:00"
+}

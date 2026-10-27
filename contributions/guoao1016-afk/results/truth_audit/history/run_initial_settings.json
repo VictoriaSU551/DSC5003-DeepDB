@@ -1,0 +1,42 @@
+{
+  "status": "FAILED_OR_STOPPED",
+  "started_at": "2026-10-27T15:02:48.514155+08:00",
+  "scope": "Execute raw workload COUNT queries, not EXPLAIN estimates",
+  "query_timeout_seconds": 120,
+  "retry_timeout_seconds": 600,
+  "overall_limit_seconds": 7200,
+  "attempts": 72,
+  "tables": {
+    "title": 2528312,
+    "movie_info_idx": 1380035,
+    "movie_info": 14835720,
+    "cast_info": 36244344,
+    "movie_keyword": 4523930,
+    "movie_companies": 2609129
+  },
+  "settings": {
+    "transaction_read_only": "on",
+    "max_parallel_workers_per_gather": "0",
+    "work_mem": "32MB",
+    "jit": "off",
+    "temp_file_limit": "4GB",
+    "data_directory": "D:/codex/deepdb-postgresql-20261027/data"
+  },
+  "output_directory": "<LOCAL_PROJECT>\\DeepDB\\output\\truth_audit_20261027",
+  "path_repairs": "Moved project: venv home repaired; new ASCII junction points to current PostgreSQL storage.",
+  "query_sha256": "e61da91710ce62d3669be70a8ded2499c6de1d759fcfac9a954b939465e76fdb",
+  "official_truth_sha256": "87e66a3a5977d38a5e32db43451f7213776d1046f57ea2f85da854c04ba79acc",
+  "script_sha256": "0db1560998abf75f4af271710ed95644f7d93f52462a34b3dc5fae5de4ae40e9",
+  "completed_queries": 68,
+  "matched_queries": 68,
+  "mismatched_queries": 0,
+  "unresolved_queries": [
+    59,
+    60
+  ],
+  "elapsed_seconds": 1049.2443056,
+  "postgresql_version": "PostgreSQL 16.15, compiled by Visual C++ build 1944, 64-bit",
+  "error": "cursor already closed",
+  "database_stopped": true,
+  "ended_at": "2026-10-27T15:20:17.752597+08:00"
+}

@@ -1,0 +1,95 @@
+Independent JOB-light True-Count Audit (2026-10-27)
+
+Results: 70/70 executed successfully; 70 match official counts; 0 mismatch; 0 unresolved.
+Status: PASS
+Elapsed 1835.00 seconds including checks, queries and cleanup; see run.json for final duration.
+
+Method:
+69 queries completed by direct original SQL execution and 1 by equivalent grouped-count SQL. Actual counts come only from database results and are then compared with official references; estimates/reference values never populate actual counts.
+Matched workload hashes, SQL and IDs against earlier experiments and checked all six table counts. A read-only database connection executes queries sequentially, checkpointing after each result.
+Current run: work_mem=64MB, max parallel workers/query 2, temp_file_limit=16GB; first attempt 600 seconds, retry 900 seconds. Large-query retries disable nested loops; JIT is off. Initial settings were 32MB/no parallelism/4GB; failed attempts are retained.
+
+Interpretation and scope:
+All 70 answers were independently computed and match the official counts; 1 used equivalent grouped-count SQL. This is not a claim that all original SQL executions succeeded.
+Independent recomputation means local execution of original or disclosed equivalent SQL on actual data, not an audit by another team, dataset or independently implemented SQL engine.
+These are actual COUNT execution/return timings, affected by cache, query order, indexes and load. They are not directly comparable to DeepDB estimation latency as a speedup ratio.
+This does not train the optimized RDC ensemble or establish an independent core-algorithm reimplementation.
+
+Per-query results (zero-based query_no):
+ID | status | actual | official | difference | seconds
+0 | MATCH | 715 | 715 | 0 | 0.212769
+1 | MATCH | 9 | 9 | 0 | 0.006401
+2 | MATCH | 47 | 47 | 0 | 0.00127
+3 | MATCH | 16 | 16 | 0 | 0.001526
+4 | MATCH | 148552 | 148552 | 0 | 10.866584
+5 | MATCH | 62682311 | 62682311 | 0 | 10.066712
+6 | MATCH | 11990578 | 11990578 | 0 | 3.656913
+7 | MATCH | 157041640 | 157041640 | 0 | 12.178141
+8 | MATCH | 850677 | 850677 | 0 | 1.111406
+9 | MATCH | 179616 | 179616 | 0 | 0.647988
+10 | MATCH | 2031666 | 2031666 | 0 | 1.242727
+11 | MATCH | 6333736 | 6333736 | 0 | 4.88503
+12 | MATCH | 1931628 | 1931628 | 0 | 2.875779
+13 | MATCH | 12738520 | 12738520 | 0 | 5.189912
+14 | MATCH | 1224 | 1224 | 0 | 0.107428
+15 | MATCH | 13221 | 13221 | 0 | 0.431668
+16 | MATCH | 33 | 33 | 0 | 0.001572
+17 | MATCH | 1224 | 1224 | 0 | 0.002913
+18 | MATCH | 114182642 | 114182642 | 0 | 19.811665
+19 | MATCH | 4533382 | 4533382 | 0 | 9.114459
+20 | MATCH | 695701 | 695701 | 0 | 3.675462
+21 | MATCH | 21454165 | 21454165 | 0 | 15.091948
+22 | MATCH | 13355828 | 13355828 | 0 | 6.1226
+23 | MATCH | 4450853 | 4450853 | 0 | 5.534859
+24 | MATCH | 794591 | 794591 | 0 | 1.465095
+25 | MATCH | 4893440 | 4893440 | 0 | 3.956082
+26 | MATCH | 1381288 | 1381288 | 0 | 2.484814
+27 | MATCH | 8720023 | 8720023 | 0 | 6.513716
+28 | MATCH | 2873214 | 2873214 | 0 | 4.684297
+29 | MATCH | 56965403 | 56965403 | 0 | 23.086392
+30 | MATCH | 7153 | 7153 | 0 | 0.70237
+31 | MATCH | 14102 | 14102 | 0 | 0.130216
+32 | MATCH | 31339132 | 31339132 | 0 | 3.750286
+33 | MATCH | 75440 | 75440 | 0 | 25.369027
+34 | MATCH | 72 | 72 | 0 | 0.017487
+35 | MATCH | 305691 | 305691 | 0 | 13.029295
+36 | MATCH | 1919495 | 1919495 | 0 | 5.171183
+37 | MATCH | 150780 | 150780 | 0 | 0.90691
+38 | MATCH | 3243247 | 3243247 | 0 | 2.511284
+39 | MATCH | 1043763 | 1043763 | 0 | 2.708615
+40 | MATCH | 512575801 | 512575801 | 0 | 22.876971
+41 | MATCH | 206778521 | 206778521 | 0 | 10.263639
+42 | MATCH | 625302823 | 625302823 | 0 | 26.963862
+43 | MATCH | 7796926 | 7796926 | 0 | 50.045666
+44 | MATCH | 1831108 | 1831108 | 0 | 17.311281
+45 | MATCH | 2936093 | 2936093 | 0 | 10.666881
+46 | MATCH | 16461908 | 16461908 | 0 | 45.645636
+47 | MATCH | 24675801 | 24675801 | 0 | 6.704062
+48 | MATCH | 132317651 | 132317651 | 0 | 13.277483
+49 | MATCH | 90649862 | 90649862 | 0 | 9.629917
+50 | MATCH | 151179813 | 151179813 | 0 | 23.212938
+51 | MATCH | 84217062 | 84217062 | 0 | 11.665273
+52 | MATCH | 333474 | 333474 | 0 | 8.539161
+53 | MATCH | 307213 | 307213 | 0 | 2.355978
+54 | MATCH | 658557 | 658557 | 0 | 0.301398
+55 | MATCH | 8275169 | 8275169 | 0 | 17.904623
+56 | MATCH | 5060606 | 5060606 | 0 | 2.841775
+57 | MATCH | 1352809555 | 1352809555 | 0 | 97.865735
+58 | MATCH | 191935 | 191935 | 0 | 16.638904
+59 | MATCH | 9537310863 | 9537310863 | 0 | 9.074618
+60 | MATCH | 492943940 | 492943940 | 0 | 45.399612
+61 | MATCH | 32355583 | 32355583 | 0 | 15.604478
+62 | MATCH | 81495003 | 81495003 | 0 | 22.186319
+63 | MATCH | 51282842 | 51282842 | 0 | 13.809111
+64 | MATCH | 19006 | 19006 | 0 | 0.56563
+65 | MATCH | 26718423 | 26718423 | 0 | 11.193155
+66 | MATCH | 15813608 | 15813608 | 0 | 3.976826
+67 | MATCH | 1067496 | 1067496 | 0 | 2.190261
+68 | MATCH | 268172 | 268172 | 0 | 0.537043
+69 | MATCH | 258385218 | 258385218 | 0 | 28.4472
+
+Results: DeepDB/output/truth_audit_20261027/{truth_counts.csv,run.json,attempts.jsonl,progress.log,verification.json}.
+
+Equivalent-count method and cross-checks:
+Original ID 59 execution did not complete within resource limits. Count each filtered child table per movie_id, multiply those observed multiplicities for each qualifying title, and sum. With the validated title.id-to-child.movie_id inner joins and single-table predicates, this is mathematically equivalent to COUNT(*); no statistical independence assumption is used.
+The same transformation matched original-SQL results for IDs 0, 14, 34 and 57. Toy-data tests cover duplicates, NULL join keys, orphan rows and empty results; seven tests including existing checks passed. Unsupported SQL shapes are rejected.

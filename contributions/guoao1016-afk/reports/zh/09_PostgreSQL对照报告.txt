@@ -1,0 +1,50 @@
+PostgreSQL 对照实验（2026-10-15）
+
+我们做了什么？
+在本机安装独立 PostgreSQL，导入与 DeepDB 相同的六张完整 IMDb 表，建立主键及仓库 fk.sql 中适用于六张表的索引，收集统计信息。逐条读取 70 条 JOB-light 查询的估计行数，与已有九组 DeepDB 预测匹配比较。没有重新训练 DeepDB。
+版本：PostgreSQL 16.15, compiled by Visual C++ build 1944, 64-bit
+设置：default_statistics_target=100；shared_buffers=512MB；work_mem=16MB；关闭查询并行和 JIT；未添加扩展统计或外键约束。
+这是本机 PostgreSQL 16 基线，不宣称与论文的数据库版本及全部参数完全一致。只收集一次 ANALYZE 统计快照，其抽样随机性尚未重复研究。
+
+如何避免读错结果？
+对原始 SELECT COUNT(*) 使用 EXPLAIN (FORMAT JSON, SUMMARY ON)，读取最上层 Aggregate 唯一子节点的 Plan Rows。Aggregate 本身的 rows=1 只是说 COUNT 返回一行，不能当成估计答案。关闭并行避免误读每个工作进程的行数。
+每条查询预热一次，再测量五次；保存完整计划与每次耗时，核验五次行数估计一致。
+
+结果：q-error 越接近 1 越好
+方法 | 种子 | 样本量 | 中位误差 | P95 | 最大误差 | 比 PostgreSQL 更准的查询数
+PostgreSQL | - | - | 8.6874 | 842.7846 | 3606.4054 | -
+DeepDB | 1 | 10000 | 1.9701 | 49.7339 | 2600.6137 | 59/70
+DeepDB | 1 | 100000 | 1.5422 | 16.7784 | 190.7942 | 63/70
+DeepDB | 1 | 1000000 | 1.4997 | 6.9010 | 63.1645 | 66/70
+DeepDB | 2 | 10000 | 1.8788 | 32.6268 | 344.8353 | 64/70
+DeepDB | 2 | 100000 | 1.5761 | 7.8309 | 33.1974 | 67/70
+DeepDB | 2 | 1000000 | 1.6874 | 6.3468 | 33.0000 | 65/70
+DeepDB | 3 | 10000 | 1.8904 | 151.6677 | 3024.5007 | 60/70
+DeepDB | 3 | 100000 | 1.5514 | 7.4752 | 33.0000 | 66/70
+DeepDB | 3 | 1000000 | 1.6261 | 6.1186 | 33.0000 | 64/70
+
+简单结论：
+以原有种子 1、100 万样本为例，DeepDB 在 66 条查询上误差更小，PostgreSQL 在 4 条上更小，0 条相同。
+中位误差 更低的是 DeepDB：PostgreSQL 8.6874，DeepDB 1.4997。
+P95 更低的是 DeepDB：PostgreSQL 842.7846，DeepDB 6.9010。
+增加了传统数据库估计这个参照，可以更具体地说明已有模型的优势与不足；以上结论仅针对本机配置和这套查询。
+
+耗时怎么理解？
+PostgreSQL 每条查询五次 Planning Time 的中位数，再对 70 条取平均：0.311 ms。对应客户端 EXPLAIN 往返时间：0.761 ms。
+已有 DeepDB 种子 1 / 100 万模型平均估计耗时：3.132 ms。它来自之前运行时段。
+两者计时范围不同：数据库 Planning Time 不是实际执行时间，客户端 EXPLAIN 还包含本机通信和计划返回；DeepDB 是 Python 估计函数时间。不能据此说查询执行加速了多少倍。
+
+核验与限制：
+六张表的原始文件大小及 SHA256 与清单一致，导入及数据库 COUNT 行数与既有审计一致；70 条 SQL、编号、官方答案与九组 DeepDB 文件逐条匹配；保存的计划、误差及汇总重新计算通过。
+本次未执行 70 条工作负载的 COUNT 真值查询，没有完成全量真值独立重算；也未运行 RDC 优化模型。
+数据库统计样本、版本、索引和参数都会影响估计；需要在小组报告中明确，不应把本机结果冒充论文完全相同设置。
+
+文件：output/postgresql_baseline_20261015 下的 run.json、postgresql_estimates.csv、explain_plans.json、matched_comparison.csv 和 comparison_verification.json。
+
+参考文档 / References:
+https://www.postgresql.org/docs/16/using-explain.html
+https://www.postgresql.org/docs/16/sql-analyze.html
+https://www.postgresql.org/docs/16/sql-copy.html
+
+全量真值核验更新（2026-10-27）
+70 条答案已独立计算并全部与官方值一致：69 条原始 SQL 直接成功，ID 59 通过等价分组 SQL 完成，且该方法在四条原始 SQL 实算结果上交叉验证通过。此前“未全量独立重算”描述的是历史阶段。详见报告 10 和图 11，原有估计误差不变。

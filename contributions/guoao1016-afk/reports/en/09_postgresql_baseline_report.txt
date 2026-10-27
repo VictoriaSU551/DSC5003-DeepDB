@@ -1,0 +1,50 @@
+PostgreSQL Baseline Comparison (2026-10-15)
+
+What we did
+Installed an isolated local PostgreSQL instance, imported the same six full IMDb tables, created primary keys and applicable indexes from repository fk.sql, and collected statistics. Compared estimates on 70 JOB-light queries against all nine saved DeepDB runs; no DeepDB retraining.
+Version: PostgreSQL 16.15, compiled by Visual C++ build 1944, 64-bit
+Settings: default_statistics_target=100, shared_buffers=512MB, work_mem=16MB; query parallelism and JIT disabled; no extended statistics or foreign-key constraints.
+This is a local PostgreSQL 16 baseline, not a claim of matching the paper database version and all settings. One ANALYZE statistics snapshot was used; its sampling variability was not studied.
+
+How estimates were extracted
+Applied EXPLAIN (FORMAT JSON, SUMMARY ON) to each original SELECT COUNT(*), then read Plan Rows from the sole child of the top Aggregate. The Aggregate itself has rows=1 because COUNT returns one row. Query parallelism was disabled to avoid per-worker row-count ambiguity.
+Each query had one warmup and five measured EXPLAIN calls. Saved plans and all repeated timings; verified that the five estimates agree.
+
+Results: q-error closer to 1 is better
+Method | Seed | Samples/model | Median | P95 | Maximum | Queries with lower error than PostgreSQL
+PostgreSQL | - | - | 8.6874 | 842.7846 | 3606.4054 | -
+DeepDB | 1 | 10000 | 1.9701 | 49.7339 | 2600.6137 | 59/70
+DeepDB | 1 | 100000 | 1.5422 | 16.7784 | 190.7942 | 63/70
+DeepDB | 1 | 1000000 | 1.4997 | 6.9010 | 63.1645 | 66/70
+DeepDB | 2 | 10000 | 1.8788 | 32.6268 | 344.8353 | 64/70
+DeepDB | 2 | 100000 | 1.5761 | 7.8309 | 33.1974 | 67/70
+DeepDB | 2 | 1000000 | 1.6874 | 6.3468 | 33.0000 | 65/70
+DeepDB | 3 | 10000 | 1.8904 | 151.6677 | 3024.5007 | 60/70
+DeepDB | 3 | 100000 | 1.5514 | 7.4752 | 33.0000 | 66/70
+DeepDB | 3 | 1000000 | 1.6261 | 6.1186 | 33.0000 | 64/70
+
+Interpretation:
+For the existing seed-1 1M model, DeepDB has lower error on 66 queries; PostgreSQL on 4; 0 are tied.
+Lower median q-error: DeepDB. PostgreSQL 8.6874; DeepDB 1.4997.
+Lower P95: DeepDB. PostgreSQL 842.7846; DeepDB 6.9010.
+The database baseline makes the existing model strengths and weaknesses measurable. Findings apply only to this local configuration and workload.
+
+How to interpret timings
+Mean over 70 per-query medians: PostgreSQL Planning Time 0.311 ms; client EXPLAIN round trip 0.761 ms.
+Existing DeepDB seed-1 1M mean estimation latency: 3.132 ms, measured in an earlier session.
+Timing scopes differ: database Planning Time is not execution time; client EXPLAIN includes local communication and plan return; DeepDB records Python estimator latency. No query-execution speedup can be inferred.
+
+Verification and limitations:
+Raw file sizes and SHA256 hashes matched the manifest; imported and database COUNT row totals matched prior audits. All 70 SQL statements, IDs and official counts matched all nine DeepDB files. Saved plans, q-errors and summaries were recomputed successfully.
+The 70 workload COUNT queries were not executed; this is not a full independent truth audit. The optimized RDC ensemble was not run.
+Statistics samples, version, indexes and settings affect estimates and must be disclosed; these local results are not the identical paper setup.
+
+Files under output/postgresql_baseline_20261015: run.json, postgresql_estimates.csv, explain_plans.json, matched_comparison.csv and comparison_verification.json.
+
+参考文档 / References:
+https://www.postgresql.org/docs/16/using-explain.html
+https://www.postgresql.org/docs/16/sql-analyze.html
+https://www.postgresql.org/docs/16/sql-copy.html
+
+Full True-Count Audit Update (2026-10-27)
+All 70 counts were independently computed and match official values: 69 direct original SQL successes and ID 59 by equivalent grouped SQL, cross-checked against four original-SQL results. Earlier pending-audit statements refer to an earlier stage. See report 10/Figure 11; estimation errors are unchanged.
