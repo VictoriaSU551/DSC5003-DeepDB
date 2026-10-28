@@ -60,6 +60,6 @@ RDC wins on 42, 44 and 42 queries and improves the median in all three seeds. P9
 
 ## 8. Scope and verification
 
-These materials represent 13 model-training runs and one database estimate baseline over 70 distinct queries. Author core algorithms are retained; no independent core-method implementation or full-paper replication is claimed. Join-size sources differ between the two pipelines, so all differences cannot be attributed to RDC alone. Historical training times are not controlled speed comparisons. Full logs, models, data and retraining entry points remain local; this directory provides result presentation and offline numerical verification.
+These materials represent 13 model-training runs and one database estimate baseline over 70 distinct queries. Author core algorithms are retained; no independent core-method implementation or full-paper replication is claimed. Join-size sources differ between the two pipelines, so all differences cannot be attributed to RDC alone. Historical training times are not controlled speed comparisons. Per-run configurations, selected complete logs, source snapshots and verification records are in evidence. Model binaries, data and complete historical archives remain local; retraining requires the runtime and database setup. See the [delivery map](DELIVERY_MAP.md).
 
 From the repository root run `python output/results/guoao_experiments/verify_results.py --repo-root .`. See [settings.json](settings.json), [metrics.csv](metrics.csv), and [predictions.csv](predictions.csv).

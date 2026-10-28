@@ -13,6 +13,12 @@
 
 完整图表与解释在中英文报告中；表格、预测和核验脚本位于本目录。
 
+## 运行记录与交付核对 / Evidence and delivery
+
+[分工对应与交付说明 / Contribution and delivery map](DELIVERY_MAP.md) · [数据与实验协议 / Protocol](evidence/protocol_audit.json) · [逐轮配置与运行记录 / Runs](evidence/run_records.json) · [模型清单 / Models](evidence/model_inventory.json) · [核验证据 / Verification](evidence/verification_records.json) · [来源索引 / Source index](evidence/source_manifest.json)
+
+新增逐轮历史配置、核验和选定的完整训练/评估日志，模型本体与原始数据仍保留本机。Logs are compressed; model binaries remain local.
+
 ## 中文
 
 本目录是基于作者算法和本仓库基础流程完成的实验结果记录：基础关系模型9轮（1万/10万/100万样本 × 种子1/2/3），以及RDC模型4轮（10万样本种子1、100万样本种子1/2/3）。RDC采用 `rdc_spn_selection` 推断。本目录另含一组PostgreSQL估计，共14个评估设置，始终是同一套70条不同查询。
@@ -55,9 +61,9 @@ q-error=`max(预测/真值, 真值/预测)`，越接近1越好。分位数采用
 
 ### 真值核验边界
 
-70条计数全部与官方值匹配。ID59的等价精确分组SQL见下方；这种方法先按电影编号计算各子表行数，再对同一电影的数量乘积求和，不采用独立性估计。已在ID0、14、34、57的原始SQL实际执行结果上交叉核对一致。完整运行/重试日志与模型文件保留在本机，本目录只提供精简核验记录。
+70条计数全部与官方值匹配。ID59的等价精确分组SQL见下方；这种方法先按电影编号计算各子表行数，再对同一电影的数量乘积求和，不采用独立性估计。已在ID0、14、34、57的原始SQL实际执行结果上交叉核对一致。选定运行日志、逐轮配置和核验证据见evidence；完整历史重试归档与模型本体仍保留本机。
 
-本次新增的是实验结果和数值核验，不是核心算法重新实现，也不是完整论文复现。基础流程与RDC流程的连接规模来源分别为元数据估算和按作者入口取得的数据库精确内连接计数，因此是两条流程的比较，不能把全部差异只归因于RDC。本目录补充8类已有图表的中英文版本及结果分析；普通greedy推断消融、完整日志、原始数据、模型、凭据与端到端重训练脚本仍留在本机。`verify_results.py`核验保存的数值，不会训练或重新执行数据库查询。
+本次新增的是实验结果和数值核验，不是核心算法重新实现，也不是完整论文复现。基础流程与RDC流程的连接规模来源分别为元数据估算和按作者入口取得的数据库精确内连接计数，因此是两条流程的比较，不能把全部差异只归因于RDC。本目录含8类已有图表的中英文版本及结果分析，并补充逐轮配置、选定完整日志和源码快照。原始数据、模型本体、凭据和完整历史归档保留本机；复训仍需恢复数据、环境与数据库。`verify_results.py`核验保存的数值，不会训练或重新执行数据库查询。
 
 作者来源：[DeepDB](https://github.com/DataManagementLab/deepdb-public)，固定提交 `655ada13a043a4226a239b0c0a65bcdefef87a02`；本仓库基础版本 `ac2485496157092bcdbe85f61e18db216168566e`。源码来源和适配见[UPSTREAM](../../../docs/UPSTREAM.md)。本目录保留作者与组员已有工作的来源区分。
 
@@ -71,9 +77,9 @@ RDC uses budget factor 5, at most 3 joins, 10K search samples and 10K candidates
 
 At 1M samples, RDC improves 42, 44 and 42 queries respectively and has lower median error in all seeds, lower P95 in only one seed, and worse maximum error in all seeds. This supports typical-query improvement with unresolved tail failures, not overall dominance or actual SQL execution speedup. The seed-1 1M baseline repeats the repository's existing accuracy.
 
-All 70 recomputed counts match the official reference: 69 original SQL successes plus query 59 by exact equivalent grouped aggregation, cross-checked on four executed original queries. The saved-count table and query hashes permit alignment and numerical checks; full logs and large artifacts remain local. The SQL below records the query-59 exact calculation.
+All 70 recomputed counts match the official reference: 69 original SQL successes plus query 59 by exact equivalent grouped aggregation, cross-checked on four executed original queries. The saved-count table and query hashes permit alignment and numerical checks; selected complete logs and per-run records are included in evidence; full historical archives and large artifacts remain local. The SQL below records the query-59 exact calculation.
 
-This is an experiment-results contribution, not an independently reimplemented core algorithm or full-paper reproduction. Author algorithms and the teammate pipeline are retained. The baseline and RDC author paths use metadata-estimated and exact database join sizes respectively, so differences cannot all be attributed to RDC selection alone. This directory includes bilingual reports, settings, and eight figure topics in Chinese and English. End-to-end retraining scripts, raw data, model binaries, full logs and private machine information remain local. The verifier checks saved results; it does not train or execute database queries.
+This is an experiment-results contribution, not an independently reimplemented core algorithm or full-paper reproduction. Author algorithms and the teammate pipeline are retained. The baseline and RDC author paths use metadata-estimated and exact database join sizes respectively, so differences cannot all be attributed to RDC selection alone. This directory includes bilingual reports, settings, and eight figure topics in Chinese and English. The evidence directory adds run records, selected complete logs, and driver/source snapshots; restoring training still requires original data, HDF files, runtime and database setup. Raw data, model binaries, credentials and complete historical archives remain local. The verifier checks saved results; it does not train or execute database queries.
 
 ## Offline verification / 离线核验
 
