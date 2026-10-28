@@ -1,0 +1,139 @@
+{
+  "dataset": {
+    "name": "IMDb / JOB-light",
+    "tables": [
+      "title",
+      "movie_info_idx",
+      "movie_info",
+      "cast_info",
+      "movie_keyword",
+      "movie_companies"
+    ],
+    "distinct_queries": 70,
+    "archive_source": "https://event.cwi.nl/da/job/imdb.tgz",
+    "archive_sha256": "25f9d893c54f903366e0c263f88db0d429dbc2b159d4987ebc1e203242a7e988",
+    "query_path": "code/benchmarks/job-light/sql/job_light_queries.sql",
+    "query_answers_used_for_training": false
+  },
+  "environment": {
+    "os": "Windows x64",
+    "python": "3.8.20",
+    "dependency_reference": "requirements-lock.txt",
+    "author_revision": "655ada13a043a4226a239b0c0a65bcdefef87a02",
+    "teammate_base_revision": "ac2485496157092bcdbe85f61e18db216168566e"
+  },
+  "baseline": {
+    "strategy": "relationship",
+    "training_runs": 9,
+    "requested_samples_per_spn": [
+      10000,
+      100000,
+      1000000
+    ],
+    "global_training_seeds": [
+      1,
+      2,
+      3
+    ],
+    "spns_per_run": 5,
+    "learning_rdc_threshold": 0.3,
+    "post_sampling_factor": [
+      10,
+      10,
+      5,
+      1,
+      1
+    ]
+  },
+  "rdc": {
+    "strategy": "rdc_based",
+    "training_runs": 4,
+    "sample_seed_settings": [
+      [
+        100000,
+        1
+      ],
+      [
+        1000000,
+        1
+      ],
+      [
+        1000000,
+        2
+      ],
+      [
+        1000000,
+        3
+      ]
+    ],
+    "spns_per_run": 7,
+    "budget_factor": 5,
+    "max_joins": 3,
+    "hdf_pre_sample_rows": 10000,
+    "hdf_pre_sample_seed": 1,
+    "search_sample_rows": 10000,
+    "random_candidates": 10000,
+    "learning_threshold": 0.3,
+    "selection_threshold": 0.15,
+    "post_sampling_factor": [
+      10,
+      10,
+      5,
+      1,
+      1
+    ],
+    "published_inference": "rdc_spn_selection",
+    "global_seed_changes_affect": [
+      "RDC search",
+      "candidate search",
+      "training"
+    ],
+    "author_internal_fixed_seeds_retained": true
+  },
+  "evaluation": {
+    "max_variants": 1,
+    "evaluation_seed": 1,
+    "python_hash_seed": 1,
+    "q_error": "max(prediction/truth, truth/prediction)",
+    "percentile_interpolation": "linear",
+    "all_settings_use_same_workload": true
+  },
+  "postgresql": {
+    "version": "16.15",
+    "statistics_target": 100,
+    "extended_statistics": false,
+    "primary_and_join_key_indexes": true,
+    "analyze_before_estimation": true,
+    "max_parallel_workers_per_gather": 0,
+    "jit": false,
+    "shared_buffers": "512MB",
+    "work_mem": "16MB",
+    "measurement": "COUNT input Plan Rows below the top Aggregate",
+    "explain_warmup": 1,
+    "explain_repeats": 5
+  },
+  "truth_audit": {
+    "counts_matched": 70,
+    "original_sql_successes": 69,
+    "equivalent_exact_grouped_sql_ids": [
+      59
+    ],
+    "factorized_cross_checks": [
+      0,
+      14,
+      34,
+      57
+    ],
+    "successful_attempt_time_plot_is_not_a_controlled_runtime_comparison": true
+  },
+  "scope": {
+    "model_training_runs": 13,
+    "evaluation_settings": 14,
+    "canonical_prediction_cells": 980,
+    "figure_topics": 8,
+    "language_variants_per_topic": 2,
+    "end_to_end_retraining_scripts_included": false,
+    "core_algorithm_reimplementation_claimed": false,
+    "query_execution_speedup_claimed": false
+  }
+}
