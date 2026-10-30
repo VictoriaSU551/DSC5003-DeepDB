@@ -14,6 +14,7 @@ def write(root,name,body):
 def test_local_formal_file_without_replay_stays_pending(tmp_path, monkeypatch):
     monkeypatch.setattr(status, 'FULL', tmp_path)
     assert status.model_stages()[0]['status'] == 'PENDING'
+    assert status.model_stages()[1]['paper_figure11_training_budget_reproduced'] is False
     write(tmp_path, 'results/ssb_local_sf500_model_aqp_ci.json', dict(status='PASS_LOCAL_SSB_SF500_MODEL_AQP_CI'))
     model, ci = status.model_stages()
     assert model['status'] == ci['status'] == 'FORMAL_COMPLETE_REPLAY_PENDING'
@@ -66,3 +67,13 @@ def test_resealed_scope_alias_cannot_promote_local_science(tmp_path,monkeypatch,
     accepted[field]=value
     monkeypatch.setitem(sys.modules,'full_ssb_local_replay',SimpleNamespace(verify=lambda:accepted))
     assert status.model_stages()[0]['status']=='EVIDENCE_INVALID'
+
+
+def test_10m_ci_remains_pending_until_its_own_model_and_replay(tmp_path,monkeypatch):
+    monkeypatch.setattr(status,'FULL',tmp_path)
+    result=status.ci10m_stage()
+    assert result['status']=='PENDING'
+    assert result['model_training_cap_per_table']==10000000
+    assert result['paper_figure11_training_budget_policy_applied'] is False
+    write(tmp_path,'results/ssb_local_sf500_ci10m.json',dict(status='PASS_LOCAL_SSB_SF500_10M_CI_WITH_AUTHOR_MISMATCH'))
+    assert status.ci10m_stage()['status']=='FORMAL_COMPLETE_REPLAY_PENDING'

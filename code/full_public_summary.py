@@ -21,10 +21,12 @@ BUNDLES = {
                                     'ssb_relative_error.png', 'ssb_ci_half_width.png']),
     'ssb_local_sf500': ('ssb_local_sf500_tables_latest.json', ['query_summary.csv', 'all_groups.csv',
         'training_tables.csv', 'ssb_relative_error.png', 'ssb_ci_half_width.png']),
+    'ssb_local_ci10m': ('ssb_local_ci10m_tables_latest.json', ['query_summary.csv','all_groups.csv',
+        'training_tables.csv','ssb_relative_error.png','ssb_ci_half_width.png']),
     'ssb_native_v2': ('ssb_native_v2_tables_latest.json', ['query_summary.csv', 'all_groups.csv',
         'training_tables.csv', 'ssb_relative_error.png', 'ssb_ci_half_width.png']),
 }
-OPTIONAL_BUNDLES = {'ssb','ssb_native_v2','ssb_local_sf500','flights_verdict'}
+OPTIONAL_BUNDLES = {'ssb','ssb_native_v2','ssb_local_sf500','ssb_local_ci10m','flights_verdict'}
 
 
 def record(path):
@@ -48,12 +50,14 @@ def checked_bundle(pointer_path, filenames):
     if file_sha256(manifest_path) != pointer['manifest_sha256']:
         raise ValueError('latest figure manifest differs')
     manifest = load_json(manifest_path)
-    if pointer_path.name == 'ssb_local_sf500_tables_latest.json':
+    local_scopes={'ssb_local_sf500_tables_latest.json':'LOCAL_SSB_SF500',
+                  'ssb_local_ci10m_tables_latest.json':'LOCAL_SSB_10M_CI'}
+    if pointer_path.name in local_scopes:
         if (manifest.get('status') != 'PASS_VERIFIED_LOCAL_SSB_DERIVED_TABLES'
                 or pointer.get('full_paper_complete') is not False):
             raise ValueError('successful LOCAL manifest and explicitly incomplete pointer required')
         for evidence in (pointer,manifest):
-            if (evidence.get('scope') != 'LOCAL_SSB_SF500'
+            if (evidence.get('scope') != local_scopes[pointer_path.name]
                     or evidence.get('author_reproduction_complete') is not False
                     or type(evidence.get('author_different_groups')) is not int
                     or evidence['author_different_groups'] != 1713):
@@ -132,7 +136,11 @@ def main():
                   '原生95%区间与DeepDB中央90%不同，不做覆盖率或耗时排名。', '']
     if 'ssb_local_sf500' in evidence:
         lines += ['SSB本地SF500母体为3,000,028,242行，9,996,946行实际样本；作者2059项真值中1713项不同。',
-                  '本地模型/CI以同一生成母体的整数精确真值评分，严格作者复现仍未通过；不替代论文结果。', '']
+                  '本地模型/CI以同一生成母体的整数精确真值评分，严格作者复现仍未通过；不替代论文结果。',
+                  '该SSB模型训练上限1M/table；置信区间参数使用实际约10M参考样本，Figure11的10M训练政策另列独立实验。', '']
+    if 'ssb_local_ci10m' in evidence:
+        lines += ['SSB另训练五个10M/table上限模型，事实表实际9,996,946行；复用同一已封存预处理与独立样本统计。',
+                  '这是Figure11训练上限政策的本地实验，作者1713项真值差异仍保留，不声称恰好10M事实行或作者母体完全复现。','']
     if 'ssb_native_v2' in evidence:
         lines += ['SSB修正母体须匹配作者行数及13条SQL的2059项真值；这不证明作者全部原始行字节相同。',
                   '原失败母体另保留MISMATCH，五个单表模型受1M/table预算限制，CI仍只有一次样本。', '']

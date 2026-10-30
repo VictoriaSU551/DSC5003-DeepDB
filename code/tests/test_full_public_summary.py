@@ -115,3 +115,19 @@ def test_local_export_requires_successful_derived_manifest_and_incomplete_pointe
         assert paths==[source/'table1.csv']
     else:
         with pytest.raises(ValueError):export.checked_bundle(pointer,['table1.csv'])
+
+
+@pytest.mark.parametrize('scope',['LOCAL_SSB_10M_CI','LOCAL_SSB_SF500','AUTHOR_SSB_SF500'])
+def test_separate_ci_bundle_rejects_1m_or_author_scope(tmp_path,monkeypatch,scope):
+    old,source=bundle(tmp_path,monkeypatch)
+    pointer=tmp_path/'ssb_local_ci10m_tables_latest.json'
+    manifest=source/'manifest.json';m=json.loads(manifest.read_text());p=json.loads(old.read_text())
+    local=dict(scope=scope,author_reproduction_complete=False,author_different_groups=1713,
+        full_paper_complete=False,status='PASS_VERIFIED_LOCAL_SSB_DERIVED_TABLES')
+    m.update(local);p.update(local)
+    manifest.write_text(json.dumps(m));p['manifest_sha256']=export.file_sha256(manifest)
+    pointer.write_text(json.dumps(p))
+    if scope=='LOCAL_SSB_10M_CI':
+        assert export.checked_bundle(pointer,['table1.csv'])[0]==[source/'table1.csv']
+    else:
+        with pytest.raises(ValueError):export.checked_bundle(pointer,['table1.csv'])

@@ -37,3 +37,14 @@ def test_wrong_scope_or_incomplete_science_cannot_become_local_figure(change):
     if change=='full_paper':report['full_paper_reproduction_complete']=True
     if change=='query_error':report['ci_query_errors']=1
     with pytest.raises(ValueError):validate_formal_report(report,9996946)
+
+
+def test_distinct_10m_policy_requires_all_five_actual_training_counts():
+    from full_ssb_local_ci_tables import configuration
+    config=configuration()
+    report=fixture();report.update(stage=config['stage'],scope=config['scope'])
+    for t in report['training_tables']:t['actual_training_rows']=config['training_rows'][t['table']]
+    validate_formal_report(report,9996946,config)
+    with pytest.raises(ValueError):validate_formal_report(report,9996946)
+    report['training_tables'][0]['actual_training_rows']=10000000
+    with pytest.raises(ValueError):validate_formal_report(report,9996946,config)
