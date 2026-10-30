@@ -333,6 +333,8 @@ def main():
     from full_native_status import generation_stage as native_generation, model_stages as native_models
     stages['ssb_native_v2_sf500_generated'] = native_generation(progress_json)
     stages['ssb_native_v2_rspn_aqp'], stages['ssb_native_v2_confidence_intervals'] = native_models()
+    from full_local_ssb_status import model_stages as local_ssb_models
+    stages['ssb_local_sf500_rspn_aqp'], stages['ssb_local_sf500_confidence_intervals'] = local_ssb_models()
     for key in ['flights_original_baseline_comparisons', 'ssb_aqp_and_baselines',
                 'dbest_wavelet_microbenchmarks']:
         stages[key] = dict(status='PENDING')

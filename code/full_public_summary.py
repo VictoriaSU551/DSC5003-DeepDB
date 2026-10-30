@@ -19,10 +19,12 @@ BUNDLES = {
         'query_summary.csv', 'all_groups.csv', 'flights_verdict_comparison.png']),
     'ssb': ('ssb_tables_latest.json', ['query_summary.csv', 'all_groups.csv', 'training_tables.csv',
                                     'ssb_relative_error.png', 'ssb_ci_half_width.png']),
+    'ssb_local_sf500': ('ssb_local_sf500_tables_latest.json', ['query_summary.csv', 'all_groups.csv',
+        'training_tables.csv', 'ssb_relative_error.png', 'ssb_ci_half_width.png']),
     'ssb_native_v2': ('ssb_native_v2_tables_latest.json', ['query_summary.csv', 'all_groups.csv',
         'training_tables.csv', 'ssb_relative_error.png', 'ssb_ci_half_width.png']),
 }
-OPTIONAL_BUNDLES = {'ssb', 'ssb_native_v2', 'flights_verdict'}
+OPTIONAL_BUNDLES = {'ssb','ssb_native_v2','ssb_local_sf500','flights_verdict'}
 
 
 def record(path):
@@ -46,6 +48,16 @@ def checked_bundle(pointer_path, filenames):
     if file_sha256(manifest_path) != pointer['manifest_sha256']:
         raise ValueError('latest figure manifest differs')
     manifest = load_json(manifest_path)
+    if pointer_path.name == 'ssb_local_sf500_tables_latest.json':
+        if (manifest.get('status') != 'PASS_VERIFIED_LOCAL_SSB_DERIVED_TABLES'
+                or pointer.get('full_paper_complete') is not False):
+            raise ValueError('successful LOCAL manifest and explicitly incomplete pointer required')
+        for evidence in (pointer,manifest):
+            if (evidence.get('scope') != 'LOCAL_SSB_SF500'
+                    or evidence.get('author_reproduction_complete') is not False
+                    or type(evidence.get('author_different_groups')) is not int
+                    or evidence['author_different_groups'] != 1713):
+                raise ValueError('LOCAL SSB bundle must retain author mismatch and incomplete scope')
     if manifest.get('full_paper_complete') is not False:
         raise ValueError('snapshot must retain the explicit incomplete scope')
     artifacts = manifest.get('artifacts', [])
@@ -76,7 +88,8 @@ def coverage_rows(stages, prefix=''):
         label = prefix + str(name)
         if 'status' in stage:
             rows[label] = {key:value for key,value in stage.items()
-                if key in {'status', 'scope', 'queries', 'generated_rows', 'requested_rows'}}
+                if key in {'status', 'scope', 'queries', 'generated_rows','requested_rows','author_different_groups',
+                    'author_reproduction_complete','full_paper_reproduction_complete'}}
         else:
             rows.update(coverage_rows(stage, label+'/'))
     return rows
@@ -117,6 +130,9 @@ def main():
     if 'flights_verdict' in evidence:
         lines += ['Verdict仅执行已物化的同一样本：原F5.2错误和两个原SUM的外部差分适配分别列出；',
                   '原生95%区间与DeepDB中央90%不同，不做覆盖率或耗时排名。', '']
+    if 'ssb_local_sf500' in evidence:
+        lines += ['SSB本地SF500母体为3,000,028,242行，9,996,946行实际样本；作者2059项真值中1713项不同。',
+                  '本地模型/CI以同一生成母体的整数精确真值评分，严格作者复现仍未通过；不替代论文结果。', '']
     if 'ssb_native_v2' in evidence:
         lines += ['SSB修正母体须匹配作者行数及13条SQL的2059项真值；这不证明作者全部原始行字节相同。',
                   '原失败母体另保留MISMATCH，五个单表模型受1M/table预算限制，CI仍只有一次样本。', '']

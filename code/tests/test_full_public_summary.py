@@ -1,4 +1,5 @@
 import json
+from pathlib import Path
 
 import pytest
 
@@ -72,3 +73,45 @@ def test_nested_sweep_statuses_survive_without_publishing_diagnostic_paths():
     rows = export.coverage_rows(stages)
     assert rows['sweep/1000'] == {'status':'PASS', 'queries':753}
     assert rows['failed'] == {'status':'EVIDENCE_INVALID'}
+
+
+@pytest.mark.parametrize('field,value',[('scope','AUTHOR_SSB_SF500'),
+    ('author_reproduction_complete',True),('author_different_groups',0)])
+def test_local_bundle_cannot_drop_or_promote_author_mismatch(tmp_path,monkeypatch,field,value):
+    old,source=bundle(tmp_path,monkeypatch)
+    pointer=tmp_path/'ssb_local_sf500_tables_latest.json'
+    pointer.write_bytes(old.read_bytes())
+    manifest=source/'manifest.json';m=json.loads(manifest.read_text());p=json.loads(pointer.read_text())
+    local=dict(scope='LOCAL_SSB_SF500',author_reproduction_complete=False,author_different_groups=1713,
+        full_paper_complete=False,status='PASS_VERIFIED_LOCAL_SSB_DERIVED_TABLES')
+    m.update(local);p.update(local);m[field]=value
+    manifest.write_text(json.dumps(m));p['manifest_sha256']=export.file_sha256(manifest)
+    pointer.write_text(json.dumps(p))
+    with pytest.raises(ValueError):export.checked_bundle(pointer,['table1.csv'])
+
+
+def test_local_bundle_is_optional_and_has_only_derived_outputs():
+    assert 'ssb_local_sf500' in export.OPTIONAL_BUNDLES
+    pointer,names=export.BUNDLES['ssb_local_sf500']
+    assert pointer=='ssb_local_sf500_tables_latest.json' and len(names)==5
+    assert all(Path(name).suffix in ('.csv','.png') for name in names)
+
+
+@pytest.mark.parametrize('mutation',[None,'tainted','missing_status','pointer_complete'])
+def test_local_export_requires_successful_derived_manifest_and_incomplete_pointer(tmp_path,monkeypatch,mutation):
+    old,source=bundle(tmp_path,monkeypatch)
+    pointer=tmp_path/'ssb_local_sf500_tables_latest.json'
+    manifest=source/'manifest.json';m=json.loads(manifest.read_text());p=json.loads(old.read_text())
+    local=dict(scope='LOCAL_SSB_SF500',author_reproduction_complete=False,
+        author_different_groups=1713,full_paper_complete=False)
+    m.update(local);p.update(local);m['status']='PASS_VERIFIED_LOCAL_SSB_DERIVED_TABLES'
+    if mutation=='tainted':m['status']='TAINTED'
+    if mutation=='missing_status':m.pop('status')
+    if mutation=='pointer_complete':p['full_paper_complete']=True
+    manifest.write_text(json.dumps(m));p['manifest_sha256']=export.file_sha256(manifest)
+    pointer.write_text(json.dumps(p))
+    if mutation is None:
+        paths,_=export.checked_bundle(pointer,['table1.csv'])
+        assert paths==[source/'table1.csv']
+    else:
+        with pytest.raises(ValueError):export.checked_bundle(pointer,['table1.csv'])

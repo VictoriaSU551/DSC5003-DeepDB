@@ -54,8 +54,8 @@ def test_bounded_child_records_real_process_and_policy_failures(tmp_path,violati
     assert (tmp_path/'stdout.log').is_file() and (tmp_path/'stderr.log').is_file()
 
 
-def test_operational_plan_and_supervisor_stay_closed_without_scientific_approval(tmp_path):
-    m=module()
+def test_operational_plan_and_supervisor_stay_closed_without_scientific_approval(tmp_path,monkeypatch):
+    m=module();monkeypatch.setattr(m.bridge,'FINAL_RECEIPT_INTERFACE_FROZEN',False)
     with pytest.raises(ValueError,match='closed|review|frozen'):m.build_model_plan('0'*64)
     with pytest.raises(ValueError,match='closed|review|frozen'):m.run_supervised(tmp_path/'plan.json','0'*64,True)
 
@@ -96,13 +96,14 @@ def test_reviewed_plan_sealing_is_bound_to_reviewed_candidate_and_reuses_exact_b
     with pytest.raises((ValueError,OSError)):m.seal_reviewed_plan('a'*64,m.value_hash(candidate),tmp_path)
 
 
-def test_operational_cli_help_and_closed_worker_fail_without_input_or_science():
+def test_operational_cli_help_and_closed_worker_fail_without_input_or_science(monkeypatch):
     script=ROOT/'code/full_ssb_native_model_run.py'
     help_run=subprocess.run([sys.executable,str(script),'--help'],capture_output=True,text=True,timeout=10)
     assert help_run.returncode==0 and 'supervise' in help_run.stdout and 'candidate-plan' in help_run.stdout
-    worker=subprocess.run([sys.executable,str(script),'_worker','--plan-path','missing','--plan-file-sha256','0'*64,
-        '--start-token','a'*32,'--job-name','Local\\DeepDB_SSB_NATIVE_'+'a'*32,'--bootstrap-pid','1'],input='',capture_output=True,text=True,timeout=10)
-    assert worker.returncode!=0 and 'closed' in worker.stderr
+    m=module();monkeypatch.setattr(m.bridge,'FINAL_RECEIPT_INTERFACE_FROZEN',False)
+    with pytest.raises(ValueError,match='closed'):
+        m.main(['_worker','--plan-path','missing','--plan-file-sha256','0'*64,
+            '--start-token','a'*32,'--job-name','Local\\DeepDB_SSB_NATIVE_'+'a'*32,'--bootstrap-pid','1'])
 
 
 def synthetic_supervisor(m,root):

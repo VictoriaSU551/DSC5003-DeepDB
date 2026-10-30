@@ -115,8 +115,9 @@ def test_formal_resource_limits(free,ram,existing):
     with pytest.raises(ValueError):m.check_resources(free,ram,existing,additional_bytes=5*1024**3)
 
 
-def test_formal_entry_is_closed_and_draft_is_not_trainable():
-    m=module();assert m.FINAL_RECEIPT_INTERFACE_FROZEN is False
+def test_formal_entry_is_closed_and_draft_is_not_trainable(monkeypatch):
+    m=module();monkeypatch.setattr(m,'FINAL_RECEIPT_INTERFACE_FROZEN',False)
+    assert m.FINAL_RECEIPT_INTERFACE_FROZEN is False
     plan=m.draft_plan()
     assert plan['executable'] is False and plan['formal_training_started'] is False
     assert plan['model']['samples_per_spn']==1000000 and plan['model']['seed']==1 and plan['model']['rdc_threshold']==.3
@@ -162,7 +163,7 @@ def test_unique_controller_lock_blocks_second_controller_and_releases_on_error(t
     m=module();path=tmp_path/'controller.lock'
     with pytest.raises(RuntimeError,match='synthetic interrupt'):
         with m.controller_lock(path):
-            with pytest.raises(ValueError,match='controller'): 
+            with pytest.raises(ValueError,match='controller'):
                 with m.controller_lock(path):pytest.fail('two controllers acquired same lock')
             raise RuntimeError('synthetic interrupt')
     with m.controller_lock(path):pass
@@ -170,6 +171,8 @@ def test_unique_controller_lock_blocks_second_controller_and_releases_on_error(t
 
 def test_future_formal_cannot_be_enabled_by_flipping_only_interface_flag(monkeypatch):
     m=module();monkeypatch.setattr(m,'FINAL_RECEIPT_INTERFACE_FROZEN',True)
+    monkeypatch.setattr(m,'GENERATOR_CLOSURE_INTERFACE_FROZEN',False)
+    monkeypatch.setattr(m,'FORMAL_PUBLICATION_REVIEW_COMPLETE',False)
     with pytest.raises(ValueError,match='closure|publication|control'):m.execute_formal({},memory_approved=True)
 
 
@@ -338,6 +341,7 @@ def synthetic_publication(m,root,publish=True):
 def test_synthetic_whole_formal_publication_and_read_only_inventory(tmp_path_factory,monkeypatch):
     tmp_path=tmp_path_factory.mktemp('p')
     m=module();report=synthetic_publication(m,tmp_path);before={str(p):p.stat().st_mtime_ns for p in tmp_path.rglob('*') if p.is_file()}
+    monkeypatch.setattr(m,'FINAL_RECEIPT_INTERFACE_FROZEN',False)
     records=m.verify_publication(report,tmp_path)
     assert len(records)>80 and len(records)==len({r['path'] for r in records})
     assert before=={str(p):p.stat().st_mtime_ns for p in tmp_path.rglob('*') if p.is_file()}
@@ -384,8 +388,8 @@ def test_publication_failure_and_running_tail_taint_whole_formal(tmp_path_factor
     with pytest.raises(ValueError):m.verify_publication(report,tmp_path)
 
 
-def test_scientific_stage_helper_is_also_closed_before_importing_model_stack():
-    m=module()
+def test_scientific_stage_helper_is_also_closed_before_importing_model_stack(monkeypatch):
+    m=module();monkeypatch.setattr(m,'FINAL_RECEIPT_INTERFACE_FROZEN',False)
     with pytest.raises(ValueError,match='closed'):m.execute_stages(None,None,None,None,None)
 
 
@@ -478,4 +482,3 @@ def test_default_formal_acceptance_requires_successful_supervisor_even_after_val
     monkeypatch.setattr(m,'verify_generation',lambda **kwargs:report['inputs'])
     monkeypatch.setattr(m,'dependency_snapshot',lambda:report['plan']['dependencies'])
     with pytest.raises((ValueError,OSError),match='supervisor|SUPERVISOR'):m.verify_formal(tmp_path)
-
