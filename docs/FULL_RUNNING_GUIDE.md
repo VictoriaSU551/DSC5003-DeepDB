@@ -57,9 +57,17 @@ powershell -ExecutionPolicy Bypass -File setup-mscn.ps1
 .venv/Scripts/python.exe code/full_verdict_audit.py
 .venv/Scripts/python.exe code/full_verdict_tables.py
 
-# 修正SSB正式模型及一次独立逆序重放完成后：只读验收与表图
+# 作者母体门禁仍失败；以下严格作者入口会拒绝，不能用LOCAL成功替代
 .venv/Scripts/python.exe -B code/full_ssb_native_replay.py verify
 .venv/Scripts/python.exe -B code/full_ssb_native_tables.py
+
+# LOCAL1M结果和独立逆序重放均完成后：只读验收与派生表图
+.venv/Scripts/python.exe -B code/full_ssb_local_replay.py verify
+.venv/Scripts/python.exe -B code/full_ssb_local_tables.py
+
+# 独立10M/table训练政策的结果与逆序重放均完成后；不能接受1M模型代替
+.venv/Scripts/python.exe -B code/full_ssb_local_ci_replay.py verify
+.venv/Scripts/python.exe -B code/full_ssb_local_ci_tables.py
 
 # 仅导出显式白名单派生CSV/PNG，作为可提交的协作快照
 .venv/Scripts/python.exe code/full_public_summary.py
@@ -74,7 +82,7 @@ v1/v2、原模型和原published真值均保留为历史证据。只有完整v3�
 [依赖与恢复审计](FULL_DEPENDENCY_AUDIT.md)。原组件种子由binding派生，metadata包含本地路径；
 新机器重建metadata后不保证产生同一训练样本或逐位相同模型。每次结果保留实际种子与输入摘要，
 不得把本机结果摘要当作另一台机器已经重跑的结果。
-四个已封存CRLF源文件在`.gitattributes`明确设为`-text`，其余Python为LF；
+已封存的CRLF源及新CI重放绑定源在`.gitattributes`明确设为`-text`，其余Python为LF；
 不要运行全目录换行格式化，否则会改变运行凭据绑定的原始字节。
 
 ## 分实验协议
@@ -94,6 +102,9 @@ v1/v2、原模型和原published真值均保留为历史证据。只有完整v3�
 | SSB新鲜进程逆序point/CI重放及只读验收 | [FULL_SSB_REPLAY.md](FULL_SSB_REPLAY.md) |
 | 修正SSB原生生成器、完整字段差分与恢复 | [FULL_SSB_NATIVE_V2.md](FULL_SSB_NATIVE_V2.md) |
 | 修正SSB模型桥与独立逆序验收 | [FULL_SSB_NATIVE_MODEL.md](FULL_SSB_NATIVE_MODEL.md)、[FULL_SSB_NATIVE_REPLAY.md](FULL_SSB_NATIVE_REPLAY.md) |
+| LOCAL1M独立模型/作者差异保留 | [FULL_SSB_LOCAL_REPLAY.md](FULL_SSB_LOCAL_REPLAY.md) |
+| LOCAL10M/table训练政策及独立重放/只读外层 | [FULL_SSB_LOCAL_CI_PROTOCOL.md](FULL_SSB_LOCAL_CI_PROTOCOL.md)、[FULL_SSB_LOCAL_CI_REPLAY.md](FULL_SSB_LOCAL_CI_REPLAY.md) |
+| 原Verdict SSB SF2实际38调用与缺口 | [FULL_VERDICT_SSB_SF2_AUDIT.md](FULL_VERDICT_SSB_SF2_AUDIT.md) |
 
 正式长任务只运行一个控制器。SSB全4000片、3,000,028,242事实行与13项作者整数聚合
 必须先通过，才允许正式训练；不得用正在增长的样本启动另一份正式运行。
@@ -101,7 +112,10 @@ v1/v2、原模型和原published真值均保留为历史证据。只有完整v3�
 原监督器已正确停止，作者母体正式门禁仍关闭。不得直接重启监督器、改写MISMATCH或把该样本标作作者母体。
 新原生路径已通过SF1/SF2完整字段差分、独立SQLite聚合和实际重启门禁，SF500在新命名空间完成。
 新SF500行数已一致，前6条查询346项真值完全匹配，但7条customer连接查询1713项不同，仍为MISMATCH/TAINTED。
-因此三个模型执行闩锁保持关闭，没有生成正式模型计划或开始训练；不得改写失败状态来绕过门禁。
+因此三个作者母体模型执行闩锁保持关闭，没有生成严格作者模型计划或开始训练；不得改写失败状态来绕过门禁。
+另行封存的LOCAL决定与完整21766项来源审计允许本地生成母体实验。当前五个1M/table模型和13条
+查询已经实际执行，无查询错误，正在完成整个封存和独立重放；尚未最终接纳。10M/table政策实验
+代码已审查，但真实黄金和正式训练尚未执行。它们不能提升作者母体失败状态。
 其采样使用发布schema的精确概率0.003333，再按64位整数cutoff实施；实际样本数和n/p归一化均保留。
 `full_ssb_native_v2_formal.py verify-final`仅是固定生成器的数值/物理输入门禁；模型桥还须独立绑定
 stream lifecycle/stderr、时间/峰值和外层FINAL_PASS后才接纳，不把作者13条真值相同称为全部原始行字节相同。

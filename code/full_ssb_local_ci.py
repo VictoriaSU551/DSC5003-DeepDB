@@ -5,6 +5,7 @@ import ast
 from contextlib import contextmanager
 from functools import wraps
 import hashlib
+import json
 import os
 from pathlib import Path
 import full_ssb_local_model as previous
@@ -35,6 +36,9 @@ FILES=('code/full_ssb_local_ci.py','code/full_ssb_local_ci_run.py','code/full_ss
 PRIOR_PINS=dict(source.STRICT_PINS,**{'code/full_ssb_local_source.py':'699f85ec4d24c326a7b491cd4cbf9c5746a98e7947d5b79db60200d08c0e3ca3',
     'code/full_ssb_local_model.py':'0b736cb30e7f1e93c66d2ac632c9b8a0ac0023595440c46b8d9215962184bced',
     'code/full_ssb_local_model_run.py':'fd676fb41780ae96074a08f2478a7cef9820b7c55a65717b9b8e28ea9545dee3'})
+PARENT_REPLAY_PINS={'code/full_ssb_local_replay.py':'9c2211af6b6385944010e079eef2fbc1f1dae381ccd39590f4acef9479c98aac',
+    'code/full_ssb_replay.py':'fc0fcf4045450df9b74e165eb26d0c72d902a2cd9cbc9b85d5b8b78f8ee71fab',
+    'code/full_ssb_native_replay.py':'6c8de16e03a8ba20448121fd4659c092c668d4db0f7214b932a40bf20d30302d'}
 require=source.require
 read=source.read
 atomic=source.atomic
@@ -128,8 +132,7 @@ def inherited_extras(full):
     raw={d['path'] for d in full['inputs']['physical_artifacts']};return [d for d in full['artifacts'] if d['path'] not in raw]
 
 
-def golden_snapshot(verified=None):
-    checked=verify_golden() if verified is None else verified
+def golden_snapshot(checked):
     return dict(status=checked['status'],published_result=checked['published_result'],verification=checked['verification'],verification_seal=checked['verification_seal'],artifacts_sha256=value_hash(checked['artifacts']))
 
 
@@ -147,14 +150,45 @@ def prepared_shapes(report):
     return shapes
 
 
+def _verified_parent_reverse(root):
+    require(Path(root).resolve()==ROOT,'real1M reverse verifier requires original root')
+    for path,sha in dict(PRIOR_PINS,**PARENT_REPLAY_PINS).items():
+        require(digest(ROOT/path)==sha,'frozen delegated parent verifier pin changed: '+path)
+    import full_ssb_local_replay as replay
+    require(Path(replay.__file__).resolve()==ROOT/'code/full_ssb_local_replay.py','delegated frozen reverse module loaded from a different path')
+    return replay,replay.verify()
+
+
+def _read_delegated_parent(reverse,root):
+    """Inherit the frozen reverse verifier's full current formal proof, not a fabricated API PASS."""
+    require(reverse.get('status')=='PASS_LOCAL_SSB_SF500_REVERSE_REPLAY_WITH_AUTHOR_MISMATCH'
+        and reverse.get('scope')==source.SCOPE and type(reverse.get('author_different_groups')) is int and reverse['author_different_groups']==1713
+        and reverse.get('author_reproduction_complete') is False and reverse.get('full_paper_reproduction_complete') is False,'complete successful1M reverse prerequisite required')
+    snap=reverse['source_snapshot']
+    require(snap.get('scope')==source.SCOPE and snap.get('population_rows')==source.N and snap.get('sample_rows')==source.SAMPLE_ROWS
+        and snap.get('author_different_groups')==1713 and snap.get('author_reproduction_complete') is False
+        and snap.get('full_paper_reproduction_complete') is False,'delegated complete1M formal identity differs')
+    d=snap['published_result'];path=Path(root)/previous.RESULT
+    require(set(d)=={'path','bytes','sha256'} and d['path']==previous.RESULT and type(d['bytes']) is int and d['bytes']>0,'exact delegated parent publication descriptor required')
+    raw=path.read_bytes();require(len(raw)==d['bytes'] and hashlib.sha256(raw).hexdigest()==d['sha256'],'delegated parent publication physical bytes/SHA differ')
+    r=json.loads(raw)
+    require(r.get('status')==previous.PASS and r.get('stage')=='LOCAL_SSB_SF500_SINGLE_1M_AQP_CI' and r.get('scope')==source.SCOPE
+        and r.get('population_rows')==source.N and r.get('actual_sample_rows')==source.SAMPLE_ROWS and r.get('author_different_groups')==1713
+        and all(r.get(k) is False for k in ('author_reproduction_complete','full_paper_reproduction_complete','author_population_row_count_and_13_truths_match','author_full_row_byte_identity_proven'))
+        and r.get('point_query_errors')==r.get('ci_query_errors')==0 and r['plan']['model']==previous.MODEL,'delegated successful1M report fields differ')
+    require(r['plan']['dependencies']==snap['dependencies'] and all(r[k]==snap[k] for k in ('model_path','model_sha256','evaluation_binding','original_mismatch'))
+        and r['inputs']['receipt_sha256']==SOURCE_RECEIPT_SHA and r['original_mismatch']['path']==source.NATIVE_REPORT
+        and r['original_mismatch']['sha256']==source.NATIVE_REPORT_SHA,'delegated1M report/source snapshot binding differs')
+    return snap,r
+
+
 @native_boundary
 def collect_lineage(root=ROOT):
-    formal=previous.verify_local_formal(root);root=Path(root)
-    pins=formal['dependencies']['auxiliary_sources'];path='code/full_ssb_local_replay.py'
-    require(path in pins and digest(root/path)==pins[path],'explicit frozen1M reverse source pin required')
-    import full_ssb_local_replay as replay
-    require(root==ROOT,'real1M reverse verifier requires original root');reverse=replay.verify();validate_lineage_headers(formal,reverse)
-    r=formal['report'];home=root/reverse['directory'];records={d['path']:d for d in formal['artifacts']}
+    root=Path(root);replay,reverse=_verified_parent_reverse(root);formal,r=_read_delegated_parent(reverse,root)
+    require(formal['dependencies']['auxiliary_sources'].get('code/full_ssb_local_replay.py')==PARENT_REPLAY_PINS['code/full_ssb_local_replay.py'],'explicit frozen1M reverse source pin required')
+    home=root/reverse['directory'];records={d['path']:d for d in formal['artifacts']}
+    for path,sha in dict(PRIOR_PINS,**PARENT_REPLAY_PINS).items():
+        d=artifact(root/path,root);require(d['sha256']==sha,'delegated parent source changed after verification');records[d['path']]=d
     required=[home/name for name in replay.required_query_files()]+[home/name for name in ('verification.json','verification_seal.json','lifecycle.json')]
     required += [replay.OUTPUT/name for name in ('verification.json','verification_seal.json','last_run.json','last_process.json')]
     process=read(replay.OUTPUT/'last_process.json');required += [root/process[k]['path'] for k in ('stdout','stderr')]
@@ -166,6 +200,8 @@ def collect_lineage(root=ROOT):
         reverse=artifact(replay.OUTPUT/'verification.json',root),reverse_seal=artifact(replay.OUTPUT/'verification_seal.json',root),
         inputs=r['inputs'],prepared_directory=r['prepared_directory'],moments_directory=str(Path(r['directory'])/'sample_moments_native'),
         moments_helper_directory=str(root/previous.OUTPUT/'runtime/native'),truth_projection_path=str(Path(r['directory'])/'core_truth_checkpoint.json'),
+        delegated_formal_proof=dict(method='Frozen reverse.verify -> source_snapshot -> complete previous.verify_local_formal',
+            frozen_sources=dict(PRIOR_PINS,**PARENT_REPLAY_PINS),published_result=formal['published_result'],direct_formal_reexecuted=False),
         prior_dependencies=formal['dependencies'],prior_peak_owned_rss_bytes=monitor['peak_owned_rss_bytes'],actual_prepared_shapes=prepared_shapes(r),
         artifacts=[records[p] for p in sorted(records)],author_different_groups=1713,author_reproduction_complete=False,full_paper_reproduction_complete=False)
 
@@ -176,7 +212,7 @@ def dependency_snapshot(auxiliary_sources=None):
     import full_ssb_local_stage_validation as stages
     import full_ssb_local_ci_run as runner
     with native_platform() as proof:
-        return dict(environment=base.dependency_snapshot(),prior_provider_sources=PRIOR_PINS,ci_sources=code_snapshot(),auxiliary_sources=auxiliary,
+        return dict(environment=base.dependency_snapshot(),prior_provider_sources=PRIOR_PINS,delegated_parent_sources=PARENT_REPLAY_PINS,ci_sources=code_snapshot(),auxiliary_sources=auxiliary,
             runtime_cap=adapt_training_source(original_training_source())[1],stage_validation=stages.binding(validation_config()),operational_capsule=runner.capsule_binding(),
             windows_fingerprint=dict(adapter=artifact(ROOT/WINDOWS_HELPER),proof=proof))
 
@@ -206,8 +242,8 @@ def dependency_artifacts(r,root=ROOT):
         require(artifact(root/item['path'],root)==item,'prior scientific golden dependency changed');records[item['path']]=item
     deps=r['plan']['dependencies']
     for d in source.environment_artifacts(deps['environment'],root):records[d['path']]=d
-    require(deps['prior_provider_sources']==PRIOR_PINS and set(deps['ci_sources'])==set(FILES),'complete prior/new provider source sets required')
-    for path,sha in dict(PRIOR_PINS,**deps['ci_sources'],**deps['auxiliary_sources']).items():
+    require(deps['prior_provider_sources']==PRIOR_PINS and deps['delegated_parent_sources']==PARENT_REPLAY_PINS and set(deps['ci_sources'])==set(FILES),'complete prior/new provider source sets required')
+    for path,sha in dict(PRIOR_PINS,**PARENT_REPLAY_PINS,**deps['ci_sources'],**deps['auxiliary_sources']).items():
         d=artifact(root/path,root);require(d['sha256']==sha,'10M closure source changed');records[d['path']]=d
     helper=artifact(root/WINDOWS_HELPER,root);require(helper==deps['windows_fingerprint']['adapter'] and helper['sha256']==WINDOWS_HELPER_SHA,'physical native fingerprint adapter differs');records[helper['path']]=helper
     require(r['runtime_cap']==deps['runtime_cap']==adapt_training_source(original_training_source())[1],'executed cap adapter binding changed')
@@ -290,7 +326,7 @@ def execute_worker(plan):
 
 @native_boundary
 def execute_reviewed(plan):
-    key,path=require_worker(plan);require(plan['kind']=='FORMAL','formal10M plan required');full=collect_lineage();lineage=lineage_snapshot(full);golden=verify_golden()
+    key,path=require_worker(plan);require(plan['kind']=='FORMAL','formal10M plan required');full,golden=_verify_prerequisites('FORMAL');lineage=lineage_snapshot(full)
     require(plan['lineage']==lineage and plan['golden']==golden_snapshot(golden),'complete1M/golden prerequisites changed')
     inputs=full['inputs'];require(inputs['receipt_sha256']==SOURCE_RECEIPT_SHA,'exact accepted local source receipt required')
     import full_ssb_local_ci_run as runner
@@ -319,7 +355,9 @@ def execute_reviewed(plan):
         return r
     def validate(r):
         import full_ssb_local_stage_validation as stages
-        require(lineage_snapshot(collect_lineage())==lineage and dependency_snapshot(plan['dependencies']['auxiliary_sources'])==plan['dependencies'],'reused1M/source/runtime changed during10M model')
+        after,after_golden=_verify_prerequisites('FORMAL')
+        require(lineage_snapshot(after)==lineage and golden_snapshot(after_golden)==plan['golden']
+            and dependency_snapshot(plan['dependencies']['auxiliary_sources'])==plan['dependencies'],'reused1M/source/golden/runtime changed during10M model')
         require(r['actual_training_rows_per_table']==EXPECTED_ROWS,'actual10M per-table rows differ');stages.validate(r,validation_config())
     binding=dict(scope=SCOPE,kind='FORMAL',plan_binding_sha256=key,source_receipt_sha256=SOURCE_RECEIPT_SHA,dependencies_sha256=value_hash(plan['dependencies']),runtime_cap_sha256=value_hash(plan['dependencies']['runtime_cap']),author_different_groups=1713)
     with base.controller_lock(ROOT/OUTPUT/'controller.lock'):
@@ -329,18 +367,30 @@ def execute_reviewed(plan):
 
 @native_boundary
 def verify_scientific_publication(kind,root=ROOT):
+    require((Path(root)/result_path(kind)).is_file(),'completed10M scientific publication missing')
+    current,golden=_verify_prerequisites(kind,root)
+    return _verify_scientific_publication(kind,root,current,golden)
+
+
+def _verify_prerequisites(kind,root=ROOT):
+    """One fresh complete parent per boundary; this result never crosses a command or training interval."""
+    current=collect_lineage(root)
+    return current,(_verify_golden_with_parent(root,current) if kind=='FORMAL' else golden_inputs())
+
+
+def _verify_scientific_publication(kind,root,current,golden):
+    """Private same-stack composition; callers cannot inject proofs into public verification."""
     root=Path(root);path=root/result_path(kind);require(path.is_file(),'completed10M scientific publication missing');r=read(path)
     require(r['kind']==kind and r['scope']==SCOPE and r['plan']['kind']==kind,'distinct10M publication kind/scope required')
     import full_ssb_local_ci_run as runner
     require(runner.read_plan(root/r['plan_path'],r['plan_file_sha256'],root)==r['plan'] and Path(r['directory']).resolve()==root/OUTPUT/'runs'/r['plan_binding_sha256'][:20], '10M actual plan/run namespace differs')
     if kind=='FORMAL':
         require(r['stage']==STAGE and r['status'] in (PASS,ERRORS) and r['training_cap_per_table']==10000000 and r['actual_training_rows_per_table']==EXPECTED_ROWS,'exact10M training budget/actual row fields required')
-        require(r['plan']['golden']==golden_snapshot(),'actual complete scientific cap golden differs')
-    else:require(r['plan']['golden']==golden_inputs(),'current independently complete golden prepared inputs differ')
-    current=collect_lineage(root)
+        require(r['plan']['golden']==golden_snapshot(golden),'actual complete scientific cap golden differs')
+    else:require(r['plan']['golden']==golden,'current independently complete golden prepared inputs differ')
     require(r['lineage']==r['plan']['lineage']==lineage_snapshot(current) and r['inputs']==current['inputs'] and r['inherited_artifacts']==inherited_extras(current),'current complete1M parent lineage differs')
     if kind=='FORMAL':
-        g=verify_golden();needed=[d for d in g['artifacts'] if d['path'] not in {p['path'] for p in current['artifacts']}]
+        needed=[d for d in golden['artifacts'] if d['path'] not in {p['path'] for p in current['artifacts']}]
         require(r['golden_artifacts']==needed,'complete physical cap-golden artifact closure differs')
     require(root==ROOT and r['plan']['dependencies']==dependency_snapshot(r['plan']['dependencies']['auxiliary_sources']),'current10M runtime/source closure differs')
     records=verify_publication(r,root);run=Path(r['directory'])
@@ -419,7 +469,7 @@ def golden_artifacts(r,root=ROOT):
 def execute_golden(reviewed_codes_sha256,plan=None):
     require(plan is not None and plan.get('kind')=='GOLDEN','reviewed owned GOLDEN plan required');key,path=require_worker(plan)
     require(reviewed_codes_sha256==value_hash(code_snapshot()),'reviewed golden source set changed')
-    fixture=golden_inputs();full=collect_lineage();require(fixture==plan['golden'] and lineage_snapshot(full)==plan['lineage'],'actual golden fixture/complete1M prerequisites changed')
+    full,fixture=_verify_prerequisites('GOLDEN');require(fixture==plan['golden'] and lineage_snapshot(full)==plan['lineage'],'actual golden fixture/complete1M prerequisites changed')
     run=ROOT/OUTPUT/'runs'/key[:20]
     def produce():
         import full_ssb_guard as guard
@@ -465,7 +515,9 @@ def execute_golden(reviewed_codes_sha256,plan=None):
             comparisons=comparisons,preserved_first_two=preserved,resumed_actual_fit_calls=len(calls),cap10m_boundary_only_verified=True,
             scientific_scope='Small SF2 equivalence only; no SF500 training or author truth PASS',author_different_groups=1713,author_reproduction_complete=False,full_paper_reproduction_complete=False)
     def validate(r):
-        require(golden_inputs()==fixture and plan['dependencies']==dependency_snapshot(plan['dependencies']['auxiliary_sources']),'golden input/runtime/source changed');golden_artifacts(r)
+        after,after_fixture=_verify_prerequisites('GOLDEN')
+        require(lineage_snapshot(after)==lineage_snapshot(full) and after_fixture==fixture
+            and plan['dependencies']==dependency_snapshot(plan['dependencies']['auxiliary_sources']),'golden parent/input/runtime/source changed');golden_artifacts(r)
     binding=dict(scope=SCOPE,kind='GOLDEN',plan_binding_sha256=key,source_receipt_sha256=SOURCE_RECEIPT_SHA,dependencies_sha256=value_hash(plan['dependencies']),runtime_cap_sha256=value_hash(plan['dependencies']['runtime_cap']),author_different_groups=1713)
     with base.controller_lock(ROOT/OUTPUT/'controller.lock'):
         r=base.formal_transaction(run/'formal_control',binding,produce,validate,kind='LOCAL_CI_GOLDEN');publish(r)
@@ -474,7 +526,12 @@ def execute_golden(reviewed_codes_sha256,plan=None):
 
 def verify_golden(root=ROOT):
     require((Path(root)/GOLDEN_RESULT).is_file(),'completed10M cap scientific golden missing')
-    result=verify_scientific_publication('GOLDEN',root);r=result['report']
+    current,fixture=_verify_prerequisites('GOLDEN',root)
+    return _verify_golden_with_parent(root,current,fixture)
+
+
+def _verify_golden_with_parent(root,current,fixture=None):
+    result=_verify_scientific_publication('GOLDEN',root,current,golden_inputs() if fixture is None else fixture);r=result['report']
     import full_ssb_local_ci_run as runner
     result['artifacts'].extend(runner.verify_supervisor(r,root));result.update(status='PASS_READ_ONLY_LOCAL_10M_CAP_GOLDEN_ONLY',training_executed=False,inference_executed=False,files_modified=False)
     return result

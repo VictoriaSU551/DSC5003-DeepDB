@@ -66,8 +66,8 @@ def candidate_body(kind,codes_sha256,golden,dependencies,lineage):
 
 def build_candidate(kind,reviewed_codes_sha256,auxiliary_sources=None):
     require(reviewed_codes_sha256==value_hash(model.code_snapshot()),'matching root-reviewed10M sources required')
-    lineage=model.lineage_snapshot(model.collect_lineage())
-    golden=model.golden_inputs() if kind=='GOLDEN' else model.golden_snapshot()
+    full,checked=model._verify_prerequisites(kind);lineage=model.lineage_snapshot(full)
+    golden=checked if kind=='GOLDEN' else model.golden_snapshot(checked)
     return candidate_body(kind,reviewed_codes_sha256,golden,model.dependency_snapshot(auxiliary_sources),lineage)
 
 
@@ -123,10 +123,13 @@ def run_supervised(plan_path,expected_plan_sha256,memory_approved=False,root=ROO
     report=dict(plan=p,plan_binding_sha256=key,plan_file_sha256=expected_plan_sha256,source_receipt_sha256=p['source_receipt_sha256'],
         adapter_source_sha256=p['dependencies']['ci_sources']['code/full_ssb_local_ci.py'],directory=str(run))
     binding=supervisor_binding(report)
+    postflight=None
     def produce():
+        nonlocal postflight
         require(p['dependencies']==model.dependency_snapshot(p['dependencies']['auxiliary_sources']),'reviewed10M source/runtime changed')
-        require(p['lineage']==model.lineage_snapshot(model.collect_lineage()),'10M complete1M prerequisites changed')
-        require(p['golden']==(model.golden_inputs() if p['kind']=='GOLDEN' else model.golden_snapshot()),'10M cap-golden prerequisite changed')
+        full,golden=model._verify_prerequisites(p['kind'])
+        require(p['lineage']==model.lineage_snapshot(full),'10M complete1M prerequisites changed')
+        require(p['golden']==(golden if p['kind']=='GOLDEN' else model.golden_snapshot(golden)),'10M cap-golden prerequisite changed')
         probe=ops.operational_resources();base.check_resources(probe['free_disk_bytes'],probe['available_memory_bytes'],probe['existing_ssb_bytes'],additional_bytes=model.OPERATIONAL_RESERVE_BYTES)
         require(probe['available_memory_bytes']>=model.MINIMUM_LAUNCH_MEMORY_BYTES,'at least7GiB10M launch RAM required')
         import secrets
@@ -135,9 +138,16 @@ def run_supervised(plan_path,expected_plan_sha256,memory_approved=False,root=ROO
         command=[str(ops.base_python_executable()),str(ROOT/SELF),'_bootstrap','--plan-path',str(path),'--plan-file-sha256',expected_plan_sha256,'--start-token',token,'--job-name',job]
         result=ops.run_owned_child(command,home,binding,start_payload=dict(start=token,plan_binding_sha256=key),job_name=job,initial_resources=probe)
         result['artifacts'].extend(artifact(home/n) for n in LOGS[3:]);result['resources_at_launch']=probe
-        verified=model.verify_scientific_publication(p['kind']);result.update(published_result_sha256=verified['published_result']['sha256'],verification_seal_sha256=verified['verification_seal']['sha256'])
+        postflight=model.verify_scientific_publication(p['kind']);result.update(published_result_sha256=postflight['published_result']['sha256'],verification_seal_sha256=postflight['verification_seal']['sha256'])
         return result
-    def validate(r):verify_supervisor_result(report,binding,r);model.verify_scientific_publication(p['kind'])
+    def validate(r):
+        verify_supervisor_result(report,binding,r)
+        # Only this producer's just-completed postflight can be shared. When a
+        # previous PASS is adopted, producer never runs and full verification is fresh.
+        verified=postflight if postflight is not None else model.verify_scientific_publication(p['kind'])
+        for key,link in (('published_result','published_result_sha256'),('verification_seal','verification_seal_sha256')):
+            d=verified[key]
+            require(model.artifact(ROOT/d['path'],ROOT)==d and r[link]==d['sha256'],'same-stack postflight publication changed')
     with base.controller_lock(ROOT/model.OUTPUT/'supervisor.lock'):
         try:return base.formal_transaction(home,binding,produce,validate,kind='LOCAL_CI_SUPERVISOR')
         except BaseException as error:taint_local_tail(run,error);raise

@@ -40,6 +40,28 @@ Admission is at least7GiB available RAM and `additional_bytes=2GiB+64MiB`, after
 
 The root-reviewed candidate contains compact hashes of the complete parent/golden snapshots, not recursively embedded parent result bodies. Publications retain the complete source input set plus only additional parent/golden descriptors; independent current validators reconstruct and verify the exact full sets. This keeps repeated JSON controls out of the model reserve while preserving complete physical closure. Shared counts are not reduced to subset receipts.
 
+## CI v2: same-stack verification composition
+
+The reviewed v1 remains preserved in commit `772702b` and its historical code-review evidence. Before any CI scientific golden or plan existed, root authorized this separate revision to remove repeated full parent verification within one call stack. It does not change the frozen1M providers/replay, any scientific function, the cap adapter, resource thresholds or old receipts.
+
+`collect_lineage()` first physically pins all three1M providers, the two strict providers and the fixed reverse/helper sources (`9c2211...`, `fc0fcf...`, `6c8de1...`). Only then it imports the exact project reverse module and calls the frozen public `reverse.verify()`. That function itself performs a complete current `previous.verify_local_formal()` through its frozen source_snapshot. The accepted source_snapshot supplies the complete formal descriptors/dependencies; the actual parent published result is then read once from its exact canonical descriptor and checked for bytes, SHA, successful1M stage/model, source receipt, model/evaluation bindings and all author-false fields. No formal API PASS dictionary or boolean authorization is fabricated. The lineage explicitly records the delegated frozen proof and `direct_formal_reexecuted=False`. All fixed delegated-source files are also present in the physical artifact/dependency sets.
+
+The public signatures remain `verify_local_ci(root)`, `verify_golden(root)` and `verify_scientific_publication(kind, root)`: callers cannot supply a cached proof. Private composition passes the one fully verified current parent into one complete golden verification and passes that golden result into the FORMAL verification. Both GOLDEN and FORMAL still validate every own required artifact set. `golden_snapshot(verified)` now requires the already validated result explicitly; it never triggers an implicit second verifier.
+
+| Boundary | v1 complete1M public verifications | v2 |
+| --- | ---: | ---: |
+| One public golden verification | 2 | 1 |
+| One public CI/formal scientific verification | 6 | 1 |
+| One FORMAL candidate build | 4 | 1 |
+| Fresh FORMAL run: ROOT pre, worker pre, worker post, ROOT post | 22 total | 4 total, one at each independent boundary |
+| Future reverse execution's four source-snapshot boundaries | 24 total | 4 total |
+
+These are source/control-stack counts, not measured elapsed-time promises. ROOT preflight, worker entry, worker post-training validation and ROOT postflight each independently perform fresh physical parent/golden checks. No verified result crosses a training interval, process, command or public API call. There is no hash, digest, mtime or persistent JSON cache. A supervisor producer may pass only its own just-completed ROOT postflight result to its immediate transaction validator; monitor validation and current publication descriptor/link checks still run. When an existing PASS transaction is adopted, that producer has not run, its local closure is empty and the validator must perform a fresh full public verification. A publication change between postflight and transaction validation is rejected and taints the local tail.
+
+The new call-count tests execute the real CI public control stack with only physical leaves mocked. Before v2 they observed6 full parent verifications; after v2 they require exactly1 on each separate invocation. Additional fixtures exercise pinned-source rejection before the reverse public call, report alias/bytes/SHA/field tampering, fresh versus adopted supervisor transactions, postflight publication tampering and actual FORMAL controller entry/exit with tiny scientific stubs. These fixtures do not execute1M or10M scientific functions.
+
+Root's independent forecast record `output/full/ssb/local_sf500_ci10m/review/actual_parent_memory_forecast_v1.json` (SHA `1083cb4048638221cfa9caac2e3474445eb7062cf5d93ba281ac8ffd7a5db004`) records the1M owned worker peak3,408,072,704 bytes and10M target matrix bytes: fact799,755,680; date245,376; customer240,000,000; part100,800,000; supplier16,000,000. Matrix sizes exclude all intermediate allocations and cannot prove <=6GiB. This forecast is not accepted formal/reverse lineage or a resource release. The7GiB fresh admission and6GiB live owned-tree guard remain mandatory; a future candidate must capture the actually accepted parent peak and HDF shapes itself.
+
 ## Native Windows fingerprint
 
 Python3.8 platform.platform() may fork cmd/ver. All new candidate/dependency/parent/golden/public-verification boundaries use `full_windows_fingerprint.verified_platform`, physical helper SHA `a9e9034efad01e258c521934aea43f0f405ff78c42caffb7841a73fd03d96784`. The expected platform comes from exact accepted source receipt SHA `75fef537963dcbc183a720f2abc1b47b6972550822ba4591dec8f8336183e712`; the helper independently reads current native version, read-only64bit registry and architecture, then lets the original platform algorithm rebuild its value under a contextual native equivalent. It does not copy a stored string as current evidence. Source/proof are explicit dependencies; caches and hook are restored on exit. Only the two direct Windows native import DLLs are bound; no full transitive Windows closure claim.
@@ -90,5 +112,5 @@ Commands below document interfaces; they have not been executed for scientific w
 Local validation command (use a short basetemp on Windows):
 
 ```powershell
-.venv\Scripts\python.exe -m pytest code/tests/test_full_ssb_local_ci.py code/tests/test_full_ssb_local_stage_validation.py code/tests/test_full_ssb_local_ci_run.py -q --tb=short --basetemp output/tmp/c10
+.venv\Scripts\python.exe -m pytest code/tests/test_full_ssb_local_ci.py code/tests/test_full_ssb_local_stage_validation.py code/tests/test_full_ssb_local_ci_run.py code/tests/test_full_ssb_local_ci_audit_calls.py -q --tb=short --basetemp output/tmp/c10
 ```
