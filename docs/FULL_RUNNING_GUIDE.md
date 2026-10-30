@@ -51,6 +51,10 @@ powershell -ExecutionPolicy Bypass -File setup-mscn.ps1
 .venv/Scripts/python.exe code/full_aqp_tables.py
 .venv/Scripts/python.exe code/full_aqp_comparisons.py
 
+# Verdict原引擎在既有Flights样本上的只读验收与派生表图
+.venv/Scripts/python.exe code/full_verdict_audit.py
+.venv/Scripts/python.exe code/full_verdict_tables.py
+
 # SSB正式模型及一次独立逆序重放完成后：只读验收与表图
 .venv/Scripts/python.exe code/full_ssb_replay.py verify
 .venv/Scripts/python.exe code/full_ssb_tables.py
@@ -83,6 +87,7 @@ v1/v2、原模型和原published真值均保留为历史证据。只有完整v3�
 | Flights原规模模型/AQP/CI | [FULL_FLIGHTS_MODEL_RUN.md](FULL_FLIGHTS_MODEL_RUN.md) |
 | Flights独立逆序重放与当前parser绑定 | [FULL_FLIGHTS_REPLAY.md](FULL_FLIGHTS_REPLAY.md)、[FULL_FLIGHTS_REPLAY_AUDIT.md](FULL_FLIGHTS_REPLAY_AUDIT.md) |
 | 原DBEst实际1B母体上的20K拟合与审计 | [FULL_DBEST_FLIGHTS.md](FULL_DBEST_FLIGHTS.md)、[FULL_DBEST_FLIGHTS_AUDIT.md](FULL_DBEST_FLIGHTS_AUDIT.md) |
+| 原Verdict已有样本执行、原错误和独立适配 | [FULL_VERDICT_PROTOCOL.md](FULL_VERDICT_PROTOCOL.md) |
 | SSB SF500与准备/训练门禁 | [FULL_SSB_MODEL_PROTOCOL.md](FULL_SSB_MODEL_PROTOCOL.md) |
 | SSB新鲜进程逆序point/CI重放及只读验收 | [FULL_SSB_REPLAY.md](FULL_SSB_REPLAY.md) |
 
@@ -96,6 +101,10 @@ SSB原顺序正式推断后，由唯一控制器显式执行一次`full_ssb_repl
 Flights日常验收使用新的只读parser外层。它记录当前sqlparse0.3.1及完整22个Python源文件，
 不重跑已接受的24次推断，也不能证明最初推断时的parser原字节。
 有源码、原始输入或资源缺口的项目保持未完成，不能把作者报告数值复制成此次结果。
+Verdict的当前验收只核文件/JAR/源码及历史数据库记录，不连接或重跑数据库，也不证明当前数据库逐行未变。
+它保留F5.2原始错误、单独的两SUM适配和缺组；原生95%区间不能混作DeepDB中央90%区间。
+Windows深路径运行Verdict的建树测试时，临时目录应使用较短的`--basetemp output/tmp/v`，避免MAX_PATH；
+只读日常验收使用上述audit入口，不需要重跑golden或正式SQL。
 
 ## 组员可直接接手的内容
 
@@ -105,4 +114,4 @@ Flights日常验收使用新的只读parser外层。它记录当前sqlparse0.3.1
   获得原始证据后再建独立配置；本仓库的历史作者数字不能当本次实验。
 - 在各自功能分支补原基线接入、结果解释与课程报告/PPT，通过PR合入。数据和模型使用独立下载/生成入口，
   不随Git提交；已完成并验证的实验直接消费封存结果。
-- SSB长任务由现有唯一控制器接续；组员不要另启动第二份生成或训练。
+- SSB原作者母体门禁仍关闭，先完成跨平台修复与新门禁；组员不要重启旧失败控制器或另启动第二份生成/训练。

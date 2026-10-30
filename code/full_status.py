@@ -127,6 +127,30 @@ def ssb_generation_stage(checkpoint, result):
     return stage
 
 
+def verdict_model_stage():
+    stage = dict(status='PENDING', evidence='output/full/verdict/final_seal.json',
+        scope='Original Verdict engine on existing uniform sample only; full1B table absent. Raw F5.2 incorrect; two-SUM adapter separate; native95% CI.')
+    if not (FULL/'verdict/final_seal.json').exists():
+        return stage
+    try:
+        from full_verdict_audit import verify
+        audited = verify()
+        if audited['status'] != 'PASS_READ_ONLY_ORIGINAL_VERDICT_SAMPLE_ONLY_WITH_GAPS':
+            raise ValueError('Verdict sample-only acceptance differs')
+        coverage = audited['group_coverage']
+        stage.update(status='PASS_SAMPLE_ONLY_WITH_GAPS', queries=len(coverage),
+            actual_sample_rows=audited['actual_sample_rows'], population_prior=audited['population_prior'],
+            historical_physical_calls=audited['historical_physical_calls'],
+            missing_raw_truth_groups=sum(q['missing'] for q in coverage),
+            extra_raw_groups=sum(q['extra'] for q in coverage),
+            raw_compound_query_limitations=[q['query_name'] for q in coverage if q['raw_status'].startswith('INCORRECT_')],
+            native_ci_confidence=audited['native_ci_confidence'],
+            database_identity_scope=audited['evidence_scope'])
+    except (KeyError, ValueError, OSError) as error:
+        stage.update(status='EVIDENCE_INVALID', reason=str(error))
+    return stage
+
+
 def main():
     stages = {}
     inventory = load_json(FULL / 'results/source_inventory.json', {})
@@ -260,6 +284,7 @@ def main():
         except (KeyError, ValueError, OSError) as error:
             dbest_stage.update(status='EVIDENCE_INVALID', reason=str(error))
     stages['dbest_1b_bounded_original_engine'] = dbest_stage
+    stages['verdict_original_existing_uniform_sample'] = verdict_model_stage()
     for key, reason in [
         ('paper_exact_200_query_binding', 'Public files contain 683 grouped queries; original 200 membership not identified'),
         ('figure5_original_synthetic_database', 'Original generator, parameters and seeds not found in audited public sources'),

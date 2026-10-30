@@ -15,6 +15,8 @@ BUNDLES = {
         'query_summary.csv', 'all_groups.csv', 'flights_relative_error.png', 'flights_ci_half_width.png']),
     'flights_comparison': ('flights_comparisons_latest.json', [
         'query_comparison.csv', 'flights_partial_baselines.png']),
+    'flights_verdict': ('verdict_tables_latest.json', [
+        'query_summary.csv', 'all_groups.csv', 'flights_verdict_comparison.png']),
     'ssb': ('ssb_tables_latest.json', ['query_summary.csv', 'all_groups.csv', 'training_tables.csv',
                                     'ssb_relative_error.png', 'ssb_ci_half_width.png']),
 }
@@ -80,8 +82,8 @@ def coverage_rows(stages, prefix=''):
 def main():
     selected, evidence = [], {}
     for prefix, (pointer, names) in BUNDLES.items():
-        if prefix == 'ssb' and not (FULL/'results'/pointer).exists():
-            continue  # Explicitly partial snapshot while the formal SSB stage is still pending.
+        if prefix in {'ssb', 'flights_verdict'} and not (FULL/'results'/pointer).exists():
+            continue  # Optional experiment has no accepted derived bundle yet.
         paths, sources = checked_bundle(FULL / 'results' / pointer, names)
         evidence[prefix] = sources
         selected.extend((prefix + '_' + path.name, path) for path in paths)
@@ -108,9 +110,12 @@ def main():
              '作者Table1数值与本地重跑各有evidence标签；配置、样本和尾部误差有差异，不能互相替代。',
              '公开工作负载为683条，其中4--6表413条；作者200条具体成员未找到。',
              'Flights为本地生成的1B母体；DBEst仅4类SQL/20K拟合，八类不支持，未做等预算或延迟排名。',
-             'CI仅一次样本，少于10行的组排除，不能解读为重复抽样覆盖率校准。', '',
-             '只发布派生表图。原始数据、模型、运行环境、PDF和大输出保存在本地，不随仓库分发。', '',
-             '## 表格和图', '']
+             'CI仅一次样本，少于10行的组排除，不能解读为重复抽样覆盖率校准。', '']
+    if 'flights_verdict' in evidence:
+        lines += ['Verdict仅执行已物化的同一样本：原F5.2错误和两个原SUM的外部差分适配分别列出；',
+                  '原生95%区间与DeepDB中央90%不同，不做覆盖率或耗时排名。', '']
+    lines += ['只发布派生表图。原始数据、模型、运行环境、PDF和大输出保存在本地，不随仓库分发。', '',
+              '## 表格和图', '']
     lines += ['- [' + item['path'].split('/')[-1] + '](' + item['path'].split('/')[-1] + ')' for item in outputs]
     lines += ['', '## 当前阶段状态', '', '| 阶段 | 状态 |', '| --- | --- |']
     lines += ['| ' + name + ' | ' + stage['status'] + ' |' for name, stage in coverage.items() if 'status' in stage]

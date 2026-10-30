@@ -1,12 +1,12 @@
 {
   "status": "VERIFIED_PARTIAL_COLLABORATION_SNAPSHOT",
   "full_paper_complete": false,
-  "source_updated_at_utc": "2026-10-30T17:22:05.821554+00:00",
-  "binding_sha256": "204f51d6b4a9ab7a720288986731d7fc3e732809ebab886028afd28146a41096",
+  "source_updated_at_utc": "2026-10-30T18:15:21.736803+00:00",
+  "binding_sha256": "fa48b2cd373f56c47c036730fa183fb53d42ef493c4f03cf78ef80600e8375cc",
   "exporter": {
     "path": "code/full_public_summary.py",
-    "bytes": 7639,
-    "sha256": "65fa84b6a4ee39c3338010ab60a407f90c024655f210153d094b4600fc7ce40c"
+    "bytes": 8052,
+    "sha256": "727ae0d5615a153dbe8b3894c0aab1e2c279736bd9211aa2eb7e88608730b095"
   },
   "sources": {
     "cardinality": {
@@ -44,12 +44,24 @@
         "bytes": 2690,
         "sha256": "98046aa7716d88e29e9fd6369e23035dfa4a83289cc9e44d28b1fea49f57e9ef"
       }
+    },
+    "flights_verdict": {
+      "pointer": {
+        "path": "output/full/results/verdict_tables_latest.json",
+        "bytes": 194,
+        "sha256": "8435dde51c40888df3e066943ee859989f3970ffb4c62b7d65baea743ccb34c4"
+      },
+      "manifest": {
+        "path": "output/full/figures/aqp_flights_verdict_fb9beec9e2b4eb19/manifest.json",
+        "bytes": 2492,
+        "sha256": "4ca1905afca9c56987ac3fb309f7fd12477074308ab9c35436099b3287742fac"
+      }
     }
   },
   "coverage_source": {
     "path": "output/full/completion_status.json",
-    "bytes": 29031,
-    "sha256": "b4c4f498306278d413f7b8bcab9455798824fcfdfdab5e263b40b108f5296c0c"
+    "bytes": 29873,
+    "sha256": "3d1fed4cf107897756de1f0c665a9c41f8f6d730f474af89f8ad1003d24c8454"
   },
   "coverage": {
     "paper_and_public_input_audit": {
@@ -237,6 +249,11 @@
     "dbest_1b_bounded_original_engine": {
       "status": "PASS_WITH_GAPS",
       "scope": "Original engine on own1B population;20K fit cap;4SQL classes and DE coverage gap. Not author configuration or full Figure13."
+    },
+    "verdict_original_existing_uniform_sample": {
+      "status": "PASS_SAMPLE_ONLY_WITH_GAPS",
+      "scope": "Original Verdict engine on existing uniform sample only; full1B table absent. Raw F5.2 incorrect; two-SUM adapter separate; native95% CI.",
+      "queries": 12
     },
     "paper_exact_200_query_binding": {
       "status": "OPEN_SOURCE_GAP"
@@ -449,9 +466,39 @@
       }
     },
     {
+      "path": "output/results/fullpaper_flights_verdict_query_summary.csv",
+      "bytes": 2303,
+      "sha256": "008f48d1ae8c42fec2493d30ebd2d468305b11282c5e07ec85fefa949d4a0ee4",
+      "source": {
+        "path": "output/full/figures/aqp_flights_verdict_fb9beec9e2b4eb19/query_summary.csv",
+        "bytes": 2303,
+        "sha256": "008f48d1ae8c42fec2493d30ebd2d468305b11282c5e07ec85fefa949d4a0ee4"
+      }
+    },
+    {
+      "path": "output/results/fullpaper_flights_verdict_all_groups.csv",
+      "bytes": 64115,
+      "sha256": "c16c83bb3a2d12f2ffea834ba52e264e022e734ed22cb52d5fb9a87ca77422fd",
+      "source": {
+        "path": "output/full/figures/aqp_flights_verdict_fb9beec9e2b4eb19/all_groups.csv",
+        "bytes": 64115,
+        "sha256": "c16c83bb3a2d12f2ffea834ba52e264e022e734ed22cb52d5fb9a87ca77422fd"
+      }
+    },
+    {
+      "path": "output/results/fullpaper_flights_verdict_flights_verdict_comparison.png",
+      "bytes": 147717,
+      "sha256": "c1fe8d0cc1127c6a4af653e2a7c7c95b5a2a7096f633a86665c581ca8f900cf3",
+      "source": {
+        "path": "output/full/figures/aqp_flights_verdict_fb9beec9e2b4eb19/flights_verdict_comparison.png",
+        "bytes": 147717,
+        "sha256": "c1fe8d0cc1127c6a4af653e2a7c7c95b5a2a7096f633a86665c581ca8f900cf3"
+      }
+    },
+    {
       "path": "output/results/FULL_PAPER_RESULTS.md",
-      "bytes": 5827,
-      "sha256": "e256e9aa751bca3c10c37eb3adcbf4bba99d8be980943b66462df3a99115556d"
+      "bytes": 6385,
+      "sha256": "4a9b87a90349288383c66e3d7186fbefa892e4c9e92a724718d4eb4e87165518"
     }
   ],
   "scope": "Derived tables/plots only. Author-reported values and local results remain labelled. No raw rows, model files, environments, PDF or credentials are included."

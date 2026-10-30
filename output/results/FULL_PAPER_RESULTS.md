@@ -2,12 +2,15 @@
 
 **整篇论文仍未完成。** 本页是已验证部分的协作快照。
 
-来源状态时间：2026-10-30T17:22:05.821554+00:00
+来源状态时间：2026-10-30T18:15:21.736803+00:00
 
 作者Table1数值与本地重跑各有evidence标签；配置、样本和尾部误差有差异，不能互相替代。
 公开工作负载为683条，其中4--6表413条；作者200条具体成员未找到。
 Flights为本地生成的1B母体；DBEst仅4类SQL/20K拟合，八类不支持，未做等预算或延迟排名。
 CI仅一次样本，少于10行的组排除，不能解读为重复抽样覆盖率校准。
+
+Verdict仅执行已物化的同一样本：原F5.2错误和两个原SUM的外部差分适配分别列出；
+原生95%区间与DeepDB中央90%不同，不做覆盖率或耗时排名。
 
 只发布派生表图。原始数据、模型、运行环境、PDF和大输出保存在本地，不随仓库分发。
 
@@ -30,6 +33,9 @@ CI仅一次样本，少于10行的组排除，不能解读为重复抽样覆盖�
 - [fullpaper_flights_flights_ci_half_width.png](fullpaper_flights_flights_ci_half_width.png)
 - [fullpaper_flights_comparison_query_comparison.csv](fullpaper_flights_comparison_query_comparison.csv)
 - [fullpaper_flights_comparison_flights_partial_baselines.png](fullpaper_flights_comparison_flights_partial_baselines.png)
+- [fullpaper_flights_verdict_query_summary.csv](fullpaper_flights_verdict_query_summary.csv)
+- [fullpaper_flights_verdict_all_groups.csv](fullpaper_flights_verdict_all_groups.csv)
+- [fullpaper_flights_verdict_flights_verdict_comparison.png](fullpaper_flights_verdict_flights_verdict_comparison.png)
 
 ## 当前阶段状态
 
@@ -80,6 +86,7 @@ CI仅一次样本，少于10行的组排除，不能解读为重复抽样覆盖�
 | cpp_6spn_paper_proxy_v2 | PASS_SEALED_LOCAL_PUBLIC_WORKLOAD |
 | cpp_canonical_v3 | PASS_READ_ONLY_CURRENT_CANONICAL_NATIVE_AUDIT |
 | dbest_1b_bounded_original_engine | PASS_WITH_GAPS |
+| verdict_original_existing_uniform_sample | PASS_SAMPLE_ONLY_WITH_GAPS |
 | paper_exact_200_query_binding | OPEN_SOURCE_GAP |
 | figure5_original_synthetic_database | OPEN_SOURCE_GAP |
 | all_original_comparison_implementations | OPEN_SOURCE_GAP |
