@@ -1,0 +1,30 @@
+{
+  "upstream_repository": "https://github.com/IDEBench/IDEBench-public",
+  "upstream_commit": "67339d9b81d0bcbb7b41ce6dc2e55918cf1c498f",
+  "files": [
+    {
+      "bytes": 10368,
+      "sha256": "e7527f37f062eafc501062aaac4b164d1413127ef45129bd7ed9db699cebd8e9",
+      "git_blob_sha1": "34d8a0945cc727529aabe203990014c6199284b3",
+      "path": "code/vendor/idebench/datagen.py",
+      "source_url": "https://raw.githubusercontent.com/IDEBench/IDEBench-public/67339d9b81d0bcbb7b41ce6dc2e55918cf1c498f/datagen.py"
+    },
+    {
+      "bytes": 1055,
+      "sha256": "ab3dfb6ffcc3122a849e6a17f2706003a82fc55aec67758a5c4fdfcc6029783a",
+      "git_blob_sha1": "7100166aa29929163269787d01754bffb35bb369",
+      "path": "code/vendor/idebench/LICENSE",
+      "source_url": "https://raw.githubusercontent.com/IDEBench/IDEBench-public/67339d9b81d0bcbb7b41ce6dc2e55918cf1c498f/LICENSE"
+    },
+    {
+      "bytes": 1029,
+      "sha256": "29483a27fe245a844a2bb7f123332e8fc1e91c0a150c830edc0c127a0cfaf963",
+      "git_blob_sha1": "1a786236b73e8d44f602bc8be0ffc7c030840275",
+      "path": "code/vendor/idebench/README.md",
+      "source_url": "https://raw.githubusercontent.com/IDEBench/IDEBench-public/67339d9b81d0bcbb7b41ce6dc2e55918cf1c498f/README.md"
+    }
+  ],
+  "upstream_files_unmodified": true,
+  "generator_executed": false,
+  "note": "datagen.py is self-contained; sample.json is the input descriptor. NumPy/Pandas/SciPy dependencies were not installed or changed."
+}
