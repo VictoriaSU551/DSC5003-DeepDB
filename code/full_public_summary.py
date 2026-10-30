@@ -19,7 +19,10 @@ BUNDLES = {
         'query_summary.csv', 'all_groups.csv', 'flights_verdict_comparison.png']),
     'ssb': ('ssb_tables_latest.json', ['query_summary.csv', 'all_groups.csv', 'training_tables.csv',
                                     'ssb_relative_error.png', 'ssb_ci_half_width.png']),
+    'ssb_native_v2': ('ssb_native_v2_tables_latest.json', ['query_summary.csv', 'all_groups.csv',
+        'training_tables.csv', 'ssb_relative_error.png', 'ssb_ci_half_width.png']),
 }
+OPTIONAL_BUNDLES = {'ssb', 'ssb_native_v2', 'flights_verdict'}
 
 
 def record(path):
@@ -82,7 +85,7 @@ def coverage_rows(stages, prefix=''):
 def main():
     selected, evidence = [], {}
     for prefix, (pointer, names) in BUNDLES.items():
-        if prefix in {'ssb', 'flights_verdict'} and not (FULL/'results'/pointer).exists():
+        if prefix in OPTIONAL_BUNDLES and not (FULL/'results'/pointer).exists():
             continue  # Optional experiment has no accepted derived bundle yet.
         paths, sources = checked_bundle(FULL / 'results' / pointer, names)
         evidence[prefix] = sources
@@ -114,6 +117,9 @@ def main():
     if 'flights_verdict' in evidence:
         lines += ['Verdict仅执行已物化的同一样本：原F5.2错误和两个原SUM的外部差分适配分别列出；',
                   '原生95%区间与DeepDB中央90%不同，不做覆盖率或耗时排名。', '']
+    if 'ssb_native_v2' in evidence:
+        lines += ['SSB修正母体须匹配作者行数及13条SQL的2059项真值；这不证明作者全部原始行字节相同。',
+                  '原失败母体另保留MISMATCH，五个单表模型受1M/table预算限制，CI仍只有一次样本。', '']
     lines += ['只发布派生表图。原始数据、模型、运行环境、PDF和大输出保存在本地，不随仓库分发。', '',
               '## 表格和图', '']
     lines += ['- [' + item['path'].split('/')[-1] + '](' + item['path'].split('/')[-1] + ')' for item in outputs]

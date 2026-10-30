@@ -330,6 +330,9 @@ def main():
         evidence='output/full/results/grouped_truth_discrepancies.json',
         scope='Published CSVs remain unchanged; local exact counts are a separate input')
     stages['ssb_rspn_aqp'], stages['ssb_confidence_intervals'] = ssb_model_stages()
+    from full_native_status import generation_stage as native_generation, model_stages as native_models
+    stages['ssb_native_v2_sf500_generated'] = native_generation(progress_json)
+    stages['ssb_native_v2_rspn_aqp'], stages['ssb_native_v2_confidence_intervals'] = native_models()
     for key in ['flights_original_baseline_comparisons', 'ssb_aqp_and_baselines',
                 'dbest_wavelet_microbenchmarks']:
         stages[key] = dict(status='PENDING')

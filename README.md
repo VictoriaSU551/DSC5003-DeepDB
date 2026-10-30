@@ -11,7 +11,10 @@ Flights已实际遍历1B母体，使用9,997,912行样本完成12SQL、331组AQP
 官方与一致样本重建的MSCN100轮均已完成。Flights另通过新鲜进程的12SQL逆序point/CI重放，
 24次调用与原结果逐组一致；当前parser审计是事后依赖绑定，不补称历史parser已经记录。
 SSB已遍历4000片，但实际3,000,028,334行比作者记录多92行，2059项聚合值不同，
-因此作者母体门禁未通过，正式SSB训练尚未启动。原失败记录及样本保留，正在诊断。
+因此该历史母体门禁未通过，原失败记录及样本保留。已定位日期初始化、Windows字段缓冲区、
+无效随机流索引和long宽度四项生成差异；新原生路径在SF1/SF2共约1800万行上通过
+全部17字段逐行LP64差分及13条独立SQLite整数聚合，并通过恢复门禁和49项测试。
+修正后的SF500正在独立目录生成，须通过全部作者真值和最终文件闭包后才启动正式SSB训练。
 Verdict原引擎另完成同一Flights样本的12SQL对照：331个真值组、329个原始预测组，
 两处缺组及F5.2原始错误保留，两个SUM的外部差分适配单列。这是已物化样本上的执行，
 其95%区间、建样本成本和耗时口径与论文实验分别记录。
@@ -26,6 +29,7 @@ Verdict原引擎另完成同一Flights样本的12SQL对照：331个真值组、3
 当前阶段说明见[复现状态与证据](docs/FULL_REPRODUCTION_STATUS.md)，正式Flights入口见
 [运行说明](docs/FULL_FLIGHTS_MODEL_RUN.md)。
 组员接续入口见[完整阶段运行指南](docs/FULL_RUNNING_GUIDE.md)。
+修正生成器的来源、整数采样、恢复和验收条件见[SSB原生协议](docs/FULL_SSB_NATIVE_V2.md)。
 当前小型派生结果和图表可用 `code/full_public_summary.py` 从已封存产物导出到
 `output/results/fullpaper_*`；这些是明确标注未完成范围的协作快照。
 独立审查又发现原贪心选择受Python集合遍历顺序影响；B2同一查询在不同hash seed下预测可差约3倍。
@@ -78,8 +82,8 @@ powershell -ExecutionPolicy Bypass -File setup.ps1
 # 下载、校验 SHA256 / gzip CRC、只提取六张所需表
 .venv/Scripts/python.exe code/download_data.py
 
-# 检查兼容性修改
-.venv/Scripts/python.exe -m pytest
+# 检查基础兼容性修改；临时文件仍位于项目内
+.venv/Scripts/python.exe -m pytest code/tests/test_learning.py code/tests/test_preparation.py --basetemp output/tmp/basic-checks
 
 # 完整原始数据预处理、五个模型训练、70 条查询评估及模型重载复核
 .venv/Scripts/python.exe code/reproduce.py all
@@ -89,6 +93,8 @@ powershell -ExecutionPolicy Bypass -File setup.ps1
 ```
 
 原始数据约 2.81 GB（十进制字节）；下载包约 1.26 GB。预处理阶段还需要额外磁盘空间。
+完整阶段的测试还包含有界原生编译、生成器和数据库接入门禁，不要把不带文件名的全套
+`pytest` 当作日常只读验收；已封存实验按[运行指南](docs/FULL_RUNNING_GUIDE.md)使用对应审计入口。
 数据已存在且哈希一致时下载脚本会跳过下载；模型已存在时 `all` 会直接评估。
 不要覆盖已验证实验的模型：更改代码、数据或参数后请使用独立实验目录或先备份旧结果。
 

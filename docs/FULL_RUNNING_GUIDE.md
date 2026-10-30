@@ -55,9 +55,9 @@ powershell -ExecutionPolicy Bypass -File setup-mscn.ps1
 .venv/Scripts/python.exe code/full_verdict_audit.py
 .venv/Scripts/python.exe code/full_verdict_tables.py
 
-# SSB正式模型及一次独立逆序重放完成后：只读验收与表图
-.venv/Scripts/python.exe code/full_ssb_replay.py verify
-.venv/Scripts/python.exe code/full_ssb_tables.py
+# 修正SSB正式模型及一次独立逆序重放完成后：只读验收与表图
+.venv/Scripts/python.exe -B code/full_ssb_native_replay.py verify
+.venv/Scripts/python.exe -B code/full_ssb_native_tables.py
 
 # 仅导出显式白名单派生CSV/PNG，作为可提交的协作快照
 .venv/Scripts/python.exe code/full_public_summary.py
@@ -90,17 +90,27 @@ v1/v2、原模型和原published真值均保留为历史证据。只有完整v3�
 | 原Verdict已有样本执行、原错误和独立适配 | [FULL_VERDICT_PROTOCOL.md](FULL_VERDICT_PROTOCOL.md) |
 | SSB SF500与准备/训练门禁 | [FULL_SSB_MODEL_PROTOCOL.md](FULL_SSB_MODEL_PROTOCOL.md) |
 | SSB新鲜进程逆序point/CI重放及只读验收 | [FULL_SSB_REPLAY.md](FULL_SSB_REPLAY.md) |
+| 修正SSB原生生成器、完整字段差分与恢复 | [FULL_SSB_NATIVE_V2.md](FULL_SSB_NATIVE_V2.md) |
+| 修正SSB模型桥与独立逆序验收 | [FULL_SSB_NATIVE_MODEL.md](FULL_SSB_NATIVE_MODEL.md)、[FULL_SSB_NATIVE_REPLAY.md](FULL_SSB_NATIVE_REPLAY.md) |
 
 正式长任务只运行一个控制器。SSB全4000片、3,000,028,242事实行与13项作者整数聚合
 必须先通过，才允许正式训练；不得用正在增长的样本启动另一份正式运行。
 2026-10-31首次完整遍历实际为3,000,028,334行、9,993,609样本，作者聚合2059项不同；
 原监督器已正确停止，作者母体正式门禁仍关闭。不得直接重启监督器、改写MISMATCH或把该样本标作作者母体。
-SSB原顺序正式推断后，由唯一控制器显式执行一次`full_ssb_replay.py replay`；
+新原生路径已通过SF1/SF2完整字段差分、独立SQLite聚合和实际重启门禁，SF500正在新命名空间生成。
+其采样使用发布schema的精确概率0.003333，再按64位整数cutoff实施；实际样本数和n/p归一化均保留。
+`full_ssb_native_v2_formal.py verify-final`仅是固定生成器的数值/物理输入门禁；模型桥还须独立绑定
+stream lifecycle/stderr、时间/峰值和外层FINAL_PASS后才接纳，不把作者13条真值相同称为全部原始行字节相同。
+旧监督器和`full_ssb_replay.py`的旧路径保持冻结，不对失败母体执行训练。
+修正SSB原顺序正式推断后，由唯一控制器显式执行一次`full_ssb_native_replay.py replay`；
 日常验收只用`verify`。重放PASS只证明行为一致，缺组、非有限区间和CI排除仍单列，
 不能把模型调用零异常当作所有分组及区间覆盖完整。
 Flights日常验收使用新的只读parser外层。它记录当前sqlparse0.3.1及完整22个Python源文件，
 不重跑已接受的24次推断，也不能证明最初推断时的parser原字节。
 有源码、原始输入或资源缺口的项目保持未完成，不能把作者报告数值复制成此次结果。
+完整测试目录包含原生编译、实际生成器和数据库接入门禁。日常验收运行上述只读audit，
+代码改动只运行对应的纯/合成测试；不要为了检查状态重跑整个pytest目录。
+确需门禁时先核对现有封印并复用已验证产物，临时目录使用项目内较短的`output/tmp/`子目录。
 Verdict的当前验收只核文件/JAR/源码及历史数据库记录，不连接或重跑数据库，也不证明当前数据库逐行未变。
 它保留F5.2原始错误、单独的两SUM适配和缺组；原生95%区间不能混作DeepDB中央90%区间。
 Windows深路径运行Verdict的建树测试时，临时目录应使用较短的`--basetemp output/tmp/v`，避免MAX_PATH；
