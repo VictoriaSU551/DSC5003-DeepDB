@@ -114,7 +114,10 @@ v1/v2、原模型和原published真值均保留为历史证据。只有完整v3�
 新SF500行数已一致，前6条查询346项真值完全匹配，但7条customer连接查询1713项不同，仍为MISMATCH/TAINTED。
 因此三个作者母体模型执行闩锁保持关闭，没有生成严格作者模型计划或开始训练；不得改写失败状态来绕过门禁。
 另行封存的LOCAL决定与完整21766项来源审计允许本地生成母体实验。当前五个1M/table模型和13条
-查询已经实际执行，无查询错误，正在完成整个封存和独立重放；尚未最终接纳。10M/table政策实验
+查询已经实际执行，无查询错误，三阶段封存通过；旧独立重放9c因S4.3置信区间差异失败并保留TAINTED。
+GROUP BY配对排序新变体的全部13条查询通过双hash/正逆序诊断，点与区间一致；
+正式canonical评估和独立验收尚未完成，不能运行依赖旧重放PASS的10M或LOCAL Verdict入口。
+详见[FULL_SSB_GROUP_ORDER_DIAGNOSTIC.md](FULL_SSB_GROUP_ORDER_DIAGNOSTIC.md)。10M/table政策实验
 代码已审查，但真实黄金和正式训练尚未执行。它们不能提升作者母体失败状态。
 其采样使用发布schema的精确概率0.003333，再按64位整数cutoff实施；实际样本数和n/p归一化均保留。
 `full_ssb_native_v2_formal.py verify-final`仅是固定生成器的数值/物理输入门禁；模型桥还须独立绑定

@@ -18,7 +18,10 @@ SSB已遍历4000片，但实际3,000,028,334行比作者记录多92行，2059项
 另外7条含customer连接的1713项真值仍不同，无缺失/额外组；新记录仍为MISMATCH，
 作者母体训练门禁保持关闭，继续审查customer维表/键序列来源，未启动作者母体模型。
 另立LOCAL实验已用该生成母体的精确整数真值训练五个1M/table模型并执行13条查询，
-无查询错误；完整封存与独立逆序验收尚在进行，不能提前视为最终接纳。
+无查询错误；三阶段封存已通过，但独立逆序在S4.3发现CI不一致，失败记录保留。
+已定位GROUP BY集合顺序改变原型分组与置信区间因子分解。新配对排序变体在两个hash seed、
+正逆序的13SQL诊断中，2059个点估计及4118个区间端点完全一致；点估计与历史结果在原容差内一致，末位浮点差异保留。
+这是新变体诊断，正式独立验收仍未完成；模型不重训，旧报告和失败状态均不覆盖。
 Figure11的10M/table训练政策另有独立模块和科学黄金测试接口，代码已审查，实际黄金及
 正式10M训练尚未执行。实际事实样本为9,996,946行，不声称恰好10M或作者母体一致。
 SSB的原Verdict在SF2完成38次实际调用：540个必要样本缩放组通过；原Q4 no-bound的
@@ -40,7 +43,8 @@ Verdict原引擎另完成同一Flights样本的12SQL对照：331个真值组、3
 组员接续入口见[完整阶段运行指南](docs/FULL_RUNNING_GUIDE.md)。
 修正生成器的来源、整数采样、恢复和验收条件见[SSB原生协议](docs/FULL_SSB_NATIVE_V2.md)。
 本地1M与10M实验分界见[CI协议](docs/FULL_SSB_LOCAL_CI_PROTOCOL.md)、
-[独立重放及只读验收](docs/FULL_SSB_LOCAL_CI_REPLAY.md)；
+[独立重放及只读验收](docs/FULL_SSB_LOCAL_CI_REPLAY.md)、
+[SSB分组顺序诊断](docs/FULL_SSB_GROUP_ORDER_DIAGNOSTIC.md)；
 原Verdict小规模执行见[SF2审计](docs/FULL_VERDICT_SSB_SF2_AUDIT.md)。
 当前小型派生结果和图表可用 `code/full_public_summary.py` 从已封存产物导出到
 `output/results/fullpaper_*`；这些是明确标注未完成范围的协作快照。
