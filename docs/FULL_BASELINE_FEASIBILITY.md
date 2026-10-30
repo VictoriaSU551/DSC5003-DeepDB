@@ -1,5 +1,10 @@
 # AQP 原基线来源与可执行边界
 
+> 本文保留来源调查时的静态边界。随后原DBEst小输入门禁及实际1B Flights上的20K拟合已执行，
+> 当前实验结果见[FULL_DBEST_PROTOCOL.md](FULL_DBEST_PROTOCOL.md)、
+> [FULL_DBEST_FLIGHTS.md](FULL_DBEST_FLIGHTS.md)和[独立审计](FULL_DBEST_FLIGHTS_AUDIT.md)。
+> 下文“尚未执行”描述调查当时，不代表这些后来已封存阶段仍未开始。
+
 本次只获取、封印和审计原作者来源，没有安装依赖、训练模型或运行任何基线。
 论文作者历史CSV不是本地基线结果。正在运行的Flights/SSB生成器及协议绑定均未修改。
 结论是：**原DBEst值得先做隔离的小输入接口验证；其余方法目前不能直接把已保留样本与truth当作原规模端到端基线。**

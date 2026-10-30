@@ -174,3 +174,56 @@ def test_nonfinite_model_or_adam_is_rejected_before_epoch_commit():
     with pytest.raises(ValueError, match='finite'):
         m.assert_finite_model_adam(model, optimizer)
 
+
+def test_permanent_local_truth_refuses_uncommitted_published_evaluation(tmp_path):
+    import full_mscn_local_truth as scoring
+    with pytest.raises(ValueError, match='100-epoch published evaluation'):
+        scoring.run(directory=tmp_path)
+    assert not (tmp_path / 'evaluation_local_truth.json').exists()
+
+
+def test_permanent_local_truth_records_relative_python38_entry_path():
+    import full_mscn_local_truth as scoring
+    from pathlib import Path
+    entry = Path('code/full_mscn_local_truth.py')
+    result = scoring.record(entry)
+    assert result['path'] == entry.as_posix()
+    assert result['bytes'] == entry.stat().st_size
+    assert len(result['sha256']) == 64
+
+
+@pytest.mark.parametrize('field,value', [
+    ('group', '4_2_SPN'), ('query_no', '1'), ('query', 'select count(*) from other;'),
+    ('source_sql_sha256', 'changed'), ('samples_manifest_sha256', 'different'),
+    ('cardinality_true', '24'), ('cardinality_predict', '12.5'),
+    ('cardinality_predict', 'nan'), ('cardinality_predict', '-1'),
+])
+def test_permanent_local_truth_rejects_changed_prediction_identity(field, value):
+    import full_mscn_local_truth as scoring
+    import hashlib
+    sql = 'select count(*) from title t;'
+    prediction = dict(group='4_1_SPN', query_no='0', query=sql,
+                      source_sql_sha256=hashlib.sha256(sql.encode()).hexdigest(),
+                      samples_manifest_sha256='samples', cardinality_true='23',
+                      cardinality_predict='12')
+    truth = dict(group='4_1_SPN', query_no='0', query=sql,
+                 cardinality_true='25', cardinality_published='23')
+    assert scoring.validate_identity(prediction, truth, '4_1_SPN', 0, 'samples') == 12
+    prediction[field] = value
+    with pytest.raises(ValueError):
+        scoring.validate_identity(prediction, truth, '4_1_SPN', 0, 'samples')
+
+
+def test_permanent_local_truth_rejects_tampered_preserved_prediction_before_scoring(tmp_path):
+    import full_mscn_local_truth as scoring
+    import json
+    path = tmp_path / '3_1_SPN.csv'
+    path.write_text('tampered', encoding='utf-8')
+    evaluation = dict(status='REBUILT_PUBLIC_WORKLOAD_EVALUATION_COMPLETE',
+                      completed_epochs=100, queries=753,
+                      artifacts=[dict(path=path.name, bytes=8, sha256='original')])
+    (tmp_path / 'evaluation.json').write_text(json.dumps(evaluation), encoding='utf-8')
+    with pytest.raises(ValueError):
+        scoring.run(directory=tmp_path)
+    assert not (tmp_path / 'evaluation_local_truth.json').exists()
+

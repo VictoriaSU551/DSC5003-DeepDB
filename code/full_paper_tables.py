@@ -1,6 +1,6 @@
 """Build immutable, source-sealed paper comparison tables and research figures.
 
-Only model-aware v2 predictions enter the current comparisons. Author numbers
+Only fully verified canonical v3 predictions enter current comparisons. Author numbers
 are a separate series. Public grouped queries are not the unidentified paper200.
 No model training or inference is performed by this module.
 """
@@ -13,8 +13,8 @@ import numpy as np
 
 from full_common import ROOT, FULL, atomic_json, binding_hash, file_sha256, load_json
 from full_evaluation import numeric_summary, q_error, workload_files
-from full_evaluation_v2 import PROTOCOL
-from full_status import verified_evaluation
+from full_evaluation_v3 import PROTOCOL
+from full_status import verified_current_evaluation
 
 AUTHOR_TABLE1 = {
     'DeepDB': [1.34, 2.50, 3.16, 39.63],
@@ -58,22 +58,54 @@ def source_record(path):
     return dict(path=path.relative_to(ROOT).as_posix(), bytes=path.stat().st_size, sha256=file_sha256(path))
 
 
+def historical_v2_comparison(label, current, sources):
+    """Compare frozen prediction files; never certify v2 as current inference."""
+    path = FULL / 'results' / (label + '_evaluation_v2.json')
+    summary = load_json(path)
+    if summary is None:
+        return None
+    source = summary.get('reused_from_label', label)
+    previous, changes = {}, {}
+    for group, rows in current.items():
+        csv = FULL / 'evaluation_v2' / source / (group + '.csv')
+        if file_sha256(csv) != summary['groups'][group]['csv_sha256']:
+            raise ValueError('historical v2 CSV changed: ' + str(csv))
+        old = csv_rows(csv)
+        if (len(old) != len(rows) or any(a['query'] != b['query'] or a['query_no'] != b['query_no']
+                or a['cardinality_true'] != b['cardinality_true'] for a, b in zip(old, rows))):
+            raise ValueError('historical v2/v3 workload identity differs')
+        changed, maximum = 0, 0.
+        for a, b in zip(old, rows):
+            earlier, canonical = float(a['cardinality_predict']), float(b['cardinality_predict'])
+            if not math.isclose(earlier, canonical, rel_tol=1e-9, abs_tol=1e-7):
+                changed += 1
+                maximum = max(maximum, abs(canonical - earlier) / abs(earlier) if earlier else math.inf)
+        changes[group] = dict(queries=len(rows), changed_predictions=changed,
+                              largest_relative_change_from_v2=maximum)
+        previous[group] = old
+        sources[csv.relative_to(ROOT).as_posix()] = source_record(csv)
+    sources[path.relative_to(ROOT).as_posix()] = source_record(path)
+    return dict(scope='Historical v2 file comparison only; current results require canonical four-seed acceptance',
+                job_light=selected_summary(previous, lambda g: g == 'job_light'),
+                public_3to6=selected_summary(previous, lambda g: g != 'job_light'),
+                group_changes=changes)
+
+
 def sealed_model(label, include_scale, sources):
     count = 753 if include_scale else 70
-    stage = verified_evaluation(label, count)
+    stage = verified_current_evaluation(label, count)
     if stage['status'] == 'PENDING':
         return None
     if stage['status'] != 'PASS_LOCAL_VARIANT':
         raise ValueError('invalid evidence for ' + label + ': ' + str(stage))
-    summary_path = FULL / 'results' / (label + '_evaluation_v2.json')
+    summary_path = FULL / 'results' / (label + '_evaluation_v3.json')
     training_path = FULL / 'results' / (label + '_training.json')
     summary, training = load_json(summary_path), load_json(training_path)
     for path in (summary_path, training_path, ROOT / training['model_path']):
         sources[path.relative_to(ROOT).as_posix()] = source_record(path)
-    source_label = summary.get('reused_from_label', label)
     groups = {}
     for group, _, truth_path in workload_files(include_scale):
-        path = FULL / 'evaluation_v2' / source_label / (group + '.csv')
+        path = FULL / 'evaluation_v3' / label / (group + '.csv')
         rows, truths = csv_rows(path), csv_rows(truth_path)
         if len(rows) != len(truths) or any(int(row['cardinality_true']) != int(t['cardinality_true'])
                                          for row, t in zip(rows, truths)):
@@ -93,6 +125,7 @@ def sealed_model(label, include_scale, sources):
                   public_3to6=selected_summary(groups, lambda g: g != 'job_light'),
                   public_4to6=selected_summary(groups, lambda g: g != 'job_light' and int(g[0]) >= 4),
                   group_summaries={g: selected_summary({g: r}, lambda _: True) for g, r in groups.items()},
+                  historical_v2=historical_v2_comparison(label, groups, sources),
                   temporal_models=[{k: c[k] for k in ('spec', 'initial_sample_rows', 'updated_sample_rows',
                       'sample_update_fraction', 'initial_population', 'full_population', 'population_update_fraction')}
                       for c in training['models'] if 'sample_update_fraction' in c])
@@ -115,7 +148,7 @@ def table1_rows(models, sources):
                           ('joblight_single_n10000000', 'DeepDB singles')]:
         if label in models:
             model = models[label]
-            rows.append(dict(method=method, evidence='local_v2', label=label,
+            rows.append(dict(method=method, evidence='local_canonical_v3', label=label,
                              model_pickle_bytes=model['model_bytes'],
                              component_learning_seconds=model['component_learning_seconds'], **model['job_light']))
     path = FULL / 'results/postgres_job_light_verification.json'
@@ -142,7 +175,7 @@ def table1_rows(models, sources):
     return rows
 
 
-def draw_figures(directory, table, models, cpp):
+def draw_figures(directory, table, models, cpp, rebuilt=None):
     import matplotlib
     matplotlib.use('Agg')
     import matplotlib.pyplot as plt
@@ -154,8 +187,8 @@ def draw_figures(directory, table, models, cpp):
         fig.tight_layout(rect=(0, .08, 1, .98))
         fig.savefig(str(directory / (name + '.png')))
         plt.close(fig)
-    fig, axes = plt.subplots(1, 3, figsize=(12.8, 4.3), sharey=True)
-    for ax, method in zip(axes, ['DeepDB', 'DeepDB storage', 'PostgreSQL11.5']):
+    fig, axes = plt.subplots(1, 4, figsize=(14, 4.3), sharey=True)
+    for ax, method in zip(axes, ['DeepDB', 'DeepDB storage', 'PostgreSQL11.5', 'MSCN']):
         selected = [r for r in table if r['method'] == method]
         for record in selected:
             author = record['evidence'].startswith('author')
@@ -188,27 +221,30 @@ def draw_figures(directory, table, models, cpp):
         groups = models[label]['group_summaries']
         names = ['%d_%d_SPN' % (t, p) for t in [4, 5, 6] for p in range(1, 6)]
         fig, ax = plt.subplots(figsize=(11.5, 4.2))
-        ax.plot(range(15), [groups[n]['median'] for n in names], 'o-', color=blue, label='Ensemble threshold0.15')
+        ax.plot(range(15), [groups[n]['median'] for n in names], 'o-', color=blue, label='DeepDB: ensemble threshold 0.15')
         alternative = models.get('threshold03_public_scale_rdc_n10000000_b0p5')
         if alternative:
             ax.plot(range(15), [alternative['group_summaries'][n]['median'] for n in names], '^--',
-                    color=gold, label='Ensemble threshold0.3')
+                    color=gold, label='DeepDB: ensemble threshold 0.3')
+        if rebuilt:
+            ax.plot(range(15), [rebuilt['groups'][n]['median'] for n in names], 's:',
+                    color='#7C3A5E', label='MSCN: rebuilt consistent samples')
         ax.set(yscale='log', xticks=range(15), xticklabels=[n[:3].replace('_', '-') for n in names],
                xlabel='Tables--predicates', ylabel='Median q-error (log scale)', title='Public 413 queries in 15 generalization cells')
         ax.grid(axis='y', color='#DDDDDD', lw=.7)
         ax.legend(frameon=False)
-        finish(fig, 'generalization', 'Public-scale schema retains person_id. Cells have different query counts; CSV tables retain each count. MSCN will be added only after its formal run.')
+        finish(fig, 'generalization', 'Public 413 queries; not author 200. MSCN: separate consistent-sample 100-epoch run. Published truths; local-truth metrics are separately retained.')
     if cpp:
         groups = cpp['groups']
         x = np.arange(len(groups)); fig, ax = plt.subplots(figsize=(11.5, 4.2))
         for offset, field, title, color in [(-.18, 'cpp_total_ms', 'Query total', blue),
-                                           (.18, 'cpp_inference_ms', 'RSPN inference', gold)]:
+                                           (.18, 'cpp_physical_native_ms', 'Full native call wall', gold)]:
             ax.bar(x + offset, [g['timing_ms'][field]['mean'] * 1000 for g in groups], .36, label=title,
-                   color=color, hatch='///' if field == 'cpp_inference_ms' else None)
+                   color=color, hatch='///' if field == 'cpp_physical_native_ms' else None)
         ax.set(xticks=x, xticklabels=['%d-%d' % (g['tables'], g['predicates']) for g in groups],
                xlabel='Tables--predicates', ylabel='Mean latency (microseconds)', title='Generated C++ inference on the public 413 queries')
         ax.legend(frameon=False); ax.grid(axis='y', color='#DDDDDD', lw=.7); ax.set_axisbelow(True)
-        finish(fig, 'cpp_latency', '3 timed repetitions after warm-up; cold cache per query. Shared Windows CPU. Total excludes SQL parsing; not a paper hardware speed comparison.')
+        finish(fig, 'cpp_latency', 'Canonical v3; 3 repetitions after warm-up, cold cache/query. Native wall includes every successful pybind call and conversions.\nShared Windows CPU; query total excludes SQL parsing. Public 413 queries; not author 200 or paper hardware equivalence.')
     cuts = [2019, 2011, 2009, 2004, 1991]
     temporal = [(i, models['temporal_joblight_rdc_n10000000_b0p0_year%d' % cut])
                 for i, cut in enumerate(cuts) if 'temporal_joblight_rdc_n10000000_b0p0_year%d' % cut in models]
@@ -247,23 +283,30 @@ def main():
         else: models[label] = model
     table = table1_rows(models, sources)
     cpp = None
-    seal_path = FULL / 'cpp-scale/sealed_paper_proxy_6spn.json'
-    seal = load_json(seal_path, {})
-    if seal.get('status') == 'SEALED_PASS':
-        sources[seal_path.relative_to(ROOT).as_posix()] = source_record(seal_path)
-        for item in seal['assets']:
-            path = seal_path.parent / item['path']
-            if file_sha256(path) != item['sha256']: raise ValueError('C++ final seal changed')
-            sources[path.relative_to(ROOT).as_posix()] = source_record(path)
-        verification_path = seal_path.parent / seal['assets'][1]['path']
-        verification = load_json(verification_path)
-        directory = seal_path.parent / Path(seal['assets'][0]['path']).parent
-        if verification['python_v2_reference_gate'] != 'PASS': raise ValueError('C++ v2 gate did not pass')
-        for item in verification['result_assets']:
-            path = directory / item['path']
-            if file_sha256(path) != item['sha256']: raise ValueError('C++ result artifact changed')
+    seal_path = FULL / 'cpp-v3/final_current_seal.json'
+    if seal_path.exists():
+        from full_cpp_v3_audit import audit as audit_cpp
+        audited = audit_cpp()
+        if audited['status'] != 'PASS_READ_ONLY_CURRENT_CANONICAL_NATIVE_AUDIT':
+            raise ValueError('Current canonical C++ audit did not pass')
+        pointer_path = FULL / 'cpp-v3/latest.json'
+        verification_path = ROOT / load_json(pointer_path)['path']
+        directory = verification_path.parent
+        for path in [seal_path, pointer_path, verification_path,
+                     ROOT / 'code/full_cpp_v3_audit.py', directory / 'all_753_repeated.jsonl',
+                     directory / 'figure8_grouped_timings.json']:
             sources[path.relative_to(ROOT).as_posix()] = source_record(path)
         cpp = load_json(directory / 'figure8_grouped_timings.json')
+    rebuilt = None
+    rebuilt_seal = FULL / 'mscn/rebuilt_seed1/results/final_seal.json'
+    if rebuilt_seal.exists():
+        from full_mscn_rebuilt_audit import verify as verify_rebuilt
+        rebuilt = verify_rebuilt()
+        for path in [rebuilt_seal, ROOT / 'code/full_mscn_rebuilt_audit.py']:
+            sources[path.relative_to(ROOT).as_posix()] = source_record(path)
+        for group, _, _ in workload_files(True):
+            path = rebuilt_seal.parent / (group + '.csv')
+            sources[path.relative_to(ROOT).as_posix()] = source_record(path)
     code = source_record(Path(__file__))
     binding = dict(code=code, inputs=sorted(sources.values(), key=lambda r: r['path']),
                    pending=pending, protocol=PROTOCOL)
@@ -278,7 +321,7 @@ def main():
     output.mkdir(parents=True, exist_ok=True)
     atomic_json(output / 'models.json', models)
     write_csv(output / 'table1.csv', table)
-    rows, temporal, group_rows = [], [], []
+    rows, temporal, group_rows, variant_changes = [], [], [], []
     for model in models.values():
         common = {key: model[key] for key in ('label', 'profile', 'requested_samples', 'budget', 'components',
             'model_bytes', 'component_learning_seconds', 'component_sampling_seconds')}
@@ -286,12 +329,18 @@ def main():
             if model[scope] is not None: rows.append(dict(common, workload=scope, **model[scope]))
         for group, stats in model['group_summaries'].items():
             group_rows.append(dict(label=model['label'], group=group, **stats))
+        if model['historical_v2']:
+            for group, values in model['historical_v2']['group_changes'].items():
+                variant_changes.append(dict(label=model['label'], group=group, **values))
         for item in model['temporal_models']:
             temporal.append(dict(label=model['label'], tables=';'.join(item['spec']['tables']),
                 **{k: v for k, v in item.items() if k != 'spec'}))
     write_csv(output / 'studies.csv', rows); write_csv(output / 'groups.csv', group_rows)
+    if rebuilt:
+        atomic_json(output / 'mscn_rebuilt_public_metrics.json', rebuilt)
+    if variant_changes: write_csv(output / 'inference_variant_changes.csv', variant_changes)
     if temporal: write_csv(output / 'temporal_population_fractions.csv', temporal)
-    draw_figures(output, table, models, cpp)
+    draw_figures(output, table, models, cpp, rebuilt)
     artifacts = [source_record(p) for p in sorted(output.iterdir()) if p.is_file()]
     atomic_json(manifest_path, dict(status='PASS_AVAILABLE_EVIDENCE_ONLY', binding=binding_hash(binding),
         binding_details=binding, full_paper_complete=False, artifacts=artifacts,

@@ -6,11 +6,12 @@ from pathlib import Path
 
 from full_common import ROOT, FULL, atomic_json, binding_hash, file_sha256, load_json
 from full_evaluation import workload_files
-from full_evaluation_v2 import helper_seal, PROTOCOL
+from full_canonical_acceptance import verify_current as verify_canonical_evaluation
+from full_evaluation_v3 import PROTOCOL
 
 
 def progress_json(path, default=None):
-    """Read an atomic Windows checkpoint without denying its writer a rename."""
+    """Minimize Windows sharing conflicts; writer retries remain necessary."""
     path = Path(path)
     if not path.exists():
         return default
@@ -27,35 +28,45 @@ def progress_json(path, default=None):
     if handle == ctypes.c_void_p(-1).value:
         raise ctypes.WinError(ctypes.get_last_error())
     descriptor = msvcrt.open_osfhandle(handle, os.O_RDONLY | os.O_BINARY)
-    with os.fdopen(descriptor, 'r', encoding='utf-8') as stream:
-        return json.load(stream)
+    with os.fdopen(descriptor, 'rb') as stream:
+        content = stream.read()
+    return json.loads(content.decode('utf-8'))
 
 
 def verified_evaluation(label, queries):
+    """Legacy v2 API, retained for the frozen historical postprocessor only."""
+    from full_evidence_audit import require_current_audit
     path = FULL / 'results' / (label + '_evaluation_v2.json')
+    stage = dict(status='PENDING', evidence=path.relative_to(ROOT).as_posix())
+    if not path.exists():
+        return stage
+    try:
+        require_current_audit(label, queries)
+        result = load_json(path)
+        stage.update(status='PASS_LOCAL_VARIANT', queries=queries,
+                     job_light_qerror=result['groups']['job_light']['q_error'], prediction_generation='v2',
+                     scope='Historical v2 with fresh dependency replay; not canonical four-hash-seed acceptance')
+    except (KeyError, ValueError, OSError) as error:
+        stage.update(status='EVIDENCE_INVALID', reason=str(error))
+    return stage
+
+
+def verified_current_evaluation(label, queries):
+    path = FULL / 'results' / (label + '_evaluation_v3.json')
     result = load_json(path)
     stage = dict(status='PENDING', evidence=path.relative_to(ROOT).as_posix())
     if result is None:
+        stage['reason'] = 'canonical traversal and four hash-seed inference gate pending; v1/v2 are historical'
         return stage
-    training = load_json(FULL / 'results' / (label + '_training.json'))
+    replay_paths = [FULL / 'results' / (label + '_replay_v3_seed%d.json' % seed) for seed in [1, 2, 3]]
+    if not all(p.exists() for p in replay_paths) or not (FULL / 'results/canonical_inference_verification.json').exists():
+        stage['reason'] = 'canonical evaluation exists; three fresh hash-seed reverse replays pending'
+        return stage
     try:
-        if (result.get('status') != 'PASS' or result.get('protocol') != PROTOCOL
-                or result.get('queries') != queries or training is None
-                or result.get('model_sha256') != training.get('model_sha256')
-                or file_sha256(ROOT / training['model_path']) != training['model_sha256']):
-            raise ValueError('evaluation or model seal mismatch')
-        source = result.get('reused_from_label', label)
-        expected_helpers = helper_seal()
-        for group, query_path, truth_path in workload_files(queries != 70):
-            record = result['groups'][group]
-            csv = FULL / 'evaluation_v2' / source / (group + '.csv')
-            if (record['helpers'] != expected_helpers or record['query_sha256'] != file_sha256(query_path)
-                    or record['truth_sha256'] != file_sha256(truth_path)
-                    or file_sha256(csv) != record['csv_sha256']):
-                raise ValueError('prediction, workload or evaluator seal mismatch')
+        result = verify_canonical_evaluation(label, queries)
         stage.update(status='PASS_LOCAL_VARIANT', queries=queries,
                      job_light_qerror=result['groups']['job_light']['q_error'],
-                     independently_replayed=load_json(FULL / 'results' / (label + '_replay_v2.json'), {}).get('status') == 'PASS')
+                     independently_replayed=True, hash_seeds=[0, 1, 2, 3], prediction_generation='v3')
     except (KeyError, ValueError, OSError) as error:
         stage.update(status='EVIDENCE_INVALID', reason=str(error))
     return stage
@@ -74,19 +85,19 @@ def main():
                          ('paper_proxy_joblight_rdc_n10000000_b0p5', 70),
                          ('public_scale_rdc_n100000_b0p0', 753),
                          ('public_scale_rdc_n10000000_b0p5', 753)]:
-        stages[label] = verified_evaluation(label, count)
-    stages['sample_size_sweep_public_profile'] = {str(n): verified_evaluation(
+        stages[label] = verified_current_evaluation(label, count)
+    stages['sample_size_sweep_public_profile'] = {str(n): verified_current_evaluation(
         'public_scale_rdc_n%d_b%s' % (n, '0p5' if n == 10000000 else '0p0'), 753)
         for n in [1000, 10000, 100000, 1000000, 10000000]}
-    stages['budget_sweep_public_paper_cost_proxy'] = {str(b): verified_evaluation(
+    stages['budget_sweep_public_paper_cost_proxy'] = {str(b): verified_current_evaluation(
         'paper_proxy_public_scale_rdc_n10000000_b%s' % str(b).replace('.', 'p'), 753)
         for b in [0., .5, 1., 2., 3.]}
-    stages['temporal_10m_joblight'] = {str(c): verified_evaluation(
+    stages['temporal_10m_joblight'] = {str(c): verified_current_evaluation(
         'temporal_joblight_rdc_n10000000_b0p0_year%d' % c, 70) for c in [2019, 2011, 2009, 2004, 1991]}
-    stages['literal_point3_ensemble_threshold'] = {profile: {str(b): verified_evaluation(
+    stages['literal_point3_ensemble_threshold'] = {profile: {str(b): verified_current_evaluation(
         'threshold03_%s_rdc_n10000000_b%s' % (profile, str(b).replace('.', 'p')), 70 if profile == 'joblight' else 753)
         for b in [0., .5, 1., 2., 3.]} for profile in ['joblight', 'public_scale']}
-    stages['all_relationships_joblight'] = {str(n): verified_evaluation(
+    stages['all_relationships_joblight'] = {str(n): verified_current_evaluation(
         'relationship_n%d_b0p0' % n, 70) for n in [100000, 10000000]}
     cpp = load_json(FULL / 'results/cpp_verification.json', {})
     stages['cpp_existing_model_correctness'] = dict(status=cpp.get('status', 'PENDING'),
@@ -115,11 +126,31 @@ def main():
     mscn_dir = FULL / 'mscn/table1_job_light_seed1'
     mscn = progress_json(mscn_dir / 'checkpoints/latest.json', {})
     mscn_eval = load_json(mscn_dir / 'evaluation.json', {})
+    from full_mscn_verify import reuse_verification
+    try:
+        mscn_final = reuse_verification(mscn_dir) or {}
+    except (KeyError, ValueError, OSError) as error:
+        mscn_final = dict(status='EVIDENCE_INVALID', reason=str(error))
     stages['mscn_100_epochs'] = dict(
         status='PASS_LOCAL_TABLE1_RERUN' if mscn_eval.get('status') == 'TABLE1_LOCAL_RERUN_COMPLETE'
-                     and mscn_eval.get('completed_epochs') == mscn.get('completed_epochs') == 100 else 'PARTIAL_CHECKPOINT',
+                     and mscn_eval.get('completed_epochs') == mscn.get('completed_epochs') == 100
+                     and mscn_final.get('status') == 'PASS' else 'PARTIAL_CHECKPOINT',
         committed_epochs=mscn.get('completed_epochs', 0), target_epochs=100,
+        independent_final_audit=mscn_final.get('status', 'PENDING'), final_qerror=mscn_final.get('qerror'),
         scope='Official matched 100K input bitmaps; public 683 generalization bitmaps not recovered')
+    rebuilt = progress_json(FULL / 'mscn/rebuilt_seed1/results/checkpoints/latest.json', {})
+    rebuilt_stage = dict(
+        status='PARTIAL_CHECKPOINT', committed_epochs=rebuilt.get('completed_epochs', 0), target_epochs=100,
+        scope='Separate rebuilt same-sample train/evaluation bitmaps; final 753-query and local-truth acceptance required')
+    if (FULL / 'mscn/rebuilt_seed1/results/final_seal.json').exists():
+        try:
+            from full_mscn_rebuilt_audit import verify as verify_rebuilt
+            audited = verify_rebuilt()
+            rebuilt_stage.update(status='PASS_SEALED_REBUILT_100_EPOCHS_LOCAL_WORKLOAD', queries=audited['queries'],
+                                 public_3to6=audited['public_3to6'], public_4to6=audited['public_4to6'])
+        except (KeyError, ValueError, OSError) as error:
+            rebuilt_stage.update(status='EVIDENCE_INVALID', reason=str(error))
+    stages['mscn_rebuilt_consistent_sample_generalization'] = rebuilt_stage
     cpp_scale = load_json(FULL / 'cpp-scale/public_scale_verification.json', {})
     stages['cpp_5spn_public_workload'] = dict(status=cpp_scale.get('cold_cache_python_cpp_gate', 'PENDING'),
         queries=cpp_scale.get('queries', 0),
@@ -147,10 +178,37 @@ def main():
             native.update(status='PASS_SEALED_LOCAL_PUBLIC_WORKLOAD', queries=verification['queries'],
                 paired_predictions=verification['paired_predictions'],
                 group_cells=len(verification['figure8_public_group_cells']),
-                scope='Sealed receipt checked; native assets were exhaustively verified at sealing, not rehashed by the live progress reader')
+                scope='Historical v2 selector. Sealed receipt checked; native assets exhaustively verified at sealing. Canonical v3 requires its separate differential gate.')
         except (KeyError, ValueError, OSError, StopIteration) as error:
             native.update(status='EVIDENCE_INVALID', reason=str(error))
     stages['cpp_6spn_paper_proxy_v2'] = native
+    cpp_current = dict(status='PENDING', evidence='output/full/cpp-v3/final_current_seal.json',
+        scope='Canonical753x3, all15public Figure8 cells; complete physical native-call wall, shared host, not paper200/hardware')
+    if (FULL / 'cpp-v3/final_current_seal.json').exists():
+        try:
+            from full_cpp_v3_audit import audit as audit_cpp
+            audited = audit_cpp()
+            cpp_current.update(status=audited['status'], queries=audited['queries'],
+                paired_predictions=audited['paired_predictions'], group_cells=audited['figure8_cells'],
+                successful_native_calls=audited['successful_native_calls'],
+                upstream_omitted_successful_native_calls=audited['upstream_omitted_successful_native_calls'],
+                physical_native_timer=audited['physical_native_timer'])
+        except (KeyError, ValueError, OSError) as error:
+            cpp_current.update(status='EVIDENCE_INVALID', reason=str(error))
+    stages['cpp_canonical_v3'] = cpp_current
+    dbest_audit_path = FULL / 'dbest_flights_audit/verification.json'
+    dbest_stage = dict(status='PENDING', evidence=dbest_audit_path.relative_to(ROOT).as_posix())
+    if dbest_audit_path.exists():
+        try:
+            from full_dbest_flights_audit import verify as verify_dbest
+            audited = verify_dbest()
+            dbest_stage.update(status='PASS_WITH_GAPS', population_rows=audited['population_rows'],
+                unique_fit_rows=audited['unique_fit_rows'], native_calls=audited['verified_native_calls'],
+                unsupported_queries=audited['unsupported_query_count'],
+                scope='Original engine on own1B population;20K fit cap;4SQL classes and DE coverage gap. Not author configuration or full Figure13.')
+        except (KeyError, ValueError, OSError) as error:
+            dbest_stage.update(status='EVIDENCE_INVALID', reason=str(error))
+    stages['dbest_1b_bounded_original_engine'] = dbest_stage
     for key, reason in [
         ('paper_exact_200_query_binding', 'Public files contain 683 grouped queries; original 200 membership not identified'),
         ('figure5_original_synthetic_database', 'Original generator, parameters and seeds not found in audited public sources'),

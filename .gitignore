@@ -16,6 +16,7 @@ output/results/*
 !output/results/*.csv
 !output/results/*.md
 !output/results/*.txt
+!output/results/fullpaper_*.png
 *.log
 .DS_Store
 .env

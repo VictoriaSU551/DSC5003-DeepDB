@@ -1,0 +1,88 @@
+# 完整阶段的运行入口
+
+所有命令从项目根目录的 PowerShell 执行。已有检查点时先查看状态，不要重建环境、
+重新下载同一数据或重训已验证模型。数据和模型不随公开仓库分发。
+
+## 协作与环境
+
+公开仓库的完整阶段在 `reproduction/full-paper` 分支。组员可克隆这个分支，
+在自己的功能分支提交 PR；不要把大数据、模型、环境、PDF或私人文件加入 Git。
+
+新机器先运行 `setup.ps1` 建主环境。官方和重建 MSCN 使用独立的
+`setup-mscn.ps1`：10个Windows/Python3.8 wheel的URL、大小和SHA256固定在
+`docs/manifests/mscn-windows-py38-wheels.json`。已有匹配环境仅检查版本，不安装或修改包。
+该锁来自本次本地兼容环境，不是作者的原Python3.7/PyTorch1.0环境。
+
+```powershell
+# MSCN源码和100K/70配套位图；存在的文件只核验，不覆盖
+.venv/Scripts/python.exe code/full_mscn_sources.py
+
+# 仅新机器安装；已有正确环境直接返回
+powershell -ExecutionPolicy Bypass -File setup-mscn.ps1
+```
+
+`full_mscn_sources.py --offline` 可只核验本地固定归档和所有解出的原字节。
+主数据下载入口仍为 `code/download_data.py`；其余来源与数据生成见相应协议。
+
+## 接续与验收
+
+```powershell
+.venv/Scripts/python.exe code/full_status.py
+
+# 基线按组提交；逆序重放按完整模型提交，在四个新进程中验证
+.venv/Scripts/python.exe code/full_evaluation_v3_run.py --all
+.venv/Scripts/python.exe code/full_canonical_acceptance.py
+
+# 严格只读native验收；缺少既有最终工件时失败，不补跑推断或编译
+.venv/Scripts/python.exe code/full_cpp_v3_audit.py
+
+# 验收通过后，只读现有预测生成表图和local真值指标
+.venv/Scripts/python.exe code/full_paper_tables.py
+.venv/Scripts/python.exe code/full_local_truth_eval_v3.py
+
+# Flights正式AQP/CI结果与部分DBEst对照的只读表图
+.venv/Scripts/python.exe code/full_aqp_tables.py
+.venv/Scripts/python.exe code/full_aqp_comparisons.py
+
+# 仅导出显式白名单派生CSV/PNG，作为可提交的协作快照
+.venv/Scripts/python.exe code/full_public_summary.py
+```
+
+`--all` 读取本阶段已有v2实验配置清单；新训练配置也可把其明确label作为位置参数传给v3入口。
+v1/v2、原模型和原published真值均保留为历史证据。只有完整v3依赖、seed0基线和seed1/2/3
+逆序重放通过后，当前状态才报告该配置通过。论文200条成员缺失不能被683条本地工作负载替代。
+
+新训练/恢复先用 `full_prepared_seal.py` 和 `full_training_guard.py`；不要直接把旧
+`full_training.py` 的metadata级检查点当作完整HDF来源证明。详见
+[依赖与恢复审计](FULL_DEPENDENCY_AUDIT.md)。原组件种子由binding派生，metadata包含本地路径；
+新机器重建metadata后不保证产生同一训练样本或逐位相同模型。每次结果保留实际种子与输入摘要，
+不得把本机结果摘要当作另一台机器已经重跑的结果。
+四个已封存CRLF源文件在`.gitattributes`明确设为`-text`，其余Python为LF；
+不要运行全目录换行格式化，否则会改变运行凭据绑定的原始字节。
+
+## 分实验协议
+
+| 内容 | 入口与边界 |
+|---|---|
+| 论文精读、图表覆盖条件 | [FULL_REPRODUCTION_PROTOCOL.md](FULL_REPRODUCTION_PROTOCOL.md) |
+| 参数、预算和两个schema | [FULL_PARAMETER_STUDIES.md](FULL_PARAMETER_STUDIES.md) |
+| 当前C++差分、物理调用计时与只读验收 | [FULL_CPP_V3.md](FULL_CPP_V3.md)、[FULL_CPP_V3_AUDIT.md](FULL_CPP_V3_AUDIT.md) |
+| 官方MSCN与最终只读复核 | [FULL_MSCN_PROTOCOL.md](FULL_MSCN_PROTOCOL.md)、[FULL_MSCN_VERIFY.md](FULL_MSCN_VERIFY.md) |
+| 重建一致位图MSCN | [FULL_MSCN_REBUILT.md](FULL_MSCN_REBUILT.md) |
+| Flights原规模模型/AQP/CI | [FULL_FLIGHTS_MODEL_RUN.md](FULL_FLIGHTS_MODEL_RUN.md) |
+| 原DBEst实际1B母体上的20K拟合与审计 | [FULL_DBEST_FLIGHTS.md](FULL_DBEST_FLIGHTS.md)、[FULL_DBEST_FLIGHTS_AUDIT.md](FULL_DBEST_FLIGHTS_AUDIT.md) |
+| SSB SF500与准备/训练门禁 | [FULL_SSB_MODEL_PROTOCOL.md](FULL_SSB_MODEL_PROTOCOL.md) |
+
+正式长任务只运行一个控制器。SSB全4000片、3,000,028,242事实行与13项作者整数聚合
+必须先通过，才允许正式训练；不得用正在增长的样本启动另一份正式运行。
+有源码、原始输入或资源缺口的项目保持未完成，不能把作者报告数值复制成此次结果。
+
+## 组员可直接接手的内容
+
+- 对照论文逐图读 `output/results/fullpaper_*` 派生表/图，分析中位数接近但尾部未恢复的原因；
+  不挑选最有利配置替换默认结果，也不把public413当作者200。
+- 审查未公开输入清单：原Figure5生成参数/种子、作者200条成员、Wavelet实现和Figure12查询。
+  获得原始证据后再建独立配置；本仓库的历史作者数字不能当本次实验。
+- 在各自功能分支补原基线接入、结果解释与课程报告/PPT，通过PR合入。数据和模型使用独立下载/生成入口，
+  不随Git提交；已完成并验证的实验直接消费封存结果。
+- SSB长任务由现有唯一控制器接续；组员不要另启动第二份生成或训练。

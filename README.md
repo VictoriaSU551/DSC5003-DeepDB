@@ -7,8 +7,10 @@
 新阶段已独立核对全部70条JOB-light真值，完成10M原schema预算模型、100K存储模型、
 单表退化模型、完整样本量/预算扫描和5个正式时间切分更新实验。
 Flights已实际遍历1B母体，使用9,997,912行样本完成12SQL、331组AQP与CI；
-C++已对753条公开查询逐条差分。SSB SF500、MSCN100轮及原对照方法仍有在执行/待完成内容。
-公开683条真值还发现74条与本地完整数据的精确COUNT不同，正在逐条独立SQL核验，原文件保留。
+当前canonical v3 C++路径已对753条查询×3轮逐条差分，15个4--6表分组计时齐全。
+官方与一致样本重建的MSCN100轮均已完成；SSB SF500及其他原对照仍有在执行/待完成内容。
+公开683条真值中74条差异已全部
+由另一套精确PostgreSQL语句确认本地计数，原published文件保留，另存local真值指标。
 不能据此宣布完整复现。
 
 本地最新覆盖状态为 `output/full/completion_status.json`，可运行
@@ -17,7 +19,12 @@ C++已对753条公开查询逐条差分。SSB SF500、MSCN100轮及原对照方�
 [推理修正](docs/FULL_INFERENCE_CORRECTIONS.md)、[参数口径](docs/FULL_PARAMETER_STUDIES.md)。
 当前阶段说明见[复现状态与证据](docs/FULL_REPRODUCTION_STATUS.md)，正式Flights入口见
 [运行说明](docs/FULL_FLIGHTS_MODEL_RUN.md)。
-后续基数结果以 `output/full/evaluation_v2/` 为准；旧CSV保留历史证据，部分旧推理缓存具有顺序依赖。
+组员接续入口见[完整阶段运行指南](docs/FULL_RUNNING_GUIDE.md)。
+当前小型派生结果和图表可用 `code/full_public_summary.py` 从已封存产物导出到
+`output/results/fullpaper_*`；这些是明确标注未完成范围的协作快照。
+独立审查又发现原贪心选择受Python集合遍历顺序影响；B2同一查询在不同hash seed下预测可差约3倍。
+因此v1/v2保留为历史结果；独立 `evaluation_v3/` 的38配置现已全部通过四个hash seed验证，
+共62,548次查询预测。当前结果仍不等于整篇论文复现完成。见[依赖与恢复审计](docs/FULL_DEPENDENCY_AUDIT.md)。
 
 以下为保留的2026-10-08第一阶段运行说明。
 
