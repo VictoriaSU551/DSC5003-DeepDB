@@ -36,3 +36,22 @@
 
 所有新比较采用v2模型身份缓存策略，见 `FULL_INFERENCE_CORRECTIONS.md`。
 公开泛化是683条（4--6表413条），论文200条的具体成员仍未找到，故扫描为公开工作负载版本。
+
+## 两个RDC阈值
+
+原CLI `--rdc_threshold=.3` 传给每个RSPN的列独立性学习；
+`ensemble_creation/rdc_based.py::candidate_evaluation` 另有 `.15` 的ensemble选择默认值，
+CLI没有把前一个参数传到后一个位置。此前 `full_training.py` 忠实保留这个 `.15`。
+不能笼统称作“所有RDC阈值均为.3”。
+
+论文3.3节说表间独立性使用标准SPN阈值，因此新增独立 `full_ensemble_threshold.py`
+将表间阈值也设为.3，保留原 `.15` 所有模型和评估。它直接使用已封存RDC结果，
+不重算依赖统计；小于等于.3的值清零，按同一公开候选算法及B*CBase代理成本重新选择。
+全量组件沿用原训练检查点，跨profile仍只允许已证明完全相同的非cast输入复用。
+
+两种选择的public-scale基础成本分别为539和411；.3下cast_info单独建模，
+其与title的最大已测RDC约.16485。原joblight基础成本仍为404。
+`threshold03_*` 标签清楚标识这一正文解释，不把它覆盖到公开默认的旧标签。
+
+此外另跑100K和10M的全部五条关系模型，作为公开README `relationship` 策略的独立对照。
+它与按RDC自动排除低依赖关系的基础ensemble不同，不用更好的指标替换原配置的差异。

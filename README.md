@@ -5,13 +5,18 @@
 
 **2026-10-30：正在继续完整复现，尚未完成整篇论文。** 原目录及第一阶段结果保留。
 新阶段已独立核对全部70条JOB-light真值，完成10M原schema预算模型、100K存储模型、
-单表退化模型及公开泛化工作负载的多组评估；更新、C++、MSCN、Flights与SSB按阶段封印。
-原规模流式生成和对照方法仍有在执行/待完成内容，不能仅凭模型跑通宣布完整复现。
+单表退化模型、完整样本量/预算扫描和5个正式时间切分更新实验。
+Flights已实际遍历1B母体，使用9,997,912行样本完成12SQL、331组AQP与CI；
+C++已对753条公开查询逐条差分。SSB SF500、MSCN100轮及原对照方法仍有在执行/待完成内容。
+公开683条真值还发现74条与本地完整数据的精确COUNT不同，正在逐条独立SQL核验，原文件保留。
+不能据此宣布完整复现。
 
 本地最新覆盖状态为 `output/full/completion_status.json`，可运行
 `.venv/Scripts/python.exe code/full_status.py` 重建。方法、差异和完成条件见
 [完整复现协议](docs/FULL_REPRODUCTION_PROTOCOL.md)、[执行记录](docs/FULL_REPRODUCTION_PLAN.md)、
 [推理修正](docs/FULL_INFERENCE_CORRECTIONS.md)、[参数口径](docs/FULL_PARAMETER_STUDIES.md)。
+当前阶段说明见[复现状态与证据](docs/FULL_REPRODUCTION_STATUS.md)，正式Flights入口见
+[运行说明](docs/FULL_FLIGHTS_MODEL_RUN.md)。
 后续基数结果以 `output/full/evaluation_v2/` 为准；旧CSV保留历史证据，部分旧推理缓存具有顺序依赖。
 
 以下为保留的2026-10-08第一阶段运行说明。

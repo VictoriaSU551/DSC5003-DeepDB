@@ -4,7 +4,7 @@ from datetime import datetime, timezone
 import os
 from pathlib import Path
 
-from full_common import ROOT, FULL, atomic_json, file_sha256, load_json
+from full_common import ROOT, FULL, atomic_json, binding_hash, file_sha256, load_json
 from full_evaluation import workload_files
 from full_evaluation_v2 import helper_seal, PROTOCOL
 
@@ -83,6 +83,11 @@ def main():
         for b in [0., .5, 1., 2., 3.]}
     stages['temporal_10m_joblight'] = {str(c): verified_evaluation(
         'temporal_joblight_rdc_n10000000_b0p0_year%d' % c, 70) for c in [2019, 2011, 2009, 2004, 1991]}
+    stages['literal_point3_ensemble_threshold'] = {profile: {str(b): verified_evaluation(
+        'threshold03_%s_rdc_n10000000_b%s' % (profile, str(b).replace('.', 'p')), 70 if profile == 'joblight' else 753)
+        for b in [0., .5, 1., 2., 3.]} for profile in ['joblight', 'public_scale']}
+    stages['all_relationships_joblight'] = {str(n): verified_evaluation(
+        'relationship_n%d_b0p0' % n, 70) for n in [100000, 10000000]}
     cpp = load_json(FULL / 'results/cpp_verification.json', {})
     stages['cpp_existing_model_correctness'] = dict(status=cpp.get('status', 'PENDING'),
         scope='Existing 1M model correctness and repeated JOB-light timing; not full Figure 8',
@@ -120,15 +125,62 @@ def main():
         queries=cpp_scale.get('queries', 0),
         historical_cache_gate=cpp_scale.get('historical_python_reference_gate', 'PENDING'),
         scope='Same cold-cache path differential, separate from later model-aware v2 gate')
-    stages['cpp_6spn_paper_proxy_v2'] = dict(status='PENDING', evidence=[p.relative_to(ROOT).as_posix()
-        for p in (FULL / 'cpp-scale').glob('model_*verification.json')])
+    sealed_path = FULL / 'cpp-scale/sealed_paper_proxy_6spn.json'
+    sealed = load_json(sealed_path, {})
+    native = dict(status='PENDING', evidence=sealed_path.relative_to(ROOT).as_posix())
+    if sealed.get('status') == 'SEALED_PASS':
+        try:
+            for artifact in sealed['assets']:
+                path = (sealed_path.parent / artifact['path']).resolve()
+                if (sealed_path.parent.resolve() not in path.parents
+                        or path.stat().st_size != artifact['bytes']
+                        or file_sha256(path) != artifact['sha256']):
+                    raise ValueError('C++ seal artifact differs')
+            receipts = [load_json(sealed_path.parent / item['path']) for item in sealed['assets']]
+            verification = next(r for r in receipts if 'python_v2_reference_gate' in r)
+            training = load_json(FULL / 'results' / (verification['training_label'] + '_training.json'))
+            if (verification['status'] != 'PASS' or verification['python_v2_reference_gate'] != 'PASS'
+                    or verification['cold_cache_python_cpp_gate'] != 'PASS'
+                    or not verification['original_model_unchanged']
+                    or sealed['model_sha256'] != training['model_sha256']):
+                raise ValueError('C++ model or differential gate differs')
+            native.update(status='PASS_SEALED_LOCAL_PUBLIC_WORKLOAD', queries=verification['queries'],
+                paired_predictions=verification['paired_predictions'],
+                group_cells=len(verification['figure8_public_group_cells']),
+                scope='Sealed receipt checked; native assets were exhaustively verified at sealing, not rehashed by the live progress reader')
+        except (KeyError, ValueError, OSError, StopIteration) as error:
+            native.update(status='EVIDENCE_INVALID', reason=str(error))
+    stages['cpp_6spn_paper_proxy_v2'] = native
     for key, reason in [
         ('paper_exact_200_query_binding', 'Public files contain 683 grouped queries; original 200 membership not identified'),
         ('figure5_original_synthetic_database', 'Original generator, parameters and seeds not found in audited public sources'),
         ('all_original_comparison_implementations', 'Wavelets/IBJS/random/DBEst/XDB/VerdictDB original drivers not in released source'),
         ('figure7_exact_author_config', 'Both released-code and B*CBase proxy variants recorded; exact author 200-query set unavailable')]:
         stages[key] = dict(status='OPEN_SOURCE_GAP', reason=reason)
-    for key in ['flights_aqp_and_baselines', 'ssb_aqp_and_baselines', 'confidence_intervals',
+    formal = load_json(FULL / 'flights/model_formal_validation.json', {})
+    observer = load_json(FULL / 'flights/root_formal_verification.json', {})
+    formal_contents = dict(formal)
+    formal_seal = formal_contents.pop('validation_sha256', None)
+    formal_pass = (formal_seal is not None and formal_seal == binding_hash(formal_contents)
+        and observer.get('status') == 'PASS' and observer.get('validation_sha256') == formal_seal
+        and formal.get('population_rows') == formal.get('normalizer') == 1000000000
+        and formal.get('actual_training_rows') == 9997912 and formal.get('query_errors') == 0)
+    stages['flights_1b_rspn_aqp_and_ci'] = dict(
+        status='PASS_SEALED_ORIGINAL_SCALE_LOCAL_EXPERIMENT' if formal_pass else 'PENDING',
+        evidence='output/full/flights/model_formal_validation.json; output/full/flights/root_formal_verification.json',
+        actual_training_rows=formal.get('actual_training_rows'), truth_groups=formal.get('truth_groups'),
+        missing_groups=formal.get('missing_model_groups'), extra_groups=formal.get('extra_model_groups'),
+        ci_eligible_groups=formal.get('ci_eligible_groups'), ci_excluded_groups=formal.get('ci_excluded_groups'),
+        scope='Own IDEBench population/seed; one-sample CI experiment, not repeated-sample calibration. Original baseline comparisons remain separate.')
+    local_truth = load_json(FULL / 'results/grouped_truth_discrepancies.json', {})
+    arrays = load_json(FULL / 'results/grouped_independent_truth_arrays.json', {})
+    stages['independent_public_683_truths'] = dict(
+        status=local_truth.get('status', 'PUBLIC_LABEL_DIFFERENCES_UNDER_SQL_REVIEW' if arrays.get('queries') == 683 else 'PENDING'),
+        queries=arrays.get('queries', 0), published_matches=local_truth.get('published_matches'),
+        independently_SQL_confirmed_differences=local_truth.get('independent_SQL_confirmed_differences'),
+        evidence='output/full/results/grouped_truth_discrepancies.json',
+        scope='Published CSVs remain unchanged; local exact counts are a separate input')
+    for key in ['flights_original_baseline_comparisons', 'ssb_aqp_and_baselines', 'ssb_confidence_intervals',
                 'dbest_wavelet_microbenchmarks']:
         stages[key] = dict(status='PENDING')
     output = dict(status='INCOMPLETE_FULL_PAPER', full_paper_complete=False,
