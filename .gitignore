@@ -24,5 +24,6 @@ output/results/*
 code/vendor/ssb_dbgen/*
 !code/vendor/ssb_dbgen/full_consumer.cpp
 !code/vendor/ssb_dbgen/full_chunk_driver.c
+!code/vendor/ssb_dbgen/full_dimension_driver.c
 !code/vendor/ssb_dbgen/SOURCES.json
 !code/vendor/ssb_dbgen/LICENSE_NOTICE.md

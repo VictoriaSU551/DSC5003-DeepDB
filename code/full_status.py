@@ -1,8 +1,64 @@
 """Derive an honest full-paper coverage ledger from verified stage receipts."""
 import json
+from datetime import datetime, timezone
+import os
 from pathlib import Path
 
 from full_common import ROOT, FULL, atomic_json, file_sha256, load_json
+from full_evaluation import workload_files
+from full_evaluation_v2 import helper_seal, PROTOCOL
+
+
+def progress_json(path, default=None):
+    """Read an atomic Windows checkpoint without denying its writer a rename."""
+    path = Path(path)
+    if not path.exists():
+        return default
+    if os.name != 'nt':
+        return load_json(path, default)
+    import ctypes
+    import msvcrt
+    from ctypes import wintypes
+    kernel = ctypes.WinDLL('kernel32', use_last_error=True)
+    kernel.CreateFileW.argtypes = [wintypes.LPCWSTR, wintypes.DWORD, wintypes.DWORD,
+                                  ctypes.c_void_p, wintypes.DWORD, wintypes.DWORD, wintypes.HANDLE]
+    kernel.CreateFileW.restype = wintypes.HANDLE
+    handle = kernel.CreateFileW(str(path.resolve()), 0x80000000, 7, None, 3, 0x80, None)
+    if handle == ctypes.c_void_p(-1).value:
+        raise ctypes.WinError(ctypes.get_last_error())
+    descriptor = msvcrt.open_osfhandle(handle, os.O_RDONLY | os.O_BINARY)
+    with os.fdopen(descriptor, 'r', encoding='utf-8') as stream:
+        return json.load(stream)
+
+
+def verified_evaluation(label, queries):
+    path = FULL / 'results' / (label + '_evaluation_v2.json')
+    result = load_json(path)
+    stage = dict(status='PENDING', evidence=path.relative_to(ROOT).as_posix())
+    if result is None:
+        return stage
+    training = load_json(FULL / 'results' / (label + '_training.json'))
+    try:
+        if (result.get('status') != 'PASS' or result.get('protocol') != PROTOCOL
+                or result.get('queries') != queries or training is None
+                or result.get('model_sha256') != training.get('model_sha256')
+                or file_sha256(ROOT / training['model_path']) != training['model_sha256']):
+            raise ValueError('evaluation or model seal mismatch')
+        source = result.get('reused_from_label', label)
+        expected_helpers = helper_seal()
+        for group, query_path, truth_path in workload_files(queries != 70):
+            record = result['groups'][group]
+            csv = FULL / 'evaluation_v2' / source / (group + '.csv')
+            if (record['helpers'] != expected_helpers or record['query_sha256'] != file_sha256(query_path)
+                    or record['truth_sha256'] != file_sha256(truth_path)
+                    or file_sha256(csv) != record['csv_sha256']):
+                raise ValueError('prediction, workload or evaluator seal mismatch')
+        stage.update(status='PASS_LOCAL_VARIANT', queries=queries,
+                     job_light_qerror=result['groups']['job_light']['q_error'],
+                     independently_replayed=load_json(FULL / 'results' / (label + '_replay_v2.json'), {}).get('status') == 'PASS')
+    except (KeyError, ValueError, OSError) as error:
+        stage.update(status='EVIDENCE_INVALID', reason=str(error))
+    return stage
 
 
 def main():
@@ -14,12 +70,19 @@ def main():
     stages['independent_70_truths_and_postgres_11_5'] = dict(
         status='PASS' if pg.get('all_official_truths_independently_matched') and pg.get('queries') == 70 else 'PENDING',
         evidence='output/full/results/postgres_job_light_verification.json')
-    for label in ['rdc_n100000_b0p0', 'public_scale_rdc_n100000_b0p0',
-                  'public_scale_rdc_n10000000_b0p5', 'public_scale_rdc_n10000000_b5p0']:
-        path = FULL / 'results' / (label + '_evaluation.json')
-        result = load_json(path, {})
-        stages[label] = dict(status=result.get('status', 'PENDING'), queries=result.get('queries', 0),
-                              evidence=path.relative_to(ROOT).as_posix())
+    for label, count in [('rdc_n100000_b0p0', 70), ('joblight_single_n10000000', 70),
+                         ('paper_proxy_joblight_rdc_n10000000_b0p5', 70),
+                         ('public_scale_rdc_n100000_b0p0', 753),
+                         ('public_scale_rdc_n10000000_b0p5', 753)]:
+        stages[label] = verified_evaluation(label, count)
+    stages['sample_size_sweep_public_profile'] = {str(n): verified_evaluation(
+        'public_scale_rdc_n%d_b%s' % (n, '0p5' if n == 10000000 else '0p0'), 753)
+        for n in [1000, 10000, 100000, 1000000, 10000000]}
+    stages['budget_sweep_public_paper_cost_proxy'] = {str(b): verified_evaluation(
+        'paper_proxy_public_scale_rdc_n10000000_b%s' % str(b).replace('.', 'p'), 753)
+        for b in [0., .5, 1., 2., 3.]}
+    stages['temporal_10m_joblight'] = {str(c): verified_evaluation(
+        'temporal_joblight_rdc_n10000000_b0p0_year%d' % c, 70) for c in [2019, 2011, 2009, 2004, 1991]}
     cpp = load_json(FULL / 'results/cpp_verification.json', {})
     stages['cpp_existing_model_correctness'] = dict(status=cpp.get('status', 'PENDING'),
         scope='Existing 1M model correctness and repeated JOB-light timing; not full Figure 8',
@@ -30,20 +93,49 @@ def main():
     golden = load_json(FULL / 'flights/golden-200k/golden_validation.json', {})
     stages['flights_streaming_golden_200k'] = dict(status=golden.get('status', 'PENDING'),
                                                scope='Adapter correctness at 200K, not full-size experiment')
+    flight = progress_json(FULL / 'flights/flights-1b/checkpoint.json', {})
+    generated = load_json(FULL / 'flights/flights-1b/generation_result.json', {})
+    stages['flights_1b_generated'] = dict(
+        status='PASS_ORIGINAL_SCALE_GENERATION' if generated.get('paper_scale_reached') else 'PARTIAL_CHECKPOINT',
+        generated_rows=flight.get('rows_generated', 0), requested_rows=1000000000,
+        sample_rows=flight.get('sample_rows', 0), committed_batches=flight.get('next_batch', 0),
+        scope='Streaming population traversal and own exact truth, no full population database retained')
+    ssb = progress_json(FULL / 'ssb/paper/sf500/checkpoint.json', {})
+    ssb_result = load_json(FULL / 'results/ssb_paper.json', {})
+    stages['ssb_sf500_generated'] = dict(
+        status='PASS_AUTHOR_POPULATION' if ssb_result.get('status') == 'PASS' else 'PARTIAL_CHECKPOINT',
+        generated_rows=ssb.get('rows', 0), requested_rows=3000028242,
+        sample_rows=ssb.get('sample_rows', 0), committed_shards=len(ssb.get('committed_shards', [])),
+        scope='Requires all author integer aggregates and exact fact row count at completion')
+    mscn_dir = FULL / 'mscn/table1_job_light_seed1'
+    mscn = progress_json(mscn_dir / 'checkpoints/latest.json', {})
+    mscn_eval = load_json(mscn_dir / 'evaluation.json', {})
+    stages['mscn_100_epochs'] = dict(
+        status='PASS_LOCAL_TABLE1_RERUN' if mscn_eval.get('status') == 'TABLE1_LOCAL_RERUN_COMPLETE'
+                     and mscn_eval.get('completed_epochs') == mscn.get('completed_epochs') == 100 else 'PARTIAL_CHECKPOINT',
+        committed_epochs=mscn.get('completed_epochs', 0), target_epochs=100,
+        scope='Official matched 100K input bitmaps; public 683 generalization bitmaps not recovered')
+    cpp_scale = load_json(FULL / 'cpp-scale/public_scale_verification.json', {})
+    stages['cpp_5spn_public_workload'] = dict(status=cpp_scale.get('cold_cache_python_cpp_gate', 'PENDING'),
+        queries=cpp_scale.get('queries', 0),
+        historical_cache_gate=cpp_scale.get('historical_python_reference_gate', 'PENDING'),
+        scope='Same cold-cache path differential, separate from later model-aware v2 gate')
+    stages['cpp_6spn_paper_proxy_v2'] = dict(status='PENDING', evidence=[p.relative_to(ROOT).as_posix()
+        for p in (FULL / 'cpp-scale').glob('model_*verification.json')])
     for key, reason in [
         ('paper_exact_200_query_binding', 'Public files contain 683 grouped queries; original 200 membership not identified'),
         ('figure5_original_synthetic_database', 'Original generator, parameters and seeds not found in audited public sources'),
         ('all_original_comparison_implementations', 'Wavelets/IBJS/random/DBEst/XDB/VerdictDB original drivers not in released source'),
-        ('figure7_budget_semantics', 'Paper relative time budget and public column-cost numeric factor differ')]:
+        ('figure7_exact_author_config', 'Both released-code and B*CBase proxy variants recorded; exact author 200-query set unavailable')]:
         stages[key] = dict(status='OPEN_SOURCE_GAP', reason=reason)
-    for key in ['mscn_100_epochs', 'sample_size_sweep', 'budget_sweep', 'temporal_updates',
-                'cpp_generalization_figure8', 'flights_1b_generated', 'ssb_sf500_generated',
-                'flights_aqp_and_baselines', 'ssb_aqp_and_baselines', 'confidence_intervals',
+    for key in ['flights_aqp_and_baselines', 'ssb_aqp_and_baselines', 'confidence_intervals',
                 'dbest_wavelet_microbenchmarks']:
         stages[key] = dict(status='PENDING')
     output = dict(status='INCOMPLETE_FULL_PAPER', full_paper_complete=False,
+                  updated_at_utc=datetime.now(timezone.utc).isoformat(),
                   original_verified_baseline_preserved=True,
-                  note='PASS applies only to each named receipt. Missing inputs, original-scale baselines and pending experiments remain open.',
+                  inference_policy=PROTOCOL,
+                  note='PASS applies only to each named receipt. V1 CSVs remain historical: original cache can mix physical RSPNs. Missing inputs and original-scale baselines remain open.',
                   stages=stages)
     atomic_json(FULL / 'completion_status.json', output)
     print(json.dumps(output, indent=2))

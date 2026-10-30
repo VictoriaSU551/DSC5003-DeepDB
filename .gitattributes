@@ -6,4 +6,4 @@
 *.ps1 text eol=crlf
 *.patch text eol=lf
 # Vendor archive hashes are byte-level input seals, including original newlines.
-code/vendor/** -text
+code/vendor/** -text -whitespace

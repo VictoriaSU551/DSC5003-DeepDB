@@ -5,6 +5,7 @@ it leaves routing prototypes and tree structure unchanged. Table 2 variants use
 one fixed full-data sample per base model, then partition it by production year.
 """
 import argparse
+import copy
 from contextlib import contextmanager
 import gc
 import json
@@ -18,7 +19,7 @@ import time
 import numpy as np
 import pandas as pd
 from scipy.spatial import distance
-from spn.structure.Base import Product
+from spn.structure.Base import Product, get_nodes_by_type
 from spn.structure.StatisticalTypes import MetaType
 
 from aqp_spn.aqp_spn import AQPSPN
@@ -28,6 +29,7 @@ from full_training import atomic_ensemble, exact_star_size, schema_and_prep
 from rspn.algorithms.validity.validity import is_valid
 from rspn.structure.base import Sum
 from rspn.structure.leaves import Categorical, IdentityNumericLeaf
+from rspn.updates.top_down_updates import cluster_center_update_dataset
 
 CUTS = (2019, 2011, 2009, 2004, 1991)
 SAMPLES = ROOT / 'data/imdb/temporal_samples'
@@ -93,6 +95,44 @@ def partition_years(years, cut, null_value):
     years = np.asarray(years)
     initial = (years < cut) | ~np.isfinite(years) | (years == null_value)
     return initial, ~initial
+
+
+def require_sample_size(actual, requested, population):
+    target = min(requested, population)
+    if actual != target:
+        raise ValueError('sample target not met: actual=%d required=%d' % (actual, target))
+    return target
+
+
+def dependency_seal(spec):
+    helpers = ['full_training.py', 'full_prepare.py', 'full_common.py']
+    tables = set(spec['tables']) | {'title'}
+    return dict(helpers={name: file_sha256(ROOT / 'code' / name) for name in helpers},
+                raw_manifest=file_sha256(ROOT / 'data/manifest.json'),
+                prepared_hdfs={table: file_sha256(FULL / 'prepared/hdf' / (table + '.hdf'))
+                               for table in sorted(tables)})
+
+
+def scalar_update_gate(model, rows):
+    expected, pooled = copy.deepcopy(model.mspn), copy.deepcopy(model.mspn)
+    for row in rows:
+        cluster_center_update_dataset(expected, row)
+    batch_update(pooled, rows)
+    max_absolute = 0.
+    for a, b in zip(get_nodes_by_type(expected), get_nodes_by_type(pooled)):
+        if type(a) is not type(b) or a.scope != b.scope or a.cardinality != b.cardinality:
+            raise ValueError('pooled/scalar structure or cardinality mismatch')
+        for attr in ['weights', 'p', 'unique_vals', 'prob_sum', 'mean', 'inverted_mean',
+                     'square_mean', 'inverted_square_mean', 'null_value_prob']:
+            if hasattr(a, attr):
+                x, y = np.asarray(getattr(a, attr)), np.asarray(getattr(b, attr))
+                np.testing.assert_allclose(x, y, rtol=1e-8, atol=1e-10)
+                finite = np.isfinite(x) & np.isfinite(y)
+                if np.any(finite):
+                    max_absolute = max(max_absolute, float(np.max(np.abs(x[finite] - y[finite]))))
+    return dict(status='PASS', checked_rows=len(rows), nodes=len(get_nodes_by_type(expected)),
+                rtol=1e-8, atol=1e-10, max_absolute_parameter_difference=max_absolute,
+                reference='unmodified author cluster_center_update_dataset')
 
 
 def save_update_checkpoint(directory, model, completed, binding, history):
@@ -192,7 +232,7 @@ def prepare_sample(spec, requested_samples):
     schema, prep = schema_and_prep()
     binding = dict(spec=spec, requested_samples=requested_samples, algorithm=algorithm_seal(),
                    driver=file_sha256(__file__), metadata=file_sha256(FULL / 'prepared/hdf/meta_data.pkl'),
-                   oversampling=1.05, protocol='fixed_sample_all_cuts_v1')
+                   inputs=dependency_seal(spec), oversampling=2., protocol='fixed_sample_all_cuts_v2')
     identifier = binding_hash(binding)
     directory = SAMPLES / identifier
     receipt = load_json(directory / 'sample.json')
@@ -213,7 +253,7 @@ def prepare_sample(spec, requested_samples):
     md = prep.table_meta_data['title']
     null_year = md['null_values_column'][md['relevant_attributes_full'].index('title.production_year')]
     population, initial_populations = population_sizes(title, spec, prep, null_year)
-    sample_rate = min(1., requested_samples * 1.05 / population)
+    sample_rate = min(1., requested_samples * 2. / population)
     started = time.perf_counter()
     if spec['relationships']:
         frame, meta_types, null_values = prep.generate_join_sample(
@@ -239,12 +279,14 @@ def prepare_sample(spec, requested_samples):
         meta_types = [meta_types[i] for i in keep]
         null_values = [null_values[i] for i in keep]
     values = frame.values.astype(np.float64, copy=False)
+    target_rows = require_sample_size(len(values), requested_samples, population)
     if not np.isfinite(values).all() or not np.isfinite(years).all():
         raise ValueError('unexpected unprepared values or unassigned production year')
     save_array(directory / 'values.npy', values)
     save_array(directory / 'years.npy', years)
     receipt = dict(status='PASS', binding=binding_hash(binding), binding_details=binding, spec=spec,
                    rows=len(values), requested_samples=requested_samples, seed=seed,
+                   required_sample_rows=target_rows, sample_size_target_met=True,
                    columns=list(frame.columns), meta_types=[t.name for t in meta_types],
                    null_values=null_values, null_year=float(null_year), full_population=population,
                    initial_populations=initial_populations, sampling_seconds=time.perf_counter() - started,
@@ -262,6 +304,7 @@ def update_component(sample_directory, sample, cut, batch_size):
     initial_indices, update_indices = np.flatnonzero(initial), np.flatnonzero(later)
     binding = dict(sample_sha256=file_sha256(sample_directory / 'sample.json'), cut=cut,
                    batch_size=batch_size, algorithm=algorithm_seal(), driver=file_sha256(__file__),
+                   inputs=dependency_seal(sample['spec']),
                    update_protocol='pooled_author_fixed_structure_parameters_v1')
     identifier = binding_hash(binding)
     directory = FULL / 'incremental/components' / identifier
@@ -303,6 +346,17 @@ def update_component(sample_directory, sample, cut, batch_size):
             model, done, history = restored
         if not 0 <= done <= len(update_indices):
             raise ValueError('checkpoint update cursor outside the sealed sample')
+        gate_path = directory / 'scalar_update_gate.json'
+        if not gate_path.exists():
+            # Check actual data at both ends of the update partition before
+            # accepting the faster parameter pooling for this learned tree.
+            remaining = update_indices[done:]
+            positions = np.unique(np.linspace(0, max(0, len(remaining) - 1), min(128, len(remaining))).astype(int))
+            gate = scalar_update_gate(model, np.asarray(values[remaining[positions]]))
+            gate.update(binding=binding_hash(binding), update_indices=remaining[positions].tolist())
+            atomic_json(gate_path, gate)
+        elif load_json(gate_path).get('binding') != binding_hash(binding):
+            raise ValueError('scalar update gate binding mismatch')
         for start in range(done, len(update_indices), batch_size):
             indices = update_indices[start:start + batch_size]
             started = time.perf_counter()
@@ -332,8 +386,9 @@ def update_component(sample_directory, sample, cut, batch_size):
                       learning_seconds=history[0]['seconds'],
                       update_seconds=sum(item['seconds'] for item in history if item['stage'] == 'updates'),
                       update_batch_size=batch_size, model_path=after.relative_to(ROOT).as_posix(),
+                      sample_size_target_met=sample['sample_size_target_met'],
                       artifacts=[dict(path=p.relative_to(ROOT).as_posix(), sha256=file_sha256(p))
-                                 for p in [directory / 'before.pkl', after]])
+                                 for p in [directory / 'before.pkl', after, gate_path]])
         atomic_json(directory / 'result.json', result)
         return model, result
 

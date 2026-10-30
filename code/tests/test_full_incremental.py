@@ -9,7 +9,7 @@ from rspn.structure.base import Sum
 from rspn.structure.leaves import Categorical, IdentityNumericLeaf
 from rspn.updates.top_down_updates import cluster_center_update_dataset
 from full_incremental import (batch_update, nearest_children, partition_years,
-                              save_update_checkpoint, load_update_checkpoint)
+                              save_update_checkpoint, load_update_checkpoint, require_sample_size)
 
 
 def tree():
@@ -100,3 +100,10 @@ def test_checkpoint_cursor_tampering_is_rejected(tmp_path):
     path.write_text(json.dumps(record))
     with pytest.raises(ValueError, match='receipt hash'):
         load_update_checkpoint(tmp_path, {'input': 'fixed'})
+
+
+def test_formal_sample_target_allows_finite_population_but_rejects_underfilled_sample():
+    assert require_sample_size(1000, 1000, 1000000) == 1000
+    assert require_sample_size(900, 1000, 900) == 900
+    with pytest.raises(ValueError, match='sample target not met'):
+        require_sample_size(916, 1000, 1000000)

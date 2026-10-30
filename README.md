@@ -3,6 +3,19 @@
 论文：Benjamin Hilprecht 等，**DeepDB: Learn from Data, not from Queries!**，VLDB 2020。
 [论文](https://arxiv.org/abs/1909.00607) · [作者代码](https://github.com/DataManagementLab/deepdb-public)
 
+**2026-10-30：正在继续完整复现，尚未完成整篇论文。** 原目录及第一阶段结果保留。
+新阶段已独立核对全部70条JOB-light真值，完成10M原schema预算模型、100K存储模型、
+单表退化模型及公开泛化工作负载的多组评估；更新、C++、MSCN、Flights与SSB按阶段封印。
+原规模流式生成和对照方法仍有在执行/待完成内容，不能仅凭模型跑通宣布完整复现。
+
+本地最新覆盖状态为 `output/full/completion_status.json`，可运行
+`.venv/Scripts/python.exe code/full_status.py` 重建。方法、差异和完成条件见
+[完整复现协议](docs/FULL_REPRODUCTION_PROTOCOL.md)、[执行记录](docs/FULL_REPRODUCTION_PLAN.md)、
+[推理修正](docs/FULL_INFERENCE_CORRECTIONS.md)、[参数口径](docs/FULL_PARAMETER_STUDIES.md)。
+后续基数结果以 `output/full/evaluation_v2/` 为准；旧CSV保留历史证据，部分旧推理缓存具有顺序依赖。
+
+以下为保留的2026-10-08第一阶段运行说明。
+
 本项目先复现作者提供的 **JOB-light 双表关系基础模型**：下载完整 IMDb 快照中的六张表，
 预处理数据，每个关系抽取 1,000,000 个连接样本训练一个 RSPN，共训练五个模型，
 评估原始的 70 条 SQL 查询，再从保存的模型重新计算所有预测。
@@ -84,12 +97,13 @@ Linux 可创建 Python 3.8 venv，安装 `requirements.txt`，再执行
 - `output/results/run_1000000.json`：参数、阶段命令、时长、模型 SHA256。
 
 q-error 定义为 `max(估计值/真值, 真值/估计值)`，越接近 1 越好。
-这里使用官方提供的 70 条真值；只独立重算其中前三条，不能声称所有真值都已重新计算。
+第一阶段使用官方提供的70条真值，只独立重算前三条。
+2026-10-30的新阶段已用项目内PostgreSQL11.5独立核对全部70条，详见完整复现记录。
 耗时来自本机 Python 推理，不能直接与论文的硬件或 C++ 优化推理耗时比较。
 
-下一阶段可以在独立分支复现优化的 RDC ensemble（作者流程需要加载 IMDb 的 PostgreSQL），
-以及 200 条泛化查询、增量更新、SSB、Flights、优化推理和其他方法的对比。
-本轮没有部署 PostgreSQL，也没有执行这些实验。
+完整复现阶段在 `reproduction/full-paper` 分支持续进行，
+全部新数据/输出分别位于 `data/` 和 `output/full/`，不会覆盖第一阶段模型。
+公开泛化文件实际含683条查询；它们与论文200条的精确对应仍是来源缺口。
 
 ## 来源、环境与协作
 
