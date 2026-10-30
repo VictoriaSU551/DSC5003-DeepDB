@@ -17,7 +17,7 @@
 主安装器随后增加`--no-bin --no-registry`，其私有Python安装已在空目录另验，
 MSCN新安装使用了这两个开关。Python文件留在项目`.runtime`，不新增全局命令或注册表登记。
 测试过的uv版本为0.9.11；这是当前Windows主机的安装验证，不是另一台机器或全新操作系统的验证。
-本地凭据在`output/full/bootstrap_verification/`，2.87GB逻辑大小的临时副本和CLI归档已移出项目。
+本地核验记录在`output/full/bootstrap_verification/`，2.87GB逻辑大小的临时副本和CLI归档已移出项目。
 
 ```powershell
 # MSCN源码和100K/70配套位图；存在的文件只核验，不覆盖
@@ -47,6 +47,7 @@ powershell -ExecutionPolicy Bypass -File setup-mscn.ps1
 .venv/Scripts/python.exe code/full_local_truth_eval_v3.py
 
 # Flights正式AQP/CI结果与部分DBEst对照的只读表图
+.venv/Scripts/python.exe code/full_flights_replay_audit.py verify
 .venv/Scripts/python.exe code/full_aqp_tables.py
 .venv/Scripts/python.exe code/full_aqp_comparisons.py
 
@@ -80,15 +81,20 @@ v1/v2、原模型和原published真值均保留为历史证据。只有完整v3�
 | 官方MSCN与最终只读复核 | [FULL_MSCN_PROTOCOL.md](FULL_MSCN_PROTOCOL.md)、[FULL_MSCN_VERIFY.md](FULL_MSCN_VERIFY.md) |
 | 重建一致位图MSCN | [FULL_MSCN_REBUILT.md](FULL_MSCN_REBUILT.md) |
 | Flights原规模模型/AQP/CI | [FULL_FLIGHTS_MODEL_RUN.md](FULL_FLIGHTS_MODEL_RUN.md) |
+| Flights独立逆序重放与当前parser绑定 | [FULL_FLIGHTS_REPLAY.md](FULL_FLIGHTS_REPLAY.md)、[FULL_FLIGHTS_REPLAY_AUDIT.md](FULL_FLIGHTS_REPLAY_AUDIT.md) |
 | 原DBEst实际1B母体上的20K拟合与审计 | [FULL_DBEST_FLIGHTS.md](FULL_DBEST_FLIGHTS.md)、[FULL_DBEST_FLIGHTS_AUDIT.md](FULL_DBEST_FLIGHTS_AUDIT.md) |
 | SSB SF500与准备/训练门禁 | [FULL_SSB_MODEL_PROTOCOL.md](FULL_SSB_MODEL_PROTOCOL.md) |
 | SSB新鲜进程逆序point/CI重放及只读验收 | [FULL_SSB_REPLAY.md](FULL_SSB_REPLAY.md) |
 
 正式长任务只运行一个控制器。SSB全4000片、3,000,028,242事实行与13项作者整数聚合
 必须先通过，才允许正式训练；不得用正在增长的样本启动另一份正式运行。
+2026-10-31首次完整遍历实际为3,000,028,334行、9,993,609样本，作者聚合2059项不同；
+原监督器已正确停止，作者母体正式门禁仍关闭。不得直接重启监督器、改写MISMATCH或把该样本标作作者母体。
 SSB原顺序正式推断后，由唯一控制器显式执行一次`full_ssb_replay.py replay`；
 日常验收只用`verify`。重放PASS只证明行为一致，缺组、非有限区间和CI排除仍单列，
 不能把模型调用零异常当作所有分组及区间覆盖完整。
+Flights日常验收使用新的只读parser外层。它记录当前sqlparse0.3.1及完整22个Python源文件，
+不重跑已接受的24次推断，也不能证明最初推断时的parser原字节。
 有源码、原始输入或资源缺口的项目保持未完成，不能把作者报告数值复制成此次结果。
 
 ## 组员可直接接手的内容

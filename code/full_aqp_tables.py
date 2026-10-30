@@ -52,6 +52,23 @@ def csv_table(path, rows):
         writer = csv.DictWriter(stream, keys); writer.writeheader(); writer.writerows(rows)
 
 
+def require_existing_figures(receipt, directory, binding):
+    if (receipt.get('status') != 'PASS_LOCAL_SAME_SAMPLE_COMPARISON'
+            or receipt.get('binding') != binding_hash(binding)
+            or receipt.get('binding_details') != binding
+            or receipt.get('full_paper_complete') is not False):
+        raise ValueError('Flights figure manifest binding differs')
+    names = {'query_summary.csv', 'all_groups.csv', 'flights_relative_error.png', 'flights_ci_half_width.png'}
+    records = receipt.get('artifacts', [])
+    paths = [(ROOT / item['path']).resolve() for item in records]
+    if (len(paths) != 4 or len(set(paths)) != 4 or {p.name for p in paths} != names
+            or any(p.parent != directory.resolve() for p in paths)):
+        raise ValueError('complete unique four-artifact Flights figure inventory required')
+    for path, item in zip(paths, records):
+        if path.stat().st_size != item['bytes'] or file_sha256(path) != item['sha256']:
+            raise ValueError('sealed Flights table/figure changed')
+
+
 def draw(directory, queries, groups):
     import matplotlib
     matplotlib.use('Agg')
@@ -86,16 +103,27 @@ def draw(directory, queries, groups):
 
 
 def main():
+    from full_flights_replay_audit import verify as audit_replay
+    replayed = audit_replay()
+    if replayed['status'] != 'PASS_READ_ONLY_FLIGHTS_REPLAY_WITH_CURRENT_PARSER_BINDING':
+        raise ValueError('independent Flights point/CI replay is required')
+    replay_path = ROOT / replayed['verification']['path']
+    replay_receipt = load_json(replay_path)
     validation_path = FULL / 'flights/model_formal_validation.json'
+    if file_sha256(validation_path) != replay_receipt['configuration']['formal_receipt']['sha256']:
+        raise ValueError('formal Flights report differs from its independent replay')
     validation = load_json(validation_path)
     contents = dict(validation); checksum = contents.pop('validation_sha256')
     if checksum != binding_hash(contents): raise ValueError('formal Flights validation seal changed')
-    sources = [artifact(validation_path), artifact(Path(__file__))]
-    for record in validation['artifacts']:
-        path = ROOT / record['path']
-        if path.stat().st_size != record['bytes'] or file_sha256(path) != record['sha256']:
-            raise ValueError('formal input/model/evaluation changed: ' + record['path'])
+    # audit_replay already rehashes the complete original 33-artifact inventory.
+    sources = [artifact(p) for p in [validation_path, Path(__file__), replay_path,
+        FULL/'flights-replay/final_seal.json', ROOT/'code/full_flights_replay.py',
+        ROOT/'code/full_flights_replay_audit.py', ROOT/replayed['posthoc_verification']['path'],
+        ROOT/replayed['posthoc_final_seal']['path']]]
     result_path = ROOT / validation['evaluation_path']; result = load_json(result_path)
+    expected = next(a for a in validation['artifacts'] if a['path'] == result_path.relative_to(ROOT).as_posix())
+    if artifact(result_path) != expected:
+        raise ValueError('Flights evaluation changed after replay verification')
     sources.append(artifact(result_path))
     if result['query_errors'] or result['population_rows'] != 1000000000 or len(result['queries']) != 12:
         raise ValueError('formal complete Flights evaluation required')
@@ -104,9 +132,9 @@ def main():
     directory = FULL / 'figures' / ('aqp_flights_' + binding_hash(binding)[:16])
     manifest_path = directory / 'manifest.json'
     if manifest_path.exists():
-        previous = load_json(manifest_path)
-        if any(file_sha256(ROOT / a['path']) != a['sha256'] for a in previous['artifacts']):
-            raise ValueError('previous figure/table changed')
+        require_existing_figures(load_json(manifest_path), directory, binding)
+        atomic_json(FULL / 'results/flights_tables_latest.json', dict(path=directory.relative_to(ROOT).as_posix(),
+            manifest_sha256=file_sha256(manifest_path), full_paper_complete=False))
         print('REUSED_SEALED_FLIGHTS_FIGURES', directory.relative_to(ROOT)); return
     directory.mkdir(parents=True, exist_ok=True)
     queries, groups = [], []

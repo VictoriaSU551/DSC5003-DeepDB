@@ -1,5 +1,7 @@
 from fractions import Fraction
 
+import pytest
+
 from full_aqp_tables import sample_estimate, group_error_summary
 
 
@@ -17,3 +19,27 @@ def test_group_mean_retains_missing_groups_with_explicit_penalty():
     assert result['mean_relative_error_with_missing_penalty'] == .5
     assert result['matched_mean_relative_error'] == 0.
     assert result['missing_groups'] == 1
+
+
+@pytest.mark.parametrize('mode', ['empty', 'duplicate', 'binding', 'tamper', 'escape'])
+def test_cached_flights_bundle_cannot_hide_changed_or_missing_outputs(tmp_path, monkeypatch, mode):
+    import full_aqp_tables as tables
+    monkeypatch.setattr(tables, 'ROOT', tmp_path)
+    directory = tmp_path/'figures'; directory.mkdir()
+    for name in ['query_summary.csv', 'all_groups.csv', 'flights_relative_error.png', 'flights_ci_half_width.png']:
+        (directory/name).write_bytes(b'original')
+    binding = {'source':'exact'}
+    receipt = dict(status='PASS_LOCAL_SAME_SAMPLE_COMPARISON', full_paper_complete=False,
+        binding=tables.binding_hash(binding), binding_details=binding,
+        artifacts=[tables.artifact(p) for p in directory.iterdir()])
+    tables.require_existing_figures(receipt, directory, binding)
+    if mode == 'empty': receipt['artifacts'] = []
+    if mode == 'duplicate': receipt['artifacts'][-1] = receipt['artifacts'][0]
+    if mode == 'binding': receipt['binding_details'] = {'source':'older'}
+    if mode == 'tamper': (directory/'all_groups.csv').write_bytes(b'changed')
+    if mode == 'escape':
+        external = tmp_path/'all_groups.csv'; external.write_bytes(b'original')
+        receipt['artifacts'] = [tables.artifact(external) if item['path'].endswith('all_groups.csv') else item
+                                for item in receipt['artifacts']]
+    with pytest.raises(ValueError):
+        tables.require_existing_figures(receipt, directory, binding)

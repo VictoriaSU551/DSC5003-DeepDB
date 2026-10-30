@@ -113,6 +113,20 @@ def ssb_model_stages():
     return model, intervals
 
 
+def ssb_generation_stage(checkpoint, result):
+    stage = dict(status='PARTIAL_CHECKPOINT', generated_rows=checkpoint.get('rows', 0),
+        requested_rows=3000028242, sample_rows=checkpoint.get('sample_rows', 0),
+        committed_shards=len(checkpoint.get('committed_shards', [])),
+        scope='Requires all author integer aggregates and exact fact row count at completion')
+    if result.get('status') == 'PASS':
+        stage['status'] = 'PASS_AUTHOR_POPULATION'
+    elif result.get('status') == 'MISMATCH':
+        stage.update(status='FAILED_AUTHOR_POPULATION_GATE',
+            author_aggregate_value_differences=len(result.get('author_truth_comparison', {}).get('different_values', [])),
+            scope='Traversal completed but author row count/truth differs. Original formal model gate remains closed.')
+    return stage
+
+
 def main():
     stages = {}
     inventory = load_json(FULL / 'results/source_inventory.json', {})
@@ -159,11 +173,7 @@ def main():
         scope='Streaming population traversal and own exact truth, no full population database retained')
     ssb = progress_json(FULL / 'ssb/paper/sf500/checkpoint.json', {})
     ssb_result = load_json(FULL / 'results/ssb_paper.json', {})
-    stages['ssb_sf500_generated'] = dict(
-        status='PASS_AUTHOR_POPULATION' if ssb_result.get('status') == 'PASS' else 'PARTIAL_CHECKPOINT',
-        generated_rows=ssb.get('rows', 0), requested_rows=3000028242,
-        sample_rows=ssb.get('sample_rows', 0), committed_shards=len(ssb.get('committed_shards', [])),
-        scope='Requires all author integer aggregates and exact fact row count at completion')
+    stages['ssb_sf500_generated'] = ssb_generation_stage(ssb, ssb_result)
     mscn_dir = FULL / 'mscn/table1_job_light_seed1'
     mscn = progress_json(mscn_dir / 'checkpoints/latest.json', {})
     mscn_eval = load_json(mscn_dir / 'evaluation.json', {})
@@ -265,12 +275,27 @@ def main():
         and formal.get('population_rows') == formal.get('normalizer') == 1000000000
         and formal.get('actual_training_rows') == 9997912 and formal.get('query_errors') == 0)
     stages['flights_1b_rspn_aqp_and_ci'] = dict(
-        status='PASS_SEALED_ORIGINAL_SCALE_LOCAL_EXPERIMENT' if formal_pass else 'PENDING',
+        status='FORMAL_COMPLETE_REPLAY_PENDING' if formal_pass else 'PENDING',
         evidence='output/full/flights/model_formal_validation.json; output/full/flights/root_formal_verification.json',
         actual_training_rows=formal.get('actual_training_rows'), truth_groups=formal.get('truth_groups'),
         missing_groups=formal.get('missing_model_groups'), extra_groups=formal.get('extra_model_groups'),
         ci_eligible_groups=formal.get('ci_eligible_groups'), ci_excluded_groups=formal.get('ci_excluded_groups'),
         scope='Own IDEBench population/seed; one-sample CI experiment, not repeated-sample calibration. Original baseline comparisons remain separate.')
+    if formal_pass and (FULL/'flights-replay/final_seal.json').exists():
+        try:
+            from full_flights_replay_audit import verify as audit_flights_replay
+            replayed = audit_flights_replay()
+            receipt = load_json(ROOT/replayed['verification']['path'])
+            if (replayed['status'] != 'PASS_READ_ONLY_FLIGHTS_REPLAY_WITH_CURRENT_PARSER_BINDING'
+                    or receipt['configuration']['formal_receipt']['sha256'] != file_sha256(FULL/'flights/model_formal_validation.json')):
+                raise ValueError('Flights replay/formal result binding differs')
+            stages['flights_1b_rspn_aqp_and_ci'].update(status='PASS_SEALED_ORIGINAL_SCALE_LOCAL_EXPERIMENT',
+                independent_reverse_point_ci_replay='PASS', successful_replay_calls=replayed['successful_prior_calls'],
+                parser_binding_status=replayed['parser_binding_status'],
+                parser_bound_during_original_inference=False,
+                maximum_replay_relative_difference=replayed['maximum_relative_difference'])
+        except (KeyError, ValueError, OSError) as error:
+            stages['flights_1b_rspn_aqp_and_ci'].update(status='EVIDENCE_INVALID', reason=str(error))
     local_truth = load_json(FULL / 'results/grouped_truth_discrepancies.json', {})
     arrays = load_json(FULL / 'results/grouped_independent_truth_arrays.json', {})
     stages['independent_public_683_truths'] = dict(

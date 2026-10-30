@@ -2,7 +2,7 @@
 
 **整篇论文仍未完成。** 本页是已验证部分的协作快照。
 
-来源状态时间：2026-10-30T15:20:44.514793+00:00
+来源状态时间：2026-10-30T17:22:05.821554+00:00
 
 作者Table1数值与本地重跑各有evidence标签；配置、样本和尾部误差有差异，不能互相替代。
 公开工作负载为683条，其中4--6表413条；作者200条具体成员未找到。
@@ -42,11 +42,38 @@ CI仅一次样本，少于10行的组排除，不能解读为重复抽样覆盖�
 | paper_proxy_joblight_rdc_n10000000_b0p5 | PASS_LOCAL_VARIANT |
 | public_scale_rdc_n100000_b0p0 | PASS_LOCAL_VARIANT |
 | public_scale_rdc_n10000000_b0p5 | PASS_LOCAL_VARIANT |
+| sample_size_sweep_public_profile/1000 | PASS_LOCAL_VARIANT |
+| sample_size_sweep_public_profile/10000 | PASS_LOCAL_VARIANT |
+| sample_size_sweep_public_profile/100000 | PASS_LOCAL_VARIANT |
+| sample_size_sweep_public_profile/1000000 | PASS_LOCAL_VARIANT |
+| sample_size_sweep_public_profile/10000000 | PASS_LOCAL_VARIANT |
+| budget_sweep_public_paper_cost_proxy/0.0 | PASS_LOCAL_VARIANT |
+| budget_sweep_public_paper_cost_proxy/0.5 | PASS_LOCAL_VARIANT |
+| budget_sweep_public_paper_cost_proxy/1.0 | PASS_LOCAL_VARIANT |
+| budget_sweep_public_paper_cost_proxy/2.0 | PASS_LOCAL_VARIANT |
+| budget_sweep_public_paper_cost_proxy/3.0 | PASS_LOCAL_VARIANT |
+| temporal_10m_joblight/2019 | PASS_LOCAL_VARIANT |
+| temporal_10m_joblight/2011 | PASS_LOCAL_VARIANT |
+| temporal_10m_joblight/2009 | PASS_LOCAL_VARIANT |
+| temporal_10m_joblight/2004 | PASS_LOCAL_VARIANT |
+| temporal_10m_joblight/1991 | PASS_LOCAL_VARIANT |
+| literal_point3_ensemble_threshold/joblight/0.0 | PASS_LOCAL_VARIANT |
+| literal_point3_ensemble_threshold/joblight/0.5 | PASS_LOCAL_VARIANT |
+| literal_point3_ensemble_threshold/joblight/1.0 | PASS_LOCAL_VARIANT |
+| literal_point3_ensemble_threshold/joblight/2.0 | PASS_LOCAL_VARIANT |
+| literal_point3_ensemble_threshold/joblight/3.0 | PASS_LOCAL_VARIANT |
+| literal_point3_ensemble_threshold/public_scale/0.0 | PASS_LOCAL_VARIANT |
+| literal_point3_ensemble_threshold/public_scale/0.5 | PASS_LOCAL_VARIANT |
+| literal_point3_ensemble_threshold/public_scale/1.0 | PASS_LOCAL_VARIANT |
+| literal_point3_ensemble_threshold/public_scale/2.0 | PASS_LOCAL_VARIANT |
+| literal_point3_ensemble_threshold/public_scale/3.0 | PASS_LOCAL_VARIANT |
+| all_relationships_joblight/100000 | PASS_LOCAL_VARIANT |
+| all_relationships_joblight/10000000 | PASS_LOCAL_VARIANT |
 | cpp_existing_model_correctness | PASS |
 | flights_source_5m | PASS |
 | flights_streaming_golden_200k | PASS |
 | flights_1b_generated | PASS_ORIGINAL_SCALE_GENERATION |
-| ssb_sf500_generated | PARTIAL_CHECKPOINT |
+| ssb_sf500_generated | FAILED_AUTHOR_POPULATION_GATE |
 | mscn_100_epochs | PASS_LOCAL_TABLE1_RERUN |
 | mscn_rebuilt_consistent_sample_generalization | PASS_SEALED_REBUILT_100_EPOCHS_LOCAL_WORKLOAD |
 | cpp_5spn_public_workload | PASS |
@@ -59,9 +86,10 @@ CI仅一次样本，少于10行的组排除，不能解读为重复抽样覆盖�
 | figure7_exact_author_config | OPEN_SOURCE_GAP |
 | flights_1b_rspn_aqp_and_ci | PASS_SEALED_ORIGINAL_SCALE_LOCAL_EXPERIMENT |
 | independent_public_683_truths | PASS_LOCAL_COUNTS_WITH_PUBLISHED_INPUT_DIFFERENCES |
+| ssb_rspn_aqp | PENDING |
+| ssb_confidence_intervals | PENDING |
 | flights_original_baseline_comparisons | PENDING |
 | ssb_aqp_and_baselines | PENDING |
-| ssb_confidence_intervals | PENDING |
 | dbest_wavelet_microbenchmarks | PENDING |
 
 完整协议、恢复门禁与组员分工见[运行指南](../../docs/FULL_RUNNING_GUIDE.md)。
