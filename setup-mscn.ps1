@@ -29,9 +29,10 @@ if (-not (Get-Command uv -ErrorAction SilentlyContinue)) {
     throw 'Install uv first, or run the main setup.ps1.'
 }
 $env:UV_PYTHON_INSTALL_DIR = Join-Path $PSScriptRoot '.runtime'
+$env:UV_PYTHON_BIN_DIR = Join-Path $PSScriptRoot '.runtime/bin'
 $env:UV_CACHE_DIR = Join-Path $PSScriptRoot 'output/tmp/uv-cache'
 if (-not (Test-Path -LiteralPath $python)) {
-    uv python install 3.8.20
+    uv python install 3.8.20 --no-bin --no-registry
     if ($LASTEXITCODE -ne 0) { throw 'Python installation failed' }
     uv venv --python 3.8.20 .venv-mscn
     if ($LASTEXITCODE -ne 0) { throw 'MSCN environment creation failed' }

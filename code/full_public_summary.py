@@ -15,6 +15,8 @@ BUNDLES = {
         'query_summary.csv', 'all_groups.csv', 'flights_relative_error.png', 'flights_ci_half_width.png']),
     'flights_comparison': ('flights_comparisons_latest.json', [
         'query_comparison.csv', 'flights_partial_baselines.png']),
+    'ssb': ('ssb_tables_latest.json', ['query_summary.csv', 'all_groups.csv', 'training_tables.csv',
+                                    'ssb_relative_error.png', 'ssb_ci_half_width.png']),
 }
 
 
@@ -61,9 +63,25 @@ def checked_bundle(pointer_path, filenames):
     return [actual[name] for name in filenames], dict(pointer=record(pointer_path), manifest=record(manifest_path))
 
 
+def coverage_rows(stages, prefix=''):
+    rows = {}
+    for name, stage in stages.items():
+        if not isinstance(stage, dict):
+            continue
+        label = prefix + str(name)
+        if 'status' in stage:
+            rows[label] = {key:value for key,value in stage.items()
+                if key in {'status', 'scope', 'queries', 'generated_rows', 'requested_rows'}}
+        else:
+            rows.update(coverage_rows(stage, label+'/'))
+    return rows
+
+
 def main():
     selected, evidence = [], {}
     for prefix, (pointer, names) in BUNDLES.items():
+        if prefix == 'ssb' and not (FULL/'results'/pointer).exists():
+            continue  # Explicitly partial snapshot while the formal SSB stage is still pending.
         paths, sources = checked_bundle(FULL / 'results' / pointer, names)
         evidence[prefix] = sources
         selected.extend((prefix + '_' + path.name, path) for path in paths)
@@ -72,9 +90,9 @@ def main():
     if status.get('full_paper_complete') is not False or status.get('status') != 'INCOMPLETE_FULL_PAPER':
         raise ValueError('current explicit coverage ledger required')
     # Publish only selected state fields; the local ledger can contain diagnostic machine paths.
-    coverage = {name: {key: value for key, value in stage.items()
-                      if key in {'status', 'scope', 'queries', 'generated_rows', 'requested_rows'}}
-                for name, stage in status['stages'].items() if isinstance(stage, dict)}
+    coverage = coverage_rows(status['stages'])
+    if any(stage['status'] == 'EVIDENCE_INVALID' for stage in coverage.values()):
+        raise ValueError('invalid current evidence must be resolved before publishing a new snapshot')
     destination = ROOT / 'output/results'
     destination.mkdir(parents=True, exist_ok=True)
     outputs = []

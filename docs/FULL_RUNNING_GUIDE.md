@@ -12,6 +12,12 @@
 `setup-mscn.ps1`：10个Windows/Python3.8 wheel的URL、大小和SHA256固定在
 `docs/manifests/mscn-windows-py38-wheels.json`。已有匹配环境仅检查版本，不安装或修改包。
 该锁来自本次本地兼容环境，不是作者的原Python3.7/PyTorch1.0环境。
+2026-10-31已在本机的干净源码副本新建主环境、验证算法导入/HDF读写，并新建MSCN环境、
+重新取得官方100K/70配套输入，27项MSCN语义检查通过；没有重训正式模型。
+主安装器随后增加`--no-bin --no-registry`，其私有Python安装已在空目录另验，
+MSCN新安装使用了这两个开关。Python文件留在项目`.runtime`，不新增全局命令或注册表登记。
+测试过的uv版本为0.9.11；这是当前Windows主机的安装验证，不是另一台机器或全新操作系统的验证。
+本地凭据在`output/full/bootstrap_verification/`，2.87GB逻辑大小的临时副本和CLI归档已移出项目。
 
 ```powershell
 # MSCN源码和100K/70配套位图；存在的文件只核验，不覆盖
@@ -44,6 +50,10 @@ powershell -ExecutionPolicy Bypass -File setup-mscn.ps1
 .venv/Scripts/python.exe code/full_aqp_tables.py
 .venv/Scripts/python.exe code/full_aqp_comparisons.py
 
+# SSB正式模型及一次独立逆序重放完成后：只读验收与表图
+.venv/Scripts/python.exe code/full_ssb_replay.py verify
+.venv/Scripts/python.exe code/full_ssb_tables.py
+
 # 仅导出显式白名单派生CSV/PNG，作为可提交的协作快照
 .venv/Scripts/python.exe code/full_public_summary.py
 ```
@@ -72,9 +82,13 @@ v1/v2、原模型和原published真值均保留为历史证据。只有完整v3�
 | Flights原规模模型/AQP/CI | [FULL_FLIGHTS_MODEL_RUN.md](FULL_FLIGHTS_MODEL_RUN.md) |
 | 原DBEst实际1B母体上的20K拟合与审计 | [FULL_DBEST_FLIGHTS.md](FULL_DBEST_FLIGHTS.md)、[FULL_DBEST_FLIGHTS_AUDIT.md](FULL_DBEST_FLIGHTS_AUDIT.md) |
 | SSB SF500与准备/训练门禁 | [FULL_SSB_MODEL_PROTOCOL.md](FULL_SSB_MODEL_PROTOCOL.md) |
+| SSB新鲜进程逆序point/CI重放及只读验收 | [FULL_SSB_REPLAY.md](FULL_SSB_REPLAY.md) |
 
 正式长任务只运行一个控制器。SSB全4000片、3,000,028,242事实行与13项作者整数聚合
 必须先通过，才允许正式训练；不得用正在增长的样本启动另一份正式运行。
+SSB原顺序正式推断后，由唯一控制器显式执行一次`full_ssb_replay.py replay`；
+日常验收只用`verify`。重放PASS只证明行为一致，缺组、非有限区间和CI排除仍单列，
+不能把模型调用零异常当作所有分组及区间覆盖完整。
 有源码、原始输入或资源缺口的项目保持未完成，不能把作者报告数值复制成此次结果。
 
 ## 组员可直接接手的内容

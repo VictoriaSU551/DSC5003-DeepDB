@@ -64,3 +64,11 @@ def test_different_strings_cannot_alias_one_physical_artifact(tmp_path, monkeypa
     pointer.write_text(json.dumps(p))
     with pytest.raises(ValueError, match='physical artifact'):
         export.checked_bundle(pointer, ['table1.csv'])
+
+
+def test_nested_sweep_statuses_survive_without_publishing_diagnostic_paths():
+    stages = {'sweep': {'1000': {'status':'PASS', 'queries':753}},
+              'failed': {'status':'EVIDENCE_INVALID', 'reason':'C:/Users/private/file'}}
+    rows = export.coverage_rows(stages)
+    assert rows['sweep/1000'] == {'status':'PASS', 'queries':753}
+    assert rows['failed'] == {'status':'EVIDENCE_INVALID'}

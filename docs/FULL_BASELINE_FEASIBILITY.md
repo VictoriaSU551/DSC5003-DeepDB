@@ -17,7 +17,7 @@ Wander Join显式时间预算2秒，仅用于含join的数据，并建立join及
 DeepDB本身训练样本为Flights 10M、SSB 1M。
 第12、13图的DBEst与wavelets另允许查询先验，不能与无先验配置混合。
 出处为[原论文](https://www.vldb.org/pvldb/vol13/p992-hilprecht.pdf)第6.2节；
-本地定位`output/tmp/paper/deepdb_raw.txt:1340`、`1661`。
+本地定位`output/full/paper/deepdb_raw.txt:1340`、`1661`。
 
 论文中DBEst引用[24]和[25]是同一SIGMOD’19工作，正确作者论文DOI为
 `10.1145/3299869.3324958`，见[Warwick作者存档](https://wrap.warwick.ac.uk/id/eprint/115961/)。

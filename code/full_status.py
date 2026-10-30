@@ -72,6 +72,47 @@ def verified_current_evaluation(label, queries):
     return stage
 
 
+def ssb_model_stages():
+    evidence = 'output/full/results/ssb_model_aqp_ci.json; output/full/ssb/replay/verification.json'
+    model = dict(status='PENDING', evidence=evidence,
+        scope='SF500, single-table RSPNs capped1M/table; exact population truth, original n/p model normalizer')
+    intervals = dict(status='PENDING', evidence=evidence,
+        scope='Actual retained fact sample for central90 reference; count<10 excluded; one sample, not coverage calibration')
+    path = FULL/'results/ssb_model_aqp_ci.json'
+    if not path.exists():
+        return model, intervals
+    if load_json(path).get('status') != 'PASS':
+        model['status'] = intervals['status'] = 'FORMAL_QUERY_ERRORS_RECORDED'
+        return model, intervals
+    model['status'] = intervals['status'] = 'FORMAL_COMPLETE_REPLAY_PENDING'
+    if not (FULL/'ssb/replay/verification.json').exists():
+        return model, intervals
+    try:
+        from full_ssb_replay import verify
+        accepted = verify()
+        report = load_json(path)
+        if (accepted['status'] != 'PASS_INDEPENDENT_REVERSE_REPLAY_CURRENT_DEPENDENCIES'
+                or file_sha256(path) != accepted['source_snapshot']['formal_result_sha256']):
+            raise ValueError('SSB formal report does not match its replay acceptance')
+        coverage = accepted['coverage']
+        model_gaps = any(coverage[k] for k in ['missing_model_groups_total', 'extra_model_groups_total', 'nonfinite_point_groups'])
+        interval_gaps = model_gaps or any(coverage[k] for k in ['nonfinite_original_ci_groups', 'missing_or_nonfinite_model_interval_groups'])
+        model.update(status='PASS_REPLAY_WITH_GROUP_GAPS' if model_gaps else 'PASS_VERIFIED_LOCAL_SF500_AQP',
+            population_rows=report['inputs']['population_rows'], actual_fact_sample_rows=report['inputs']['sample_rows'],
+            training_rows={t['table']:t['actual_training_rows'] for t in report['training_tables']},
+            queries=13, coverage=coverage)
+        intervals.update(status='PASS_REPLAY_WITH_CI_GAPS' if interval_gaps else 'PASS_LOCAL_CI_WITH_EXCLUSIONS',
+            confidence_fact_sample_rows=report['inputs']['sample_rows'],
+            eligible_truth_groups=coverage['reference_ci_eligible_truth_groups'],
+            excluded_truth_groups=coverage['reference_ci_excluded_truth_groups'], coverage=coverage)
+        if not coverage['reference_ci_eligible_truth_groups']:
+            intervals['status'] = 'NO_ELIGIBLE_REFERENCE_INTERVALS'
+    except (KeyError, ValueError, OSError) as error:
+        model.update(status='EVIDENCE_INVALID', reason=str(error))
+        intervals.update(status='EVIDENCE_INVALID', reason=str(error))
+    return model, intervals
+
+
 def main():
     stages = {}
     inventory = load_json(FULL / 'results/source_inventory.json', {})
@@ -238,7 +279,8 @@ def main():
         independently_SQL_confirmed_differences=local_truth.get('independent_SQL_confirmed_differences'),
         evidence='output/full/results/grouped_truth_discrepancies.json',
         scope='Published CSVs remain unchanged; local exact counts are a separate input')
-    for key in ['flights_original_baseline_comparisons', 'ssb_aqp_and_baselines', 'ssb_confidence_intervals',
+    stages['ssb_rspn_aqp'], stages['ssb_confidence_intervals'] = ssb_model_stages()
+    for key in ['flights_original_baseline_comparisons', 'ssb_aqp_and_baselines',
                 'dbest_wavelet_microbenchmarks']:
         stages[key] = dict(status='PENDING')
     output = dict(status='INCOMPLETE_FULL_PAPER', full_paper_complete=False,
