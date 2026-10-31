@@ -125,9 +125,37 @@ def test_separate_ci_bundle_rejects_1m_or_author_scope(tmp_path,monkeypatch,scop
     local=dict(scope=scope,author_reproduction_complete=False,author_different_groups=1713,
         full_paper_complete=False,status='PASS_VERIFIED_LOCAL_SSB_DERIVED_TABLES')
     m.update(local);p.update(local)
+    m['binding_details']=dict(presentation=dict(evaluation_variant='CANONICAL_DECODED_GROUP_PROTOTYPE_V1'),
+        readonly_acceptance=dict(evaluation_variant='CANONICAL_DECODED_GROUP_PROTOTYPE_V1',
+            group_order_adapter_sha256='48220a0474a838c8dc9a7cf3fef0e8a84459a05e3fa8e15405307acae430ae5c'))
     manifest.write_text(json.dumps(m));p['manifest_sha256']=export.file_sha256(manifest)
     pointer.write_text(json.dumps(p))
     if scope=='LOCAL_SSB_10M_CI':
         assert export.checked_bundle(pointer,['table1.csv'])[0]==[source/'table1.csv']
+    else:
+        with pytest.raises(ValueError):export.checked_bundle(pointer,['table1.csv'])
+
+
+@pytest.mark.parametrize('mutation',[None,'scope','variant','adapter','caption'])
+def test_canonical_bundle_preserves_reviewed_evaluation_variant(tmp_path,monkeypatch,mutation):
+    old,source=bundle(tmp_path,monkeypatch)
+    pointer=tmp_path/'ssb_local_canonical_tables_latest.json'
+    manifest=source/'manifest.json';m=json.loads(manifest.read_text());p=json.loads(old.read_text())
+    local=dict(scope='LOCAL_SSB_SF500_CANONICAL_CI',author_reproduction_complete=False,author_different_groups=1713,
+        full_paper_complete=False,status='PASS_VERIFIED_LOCAL_SSB_DERIVED_TABLES')
+    m.update(local);p.update(local)
+    variant='CANONICAL_DECODED_GROUP_PROTOTYPE_V1'
+    m['binding_details']=dict(presentation=dict(evaluation_variant=variant),readonly_acceptance=dict(evaluation_variant=variant,
+        group_order_adapter_sha256='48220a0474a838c8dc9a7cf3fef0e8a84459a05e3fa8e15405307acae430ae5c'))
+    if mutation=='scope':m['scope']='LOCAL_SSB_SF500'
+    if mutation=='variant':m['binding_details']['readonly_acceptance']['evaluation_variant']='OLD_SET_ORDER'
+    if mutation=='adapter':m['binding_details']['readonly_acceptance']['group_order_adapter_sha256']='0'*64
+    if mutation=='caption':m['binding_details']['presentation']['evaluation_variant']='OLD_SET_ORDER'
+    manifest.write_text(json.dumps(m));p['manifest_sha256']=export.file_sha256(manifest)
+    pointer.write_text(json.dumps(p))
+    if mutation is None:
+        assert export.checked_bundle(pointer,['table1.csv'])[0]==[source/'table1.csv']
+        assert 'ssb_local_canonical' in export.OPTIONAL_BUNDLES
+        assert export.BUNDLES['ssb_local_canonical'][0]==pointer.name
     else:
         with pytest.raises(ValueError):export.checked_bundle(pointer,['table1.csv'])
