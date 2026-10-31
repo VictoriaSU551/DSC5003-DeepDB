@@ -83,7 +83,7 @@ def test_exact_direct_windows_import_descriptor_retains_scope_without_opening_sy
 def test_all_final_publications_must_exist_before_any_parent_is_hashed(tmp_path,monkeypatch):
     m=module();monkeypatch.setattr(m,'ROOT',tmp_path);s=m.local_spec();parents={}
     for role in ('source','model','canonical','reverse'):
-        path=s.get(role+'_report','output/full/ssb/local_sf500_canonical/runs/tiny/reverse/verification.json');parents[role]=dict(path=path,bytes=0,sha256='0'*64)
+        path=s.get(role+'_report','output/full/ssb/local_sf500_continuation/runs/tiny/reverse/verification.json');parents[role]=dict(path=path,bytes=0,sha256='0'*64)
         if role!='reverse':
             p=tmp_path/path;p.parent.mkdir(parents=True,exist_ok=True);p.write_text('{}')
     def forbidden(*args,**kwargs):raise AssertionError('Hashed parent before all final publications existed')
@@ -131,7 +131,7 @@ def test_supplied_model_cannot_repin_a_changed_delegate_before_scientific_import
         reverse=dict(flags,status='PASS_LOCAL_SSB_SF500_REVERSE_REPLAY_WITH_AUTHOR_MISMATCH',author_different_groups=1713))
     expected={}
     for role,body in values.items():
-        name=s.get(role+'_report','output/full/ssb/local_sf500_canonical/runs/tiny/reverse/verification.json');p=tmp_path/name;p.parent.mkdir(parents=True,exist_ok=True);p.write_text(json.dumps(body),encoding='utf-8')
+        name=s.get(role+'_report','output/full/ssb/local_sf500_continuation/runs/tiny/reverse/verification.json');p=tmp_path/name;p.parent.mkdir(parents=True,exist_ok=True);p.write_text(json.dumps(body),encoding='utf-8')
         expected[role]=dict(path=name,bytes=p.stat().st_size,sha256=s['source_report_sha256'] if role=='source' else 'a'*64)
     monkeypatch.setattr(m,'artifact',lambda p:next(r for r in expected.values() if tmp_path/r['path']==Path(p)))
     monkeypatch.setattr(m,'digest',lambda p:local.get(Path(p).relative_to(tmp_path).as_posix(),'b'*64))
@@ -144,9 +144,10 @@ def test_supplied_model_cannot_repin_a_changed_delegate_before_scientific_import
     'full_ssb_local_source.py','full_ssb_local_model.py','full_ssb_local_model_run.py','full_ssb_local_replay.py',
     'full_ssb_replay.py','full_ssb_native_replay.py','full_ssb_native_model.py','full_ssb_native_model_run.py',
     'full_ssb_model.py','full_ssb_guard.py','full_ssb_native_v2.py','full_ssb_native_v2_stream.py','full_ssb_native_v2_formal.py',
-    'full_ssb_local_canonical.py','full_ssb_local_canonical_run.py','full_ssb_group_order.py'])
+    'full_ssb_local_canonical.py','full_ssb_local_canonical_run.py','full_ssb_group_order.py',
+    'full_ssb_local_continuation.py','full_ssb_local_continuation_run.py'])
 def test_every_delegated_entry_provider_and_strict_upper_source_has_independent_fixed_pin(changed,monkeypatch):
-    m=module();assert len(m.PARENT_PINS)==16
+    m=module();assert len(m.PARENT_PINS)==18
     monkeypatch.setattr(m,'digest',lambda p:m.PARENT_PINS[Path(p).relative_to(m.ROOT).as_posix()])
     assert m.verify_delegate_sources()==m.PARENT_PINS
     def changed_digest(path):
@@ -170,20 +171,21 @@ def canonical_fixture(tmp_path,monkeypatch):
         plan={'dependencies':{'auxiliary_sources':{'code/full_ssb_local_replay.py':m.PARENT_PINS['code/full_ssb_local_replay.py']}}})
     source=dict(flags,status='PASS_LOCAL_SOURCE_PHYSICAL_GATE_ONLY',source_id=s['source_id'],different_author_groups=1713,
         local_sources={k:m.PARENT_PINS[k] for k in ('code/full_ssb_local_source.py','code/full_ssb_local_model.py','code/full_ssb_local_model_run.py')})
-    cdir='output/full/ssb/local_sf500_canonical/runs/tiny'
-    reverse=dict(flags,status='PASS_CANONICAL_REVERSE_EVALUATION',scope='LOCAL_SSB_SF500_CANONICAL_CI',phase='REVERSE',directory=str(tmp_path/cdir),
+    cdir='output/full/ssb/local_sf500_continuation/runs/tiny'
+    protocol='ADOPT_ACCEPTED_FORWARD_FRESH_REVERSE_WITH_CONSUMED_CLOSURE_V1'
+    reverse=dict(flags,status='PASS_CONTINUATION_REVERSE_EVALUATION',scope='LOCAL_SSB_SF500_CANONICAL_CONTINUATION',execution_protocol=protocol,phase='REVERSE',directory=str(tmp_path/cdir),
         group_order_adapter_sha256='48220a0474a838c8dc9a7cf3fef0e8a84459a05e3fa8e15405307acae430ae5c')
     expected=dict(source=save(s['source_report'],source),model=save(s['model_report'],model),reverse=save(cdir+'/reverse/verification.json',reverse))
     original_asset=save('output/tmp/parent_asset.json',{'old':'all science and supervisor assets'})
     canonical_asset=save('output/tmp/canonical_asset.json',{'new':'both phases and root control'})
-    canonical=dict(flags,status='PASS_LOCAL_SSB_SF500_CANONICAL_AQP_CI',scope='LOCAL_SSB_SF500_CANONICAL_CI',directory=str(tmp_path/cdir),
+    canonical=dict(flags,status='PASS_LOCAL_SSB_SF500_CANONICAL_CONTINUATION_AQP_CI',scope='LOCAL_SSB_SF500_CANONICAL_CONTINUATION',execution_protocol=protocol,directory=str(tmp_path/cdir),adopted_forward=True,forward_reexecuted=False,
         variant='CANONICAL_PAIRED_DECODED_GROUP_ORDER',evaluation_variant='CANONICAL_DECODED_GROUP_PROTOTYPE_V1',
         group_order_adapter_sha256=reverse['group_order_adapter_sha256'],historical_reverse_accepted=False,parent_formal=expected['model'],reverse=expected['reverse'])
     expected['canonical']=save(s.get('canonical_report','output/full/results/ssb_local_sf500_canonical_aqp_ci.json'),canonical)
     s.update(source_report_sha256=expected['source']['sha256'],model_report_sha256=expected['model']['sha256'])
     monkeypatch.setattr(m,'local_spec',lambda:s)
     parent=dict(flags,status='PASS_READ_ONLY_LOCAL_SSB_SF500_MODEL_WITH_AUTHOR_MISMATCH',scope='LOCAL_SSB_SF500',report=model,published_result=expected['model'],artifacts=[original_asset])
-    proof=dict(canonical,status='PASS_READ_ONLY_LOCAL_SSB_SF500_CANONICAL_CI_WITH_AUTHOR_MISMATCH',report=canonical,parent_snapshot=parent,
+    proof=dict(canonical,status='PASS_READ_ONLY_LOCAL_SSB_SF500_CANONICAL_CONTINUATION_WITH_AUTHOR_MISMATCH',report=canonical,parent_snapshot=parent,
         published_result=expected['canonical'],sample_rows=s['sample_rows'],population_rows=s['population_rows'],artifacts=[canonical_asset],
         database_connected=False,training_executed=False,inference_executed=False,files_modified=False)
     moment=micro(native_queries);moment['sample_rows']=s['sample_rows']
@@ -200,7 +202,7 @@ def canonical_fixture(tmp_path,monkeypatch):
     def importer(name):
         if name=='full_windows_fingerprint':return SimpleNamespace(verified_platform=lambda *a:nullcontext())
         if name=='full_verdict_ssb_audit':return SimpleNamespace(forbid_science=lambda *a:nullcontext())
-        if name=='full_ssb_local_canonical':return SimpleNamespace(__file__=str(tmp_path/'code/full_ssb_local_canonical.py'),verify_canonical=lambda:calls.append('CANONICAL') or proof)
+        if name=='full_ssb_local_continuation':return SimpleNamespace(__file__=str(tmp_path/'code/full_ssb_local_continuation.py'),verify_canonical=lambda:calls.append('CANONICAL') or proof)
         pytest.fail('No failed 9c verifier or other scientific import allowed: '+name)
     monkeypatch.setattr(m.importlib,'import_module',importer)
     return m,s,expected,proof,calls,original_asset,canonical_asset
@@ -216,10 +218,13 @@ def test_canonical_parent_once_inherits_full_original_and_new_artifacts_without_
     assert lineage['files'][old['path']]==old and lineage['files'][new['path']]==new
     assert lineage['historical_reverse_accepted'] is False and lineage['author_different_groups']==1713
     assert lineage['author_reproduction_complete'] is lineage['full_paper_reproduction_complete'] is False
+    assert lineage['canonical_execution_protocol']=='ADOPT_ACCEPTED_FORWARD_FRESH_REVERSE_WITH_CONSUMED_CLOSURE_V1'
+    assert lineage['adopted_forward'] is True and lineage['forward_reexecuted'] is False
 
 
 @pytest.mark.parametrize('bad',['status','scope','variant','adapter','n','N','parent_formal','parent_report','canonical_report','reverse','author','complete','historical',
-    'no_original_artifacts','no_canonical_artifacts','database_connected','training_executed','inference_executed','files_modified'])
+    'no_original_artifacts','no_canonical_artifacts','database_connected','training_executed','inference_executed','files_modified',
+    'protocol','adopted_forward','forward_reexecuted'])
 def test_canonical_parent_bad_proof_or_alias_is_refused_even_with_saved_publications(tmp_path,monkeypatch,bad):
     m,s,expected,p,calls,old,new=canonical_fixture(tmp_path,monkeypatch)
     if bad=='status':p['status']='PASS_LOCAL_SSB_SF500_REVERSE_REPLAY_WITH_AUTHOR_MISMATCH'
@@ -235,6 +240,9 @@ def test_canonical_parent_bad_proof_or_alias_is_refused_even_with_saved_publicat
     if bad=='author':p['author_different_groups']=0
     if bad=='complete':p['full_paper_reproduction_complete']=True
     if bad=='historical':p['historical_reverse_accepted']=True
+    if bad=='protocol':p['execution_protocol']='ORIGINAL_TWO_FRESH_PHASES'
+    if bad=='adopted_forward':p['report']=dict(p['report'],adopted_forward=False)
+    if bad=='forward_reexecuted':p['report']=dict(p['report'],forward_reexecuted=True)
     if bad=='no_original_artifacts':p['parent_snapshot']['artifacts']=[]
     if bad=='no_canonical_artifacts':p['artifacts']=[]
     if bad in ('database_connected','training_executed','inference_executed','files_modified'):p[bad]=True
@@ -245,7 +253,7 @@ def test_shadow_loaded_canonical_module_is_rejected_before_its_verifier(tmp_path
     m,s,expected,p,calls,old,new=canonical_fixture(tmp_path,monkeypatch);original=m.importlib.import_module
     def shadow(name):
         value=original(name)
-        if name=='full_ssb_local_canonical':value.__file__=str(tmp_path/'elsewhere/canonical.py')
+        if name=='full_ssb_local_continuation':value.__file__=str(tmp_path/'elsewhere/canonical.py')
         return value
     monkeypatch.setattr(m.importlib,'import_module',shadow)
     with pytest.raises(ValueError,match='loaded|Loaded'):m.collect_lineage(expected)

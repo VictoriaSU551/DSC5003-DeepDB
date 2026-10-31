@@ -75,14 +75,10 @@ def test_ci_requires_complete_successful1m_formal_and_canonical_lineage(monkeypa
     if damage=='missing':
         with pytest.raises((ValueError,OSError)):m.collect_lineage(tmp_path)
         assert list(tmp_path.iterdir())==[];return
-    formal={'status':m.previous.API_PASS,'sample_rows':9996946,'population_rows':m.source.N,'scope':m.source.SCOPE,
-        'author_different_groups':1713,'author_reproduction_complete':False,'full_paper_reproduction_complete':False,
-        'report':{'plan':{'model':dict(m.previous.MODEL)}},'proof_method':'DIRECT_FROZEN_PREVIOUS_VERIFY_LOCAL_FORMAL',
-        'published_result':{'path':m.previous.RESULT},'model_path':'model.pkl','model_sha256':'a'*64}
-    reverse={'status':'PASS_READ_ONLY_LOCAL_SSB_SF500_CANONICAL_CI_WITH_AUTHOR_MISMATCH','scope':'LOCAL_SSB_SF500_CANONICAL_CI','author_different_groups':1713,
-        'author_reproduction_complete':False,'full_paper_reproduction_complete':False,'historical_reverse_accepted':False,
-        'sample_rows':m.source.SAMPLE_ROWS,'population_rows':m.source.N,'parent_formal':formal['published_result'],'published_result':{'path':m.PARENT_CANONICAL_RESULT},
-        'model_path':formal['model_path'],'model_sha256':formal['model_sha256'],**m.EVALUATION_METADATA}
+    from test_full_ssb_local_ci_audit_calls import canonical_parent,parent_body
+    r=parent_body(m);snap=dict(published_result={'path':m.previous.RESULT},scope=m.source.SCOPE,sample_rows=m.source.SAMPLE_ROWS,population_rows=m.source.N,
+        author_different_groups=1713,author_reproduction_complete=False,full_paper_reproduction_complete=False,model_path=r['model_path'],model_sha256=r['model_sha256'],dependencies={},evaluation_binding={},original_mismatch=r['original_mismatch'])
+    reverse=canonical_parent(m,snap,r,tmp_path);formal=reverse['parent_snapshot']
     if damage=='with_errors':formal['status']+='_WITH_ERRORS'
     elif damage=='cap':formal['report']['plan']['model']['samples_per_spn']=10000000
     elif damage=='reverse':reverse['status']='RUNNING'
@@ -208,7 +204,7 @@ def test_dependency_closure_merges_shared_canonical_adapter_exactly_once(monkeyp
     m=module();cap=m.adapt_training_source(m.original_training_source())[1]
     deps=dict(environment={},prior_provider_sources=m.PRIOR_PINS,delegated_parent_sources=m.PARENT_CANONICAL_PINS,
         ci_sources=m.code_snapshot(),auxiliary_sources=m.INFERENCE_PINS,runtime_cap=cap,
-        windows_fingerprint={'adapter':m.artifact(m.ROOT/m.WINDOWS_HELPER)},**m.EVALUATION_METADATA)
+        windows_fingerprint={'adapter':m.artifact(m.ROOT/m.WINDOWS_HELPER)},**m.EVALUATION_METADATA,**m.PARENT_METADATA)
     r=dict(kind='GOLDEN',inputs={'physical_artifacts':[]},inherited_artifacts=[],lineage={'artifacts_sha256':m.value_hash([])},plan={'dependencies':deps},runtime_cap=cap)
     monkeypatch.setattr(m.source,'environment_artifacts',lambda *a:[])
     records=m.dependency_artifacts(r)

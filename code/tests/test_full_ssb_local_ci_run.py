@@ -14,8 +14,8 @@ def module():
 def plan_fixture(m,root,kind='FORMAL'):
     deps={'ci_sources':{p:'b'*64 for p in m.model.FILES}}
     lineage=dict(parent_formal={'path':m.model.previous.RESULT,'bytes':1,'sha256':m.model.PARENT_RESULT_SHA},
-        parent_reverse={'path':'output/full/ssb/local_sf500_canonical/runs/'+'a'*20+'/reverse/verification.json','bytes':1,'sha256':'d'*64},
-        parent_canonical={'path':m.model.PARENT_CANONICAL_RESULT,'bytes':1,'sha256':'e'*64},historical_reverse_accepted=False,**m.model.EVALUATION_METADATA)
+        parent_reverse={'path':'output/full/ssb/local_sf500_continuation/runs/'+'a'*20+'/reverse/verification.json','bytes':1,'sha256':'d'*64},
+        parent_canonical={'path':m.model.PARENT_CANONICAL_RESULT,'bytes':1,'sha256':'e'*64},historical_reverse_accepted=False,**m.model.EVALUATION_METADATA,**m.model.PARENT_METADATA)
     c=m.candidate_body(kind,m.value_hash(deps['ci_sources']),{},deps,lineage)
     p=dict(c,status='ROOT_REVIEWED_LOCAL_SSB_10M_CI_PLAN',executable=True,root_reviewed_candidate_sha256=m.value_hash(c))
     path=root/m.model.OUTPUT/'plans'/m.value_hash(p)[:20]/'plan.json';m.atomic(path,p);m.atomic(path.with_suffix('.seal.json'),{'sha256':m.digest(path)})
@@ -42,6 +42,22 @@ def test_ci_execution_without_explicit_memory_release_creates_nothing(tmp_path):
     m=module()
     with pytest.raises(ValueError,match='memory'):m.run_supervised('none','a'*64,memory_approved=False,root=tmp_path)
     assert list(tmp_path.iterdir())==[]
+
+
+@pytest.mark.parametrize('damage',[None,'old_reverse','old_scope','protocol','forward_reexecuted','missing_protocol'])
+def test_continuation_reviewed_plan_exact_new_namespace_and_provenance(tmp_path,damage):
+    m=module();p,path=plan_fixture(m,tmp_path)
+    if damage is None:
+        assert p['schema']=='ssb_local_ci10m_plan_v3_continuation'
+        assert m.read_plan(path,m.digest(path),tmp_path)==p;return
+    if damage=='old_reverse':p['lineage']['parent_reverse']['path']=p['lineage']['parent_reverse']['path'].replace('local_sf500_continuation','local_sf500_canonical')
+    elif damage=='old_scope':p['lineage']['canonical_parent_scope']='LOCAL_SSB_SF500_CANONICAL_CI'
+    elif damage=='protocol':p['lineage']['canonical_execution_protocol']='TWO_FRESH_PHASES'
+    elif damage=='forward_reexecuted':p['lineage']['canonical_forward_reexecuted']=True
+    else:p['lineage'].pop('canonical_execution_protocol')
+    c=dict(p);c.pop('root_reviewed_candidate_sha256');c.update(status='CANDIDATE_REQUIRES_ROOT_REVIEW',executable=False);p['root_reviewed_candidate_sha256']=m.value_hash(c)
+    path=tmp_path/m.model.OUTPUT/'plans'/m.value_hash(p)[:20]/'plan.json';m.atomic(path,p);m.atomic(path.with_suffix('.seal.json'),{'sha256':m.digest(path)})
+    with pytest.raises(ValueError):m.read_plan(path,m.digest(path),tmp_path)
 
 
 def test_operational_capsule_binds_exact_frozen_implementation_and_distinct_schemas():

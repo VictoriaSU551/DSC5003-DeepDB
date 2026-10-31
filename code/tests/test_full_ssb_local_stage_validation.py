@@ -30,7 +30,7 @@ def fixture(m,root,source_sha='a'*64):
     r.update(directory=str(run),prepared_directory=str(before/'prepared'),moments_directory=str(before/'sample_moments_native'),
         moments_helper_directory=str(root/old.OUTPUT/'runtime/native'),truth_projection_path=str(before/'core_truth_checkpoint.json'),
         scope=ci.SCOPE,status=ci.PASS,author_population_row_count_and_13_truths_match=False,author_full_row_byte_identity_proven=False,
-        model_path=str(run/'model/ensemble_single.pkl'),evaluation_directory=str(run/'evaluation/cache'),**ci.EVALUATION_METADATA)
+        model_path=str(run/'model/ensemble_single.pkl'),evaluation_directory=str(run/'evaluation/cache'),**ci.EVALUATION_METADATA,**ci.PARENT_METADATA)
     r['evaluation_directory']=str(next((run/'evaluation').glob('*')))
     # Actual frame rows, complete frozen core model guard and outer receipts.
     model=r['model'];model['model_path']=r['model_path'];model['binding']['samples_per_spn']=10000000
@@ -83,6 +83,16 @@ def test_stage_scope_rejects_noncanonical_variant_before_scientific_files(key):
     r=dict(scope=ci.SCOPE,status=ci.PASS,author_different_groups=1713,author_reproduction_complete=False,full_paper_reproduction_complete=False,
         author_population_row_count_and_13_truths_match=False,author_full_row_byte_identity_proven=False,
         original_mismatch={'path':ci.source.NATIVE_REPORT,'sha256':ci.source.NATIVE_REPORT_SHA},
-        inputs={'status':ci.source.STATUS,'scope':ci.source.SCOPE,'different_author_groups':1713},**ci.EVALUATION_METADATA)
+        inputs={'status':ci.source.STATUS,'scope':ci.source.SCOPE,'different_author_groups':1713},**ci.EVALUATION_METADATA,**ci.PARENT_METADATA)
     m.validate_scope(r,ci.validation_config());r[key]='wrong'
     with pytest.raises(ValueError,match='variant|canonical|adapter'):m.validate_scope(r,ci.validation_config())
+
+
+@pytest.mark.parametrize('key',['canonical_parent_scope','canonical_parent_status','canonical_execution_protocol','canonical_adopted_forward','canonical_forward_reexecuted'])
+def test_stage_scope_requires_exact_continuation_provenance_before_scientific_files(key):
+    m=module();ci=ci_module()
+    r=dict(scope=ci.SCOPE,status=ci.PASS,author_different_groups=1713,author_reproduction_complete=False,full_paper_reproduction_complete=False,
+        author_population_row_count_and_13_truths_match=False,author_full_row_byte_identity_proven=False,original_mismatch={'path':ci.source.NATIVE_REPORT,'sha256':ci.source.NATIVE_REPORT_SHA},
+        inputs={'status':ci.source.STATUS,'scope':ci.source.SCOPE,'different_author_groups':1713},**ci.EVALUATION_METADATA,**ci.PARENT_METADATA)
+    m.validate_scope(r,ci.validation_config());r[key]='wrong'
+    with pytest.raises(ValueError,match='continuation|provenance'):m.validate_scope(r,ci.validation_config())

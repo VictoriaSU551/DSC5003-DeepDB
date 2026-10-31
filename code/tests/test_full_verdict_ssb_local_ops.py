@@ -17,7 +17,9 @@ def module():
     ('full_ssb_local_ci_replay.py','worker'),('full_ssb_local_replay.py','replay'),
     ('full_ssb_local_model_run.py','_worker'),('full_training.py','train'),
     ('full_ssb_local_canonical_run.py','_worker'),('full_ssb_local_canonical_run.py','supervise'),
-    ('full_ssb_local_ci_group_replay.py','worker'),('full_ssb_scoped_replay.py','worker')])
+    ('full_ssb_local_ci_group_replay.py','worker'),('full_ssb_scoped_replay.py','worker'),
+    ('full_ssb_local_continuation_run.py','_bootstrap'),('full_ssb_local_continuation_run.py','_worker'),
+    ('full_ssb_local_continuation_run.py','supervise')])
 def test_busy_science_guard_covers_actual_ci_model_and_reverse_entrypoints(script,action):
     m=module();command='"C:\\project\\.venv\\Scripts\\python.exe" "C:\\project\\code\\'+script+'" '+action
     rows=[dict(Name='python.exe',ProcessId=123,CommandLine=command)]

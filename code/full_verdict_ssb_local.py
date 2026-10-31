@@ -38,6 +38,8 @@ PARENT_PINS={
  'code/full_ssb_native_v2_formal.py':'52de0f43faf554a761f8dacca3cee5e9d919113402743aacf1a211ddcd882b40',
  'code/full_ssb_local_canonical.py':'9c041ffc8ca40386ad9e3582fd81cb1f0e76fd3db1a337cb97bb686a521ff6b6',
  'code/full_ssb_local_canonical_run.py':'8d561253786e8acd68e03c3b89fce46c2655f04cdd0c4b34492b369a6d757636',
+ 'code/full_ssb_local_continuation.py':'7a1bf30793e0484482bda3548c9d65dc3c3732af286287e62a2a054fd5e15563',
+ 'code/full_ssb_local_continuation_run.py':'763c9c46ce34fa0b4b0e59fbeea4f43d081945b8d6e20b91dde0b91eb937c7a0',
  'code/full_ssb_group_order.py':'48220a0474a838c8dc9a7cf3fef0e8a84459a05e3fa8e15405307acae430ae5c'}
 SOURCES=['code/full_verdict_ssb_local.py','code/full_verdict_ssb_local_ops.py','code/full_verdict_ssb_local_run.py',
  'code/full_verdict_ssb_local_bridge.java','code/tests/test_full_verdict_ssb_local.py','code/tests/test_full_verdict_ssb_local_ops.py',
@@ -111,8 +113,11 @@ def local_spec():
         model_report='output/full/results/ssb_local_sf500_model_aqp_ci.json',
         model_report_sha256='da358d52a0005bb28cd606c8e539099bdf242b72d4f6e663db6c0a3f84e15c82',
         canonical_report='output/full/results/ssb_local_sf500_canonical_aqp_ci.json',
-        canonical_namespace='output/full/ssb/local_sf500_canonical/runs',
-        reverse_report_policy='CANONICAL_RUN_REVERSE_VERIFICATION',
+        canonical_namespace='output/full/ssb/local_sf500_continuation/runs',
+        canonical_provider='code/full_ssb_local_continuation.py',
+        canonical_scope='LOCAL_SSB_SF500_CANONICAL_CONTINUATION',
+        canonical_execution_protocol='ADOPT_ACCEPTED_FORWARD_FRESH_REVERSE_WITH_CONSUMED_CLOSURE_V1',
+        reverse_report_policy='CONTINUATION_RUN_REVERSE_VERIFICATION_WITH_ACCEPTED_OLD_FORWARD',
         evaluation_variant='CANONICAL_DECODED_GROUP_PROTOTYPE_V1',
         group_order_adapter_sha256=PARENT_PINS['code/full_ssb_group_order.py'],
         historical_failed_reverse_report='output/full/ssb/local_sf500_replay/verification.json',
@@ -197,15 +202,17 @@ def collect_lineage(expected):
     require(model.get('scope')=='LOCAL_SSB_SF500' and model.get('status') in ('PASS_LOCAL_SSB_SF500_MODEL_AQP_CI','LOCAL_MODEL_QUERY_ERRORS_RECORDED')
         and expected['model']['sha256']==spec['model_report_sha256'],'Complete unchanged original model publication required')
     def canonical_scope(value):
-        require(value.get('scope')=='LOCAL_SSB_SF500_CANONICAL_CI' and value.get('group_order_adapter_sha256')==spec['group_order_adapter_sha256']
+        require(value.get('scope')==spec['canonical_scope'] and value.get('execution_protocol')==spec['canonical_execution_protocol']
+            and value.get('group_order_adapter_sha256')==spec['group_order_adapter_sha256']
             and value.get('author_different_groups')==1713 and value.get('author_reproduction_complete') is False
             and value.get('full_paper_reproduction_complete') is False,'Canonical scope, adapter and author mismatch must remain explicit')
     canonical_scope(canonical);canonical_scope(reverse)
-    require(canonical.get('status')=='PASS_LOCAL_SSB_SF500_CANONICAL_AQP_CI'
+    require(canonical.get('status')=='PASS_LOCAL_SSB_SF500_CANONICAL_CONTINUATION_AQP_CI'
         and canonical.get('variant')=='CANONICAL_PAIRED_DECODED_GROUP_ORDER' and canonical.get('evaluation_variant')==spec['evaluation_variant']
         and canonical.get('historical_reverse_accepted') is False and canonical.get('parent_formal')==expected['model']
-        and canonical.get('reverse')==expected['reverse'],'Complete canonical publication and parent/reverse aliases required')
-    require(reverse.get('status')=='PASS_CANONICAL_REVERSE_EVALUATION' and reverse.get('phase')=='REVERSE'
+        and canonical.get('reverse')==expected['reverse'] and canonical.get('adopted_forward') is True
+        and canonical.get('forward_reexecuted') is False,'Complete continuation publication and parent/reverse aliases required')
+    require(reverse.get('status')=='PASS_CONTINUATION_REVERSE_EVALUATION' and reverse.get('phase')=='REVERSE'
         and Path(reverse.get('directory','')).resolve()==Path(canonical.get('directory','')).resolve()
         and (Path(canonical['directory'])/'reverse/verification.json').resolve()==reverse_path,'Canonical reverse phase/run identity differs')
     require(all(x.get('author_reproduction_complete') is False and x.get('full_paper_reproduction_complete') is False for x in (source,model)),'Author mismatch scope must remain explicit')
@@ -220,14 +227,14 @@ def collect_lineage(expected):
     require(digest(ROOT/'code/full_windows_fingerprint.py')==FROZEN['code/full_windows_fingerprint.py'],'Native helper changed')
     audit=importlib.import_module('full_verdict_ssb_audit');core=load_frozen()
     with audit.forbid_science(core),helper.verified_platform(spec['platform'],spec['machine']):
-        provider=importlib.import_module('full_ssb_local_canonical')
-        require(Path(getattr(provider,'__file__','')).resolve()==(ROOT/'code/full_ssb_local_canonical.py').resolve(),
-            'Actually loaded canonical provider differs from the pinned physical source')
+        provider=importlib.import_module('full_ssb_local_continuation')
+        require(Path(getattr(provider,'__file__','')).resolve()==(ROOT/spec['canonical_provider']).resolve(),
+            'Actually loaded continuation provider differs from the pinned physical source')
         actual=provider.verify_canonical()
     # One complete canonical verification contains one complete original formal
     # proof. Consume its actual original snapshot; never call failed replay9c.
     canonical_scope(actual)
-    require(actual.get('status')=='PASS_READ_ONLY_LOCAL_SSB_SF500_CANONICAL_CI_WITH_AUTHOR_MISMATCH'
+    require(actual.get('status')=='PASS_READ_ONLY_LOCAL_SSB_SF500_CANONICAL_CONTINUATION_WITH_AUTHOR_MISMATCH'
         and actual.get('evaluation_variant')==spec['evaluation_variant'] and actual.get('variant')=='CANONICAL_PAIRED_DECODED_GROUP_ORDER'
         and actual.get('historical_reverse_accepted') is False and actual.get('sample_rows')==spec['sample_rows']
         and actual.get('population_rows')==spec['population_rows'] and actual.get('published_result')==expected['canonical']
@@ -263,6 +270,7 @@ def collect_lineage(expected):
     for path in list(mapping.values())+[str(moment),str(seal),str(raw),str(process)]:add(ROOT/path)
     return dict(status='PASS_COMPLETE_LOCAL_CANONICAL_MODEL_REVERSE_INTEGER_MOMENT_LINEAGE',source=source,model=expected['model'],canonical=expected['canonical'],reverse=expected['reverse'],
         parent_canonical=expected['canonical'],parent_reverse=expected['reverse'],parent_formal=expected['model'],
+        canonical_execution_protocol=spec['canonical_execution_protocol'],adopted_forward=True,forward_reexecuted=False,
         evaluation_variant=spec['evaluation_variant'],group_order_adapter_sha256=spec['group_order_adapter_sha256'],historical_reverse_accepted=False,
         source_expected=expected,files=records,moments=artifact(moment),oracle=oracle,
         actual_training_rows={x['table']:x['actual_training_rows'] for x in report['training_tables']},author_different_groups=1713,

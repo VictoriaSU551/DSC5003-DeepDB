@@ -39,7 +39,7 @@ def controls(monkeypatch):
         key=('f' if kind=='FORMAL' else 'a')*64
         reports[kind]=dict(kind=kind,scope=m.SCOPE,stage=m.STAGE,status=m.PASS,directory=str(m.ROOT/m.OUTPUT/'runs'/key[:20]),plan_path=kind+'.json',plan_file_sha256='mock',plan_binding_sha256=key,
             plan={'kind':kind,'dependencies':{'auxiliary_sources':{}},'lineage':m.lineage_snapshot(full),'golden':{'fixture':'mock'}},lineage=m.lineage_snapshot(full),inputs=full['inputs'],inherited_artifacts=[],golden_artifacts=[],
-            training_cap_per_table=10000000,actual_training_rows_per_table=m.EXPECTED_ROWS,point_query_errors=0,ci_query_errors=0,model_path='mock',model_sha256='mock',queries=[],evaluation_binding={},original_mismatch={},**m.EVALUATION_METADATA)
+            training_cap_per_table=10000000,actual_training_rows_per_table=m.EXPECTED_ROWS,point_query_errors=0,ci_query_errors=0,model_path='mock',model_sha256='mock',queries=[],evaluation_binding={},original_mismatch={},**m.EVALUATION_METADATA,**m.PARENT_METADATA)
     monkeypatch.setattr(m,'read',lambda p:reports['GOLDEN' if Path(p)==m.ROOT/m.GOLDEN_RESULT else 'FORMAL'])
     runner=types.ModuleType('full_ssb_local_ci_run');runner.read_plan=lambda p,*a:reports[Path(p).stem]['plan'];runner.verify_supervisor=lambda *a:[]
     monkeypatch.setitem(sys.modules,'full_ssb_local_ci_run',runner);monkeypatch.setattr(Path,'is_file',lambda p:True)
@@ -67,13 +67,45 @@ def parent_body(m):
         original_mismatch={'path':m.source.NATIVE_REPORT,'sha256':m.source.NATIVE_REPORT_SHA},inputs={'receipt_sha256':m.SOURCE_RECEIPT_SHA})
 
 
-def canonical_parent(m,snap,r):
+def canonical_parent(m,snap,r,root=None):
+    root=m.ROOT if root is None else root
     formal=dict(snap,status=m.previous.API_PASS,report=r,proof_method='DIRECT_FROZEN_PREVIOUS_VERIFY_LOCAL_FORMAL')
-    return dict(status='PASS_READ_ONLY_LOCAL_SSB_SF500_CANONICAL_CI_WITH_AUTHOR_MISMATCH',scope='LOCAL_SSB_SF500_CANONICAL_CI',
+    formal.setdefault('artifacts',[snap['published_result']]);formal.setdefault('verification',snap['published_result']);formal.setdefault('verification_seal',snap['published_result'])
+    forward=dict(path='output/full/ssb/local_sf500_canonical/runs/'+'b'*20+'/forward/verification.json',bytes=1,sha256='d'*64)
+    reverse=dict(path='output/full/ssb/local_sf500_continuation/runs/'+'a'*20+'/reverse/verification.json',bytes=1,sha256='e'*64)
+    report=dict(status='PASS_LOCAL_SSB_SF500_CANONICAL_CONTINUATION_AQP_CI',stage='LOCAL_SSB_SF500_CANONICAL_CONTINUATION_1M_AQP_CI',scope='LOCAL_SSB_SF500_CANONICAL_CONTINUATION',
+        execution_protocol='ADOPT_ACCEPTED_FORWARD_FRESH_REVERSE_WITH_CONSUMED_CLOSURE_V1',variant='CANONICAL_PAIRED_DECODED_GROUP_ORDER',adopted_forward=True,forward_reexecuted=False,
+        preparation_executed=False,training_executed=False,moments_executed=False,historical_result_changed=False,directory=str(root/'output/full/ssb/local_sf500_continuation/runs'/('a'*20)),
+        forward=forward,reverse=reverse,parent_formal=snap['published_result'],**m.EVALUATION_METADATA)
+    return dict(status='PASS_READ_ONLY_LOCAL_SSB_SF500_CANONICAL_CONTINUATION_WITH_AUTHOR_MISMATCH',scope='LOCAL_SSB_SF500_CANONICAL_CONTINUATION',
+        execution_protocol=report['execution_protocol'],variant=report['variant'],report=report,forward=forward,reverse=reverse,
         population_rows=m.source.N,sample_rows=m.source.SAMPLE_ROWS,author_different_groups=1713,author_reproduction_complete=False,
         full_paper_reproduction_complete=False,parent_snapshot=formal,parent_formal=snap['published_result'],
         model_path=r['model_path'],model_sha256=r['model_sha256'],historical_reverse_accepted=False,
         published_result={'path':'output/full/results/ssb_local_sf500_canonical_aqp_ci.json','bytes':1,'sha256':'c'*64},**m.EVALUATION_METADATA)
+
+
+@pytest.mark.parametrize('damage',[None,'old_scope','old_status','protocol','report_scope','report_protocol','adopted_forward','forward_reexecuted','training','reverse_old_path','reverse_alias','parent_digest_only'])
+def test_continuation_parent_contract_is_exact_not_old_scope_or_digest_only(tmp_path,damage):
+    m=module();r=parent_body(m);p=tmp_path/m.previous.RESULT;m.atomic(p,r);d=m.artifact(p,tmp_path);m.PARENT_RESULT_SHA=d['sha256']
+    snap=dict(published_result=d,scope=m.source.SCOPE,population_rows=m.source.N,sample_rows=m.source.SAMPLE_ROWS,author_different_groups=1713,author_reproduction_complete=False,full_paper_reproduction_complete=False,
+        dependencies={},model_path=r['model_path'],model_sha256=r['model_sha256'],evaluation_binding={},original_mismatch=r['original_mismatch'],artifacts=[d],verification=d,verification_seal=d)
+    parent=canonical_parent(m,snap,r,tmp_path)
+    if damage=='old_scope':parent['scope']='LOCAL_SSB_SF500_CANONICAL_CI'
+    elif damage=='old_status':parent['status']='PASS_READ_ONLY_LOCAL_SSB_SF500_CANONICAL_CI_WITH_AUTHOR_MISMATCH'
+    elif damage=='protocol':parent['execution_protocol']='TWO_FRESH_STAGES'
+    elif damage=='report_scope':parent['report']['scope']='LOCAL_SSB_SF500_CANONICAL_CI'
+    elif damage=='report_protocol':parent['report']['execution_protocol']='TWO_FRESH_STAGES'
+    elif damage=='adopted_forward':parent['report']['adopted_forward']=False
+    elif damage=='forward_reexecuted':parent['report']['forward_reexecuted']=True
+    elif damage=='training':parent['report']['training_executed']=True
+    elif damage=='reverse_old_path':parent['reverse']['path']=parent['reverse']['path'].replace('local_sf500_continuation','local_sf500_canonical')
+    elif damage=='reverse_alias':parent['report']['reverse']=dict(parent['reverse'],sha256='f'*64)
+    elif damage=='parent_digest_only':parent['parent_snapshot'].pop('artifacts')
+    if damage is None:
+        assert m._read_delegated_parent(parent,tmp_path)==(parent['parent_snapshot'],r)
+    else:
+        with pytest.raises((KeyError,ValueError)):m._read_delegated_parent(parent,tmp_path)
 
 
 @pytest.mark.parametrize('damage',[None,'alias','bytes','sha','author','budget','model','canonical_scope','canonical_status','variant','adapter','proof','parent_report'])
@@ -81,7 +113,7 @@ def test_delegated_formal_body_requires_exact_current_published_descriptor_and_f
     m=module();r=parent_body(m);path=tmp_path/m.previous.RESULT;m.atomic(path,r)
     snap=dict(published_result=m.artifact(path,tmp_path),scope=m.source.SCOPE,population_rows=m.source.N,sample_rows=m.source.SAMPLE_ROWS,author_different_groups=1713,
         author_reproduction_complete=False,full_paper_reproduction_complete=False,dependencies={},model_path=r['model_path'],model_sha256=r['model_sha256'],evaluation_binding={},original_mismatch=r['original_mismatch'])
-    reverse=canonical_parent(m,snap,r)
+    reverse=canonical_parent(m,snap,r,tmp_path)
     # A tiny physical fixture replaces only the fixed historical report hash.
     m.PARENT_RESULT_SHA=snap['published_result']['sha256']
     if damage=='alias':snap['published_result']['path']='another.json'
@@ -105,8 +137,8 @@ def test_delegated_formal_body_requires_exact_current_published_descriptor_and_f
 
 
 def test_pin_failure_happens_before_frozen_canonical_public_call(monkeypatch):
-    m=module();called=[];fake=types.ModuleType('full_ssb_local_canonical');fake.verify_canonical=lambda:called.append('unexpected')
-    monkeypatch.setitem(sys.modules,'full_ssb_local_canonical',fake);monkeypatch.setattr(m,'digest',lambda *a:'wrong')
+    m=module();called=[];fake=types.ModuleType('full_ssb_local_continuation');fake.verify_canonical=lambda:called.append('unexpected')
+    monkeypatch.setitem(sys.modules,'full_ssb_local_continuation',fake);monkeypatch.setattr(m,'digest',lambda *a:'wrong')
     with pytest.raises(ValueError,match='frozen|pin|changed'):m._verified_parent_canonical(m.ROOT)
     assert called==[]
 
@@ -116,55 +148,71 @@ def test_canonical_runner_v2_reviewed_literal_is_current_before_delegation(monke
     expected='8d561253786e8acd68e03c3b89fce46c2655f04cdd0c4b34492b369a6d757636'
     assert m.PARENT_CANONICAL_PINS[key]==expected
     assert m.digest(m.ROOT/key)==expected
-    calls=[];proof=object();fake=types.ModuleType('full_ssb_local_canonical')
-    fake.__file__=str(m.ROOT/'code/full_ssb_local_canonical.py');fake.verify_canonical=lambda:calls.append('mock-only canonical') or proof
-    monkeypatch.setitem(sys.modules,'full_ssb_local_canonical',fake)
+    calls=[];proof=object();fake=types.ModuleType('full_ssb_local_continuation')
+    fake.__file__=str(m.ROOT/'code/full_ssb_local_continuation.py');fake.verify_canonical=lambda:calls.append('mock-only canonical') or proof
+    monkeypatch.setitem(sys.modules,'full_ssb_local_continuation',fake)
     monkeypatch.setattr(m.previous,'verify_local_formal',lambda *a:pytest.fail('No actual parent/F in pin gate'))
     assert m._verified_parent_canonical(m.ROOT) is proof and calls==['mock-only canonical']
 
 
 def test_verified_canonical_delegate_calls_only_its_public_verifier_once(monkeypatch):
     m=module();calls=[];proof=object()
-    fake=types.ModuleType('full_ssb_local_canonical');fake.__file__=str(m.ROOT/'code/full_ssb_local_canonical.py')
+    fake=types.ModuleType('full_ssb_local_continuation');fake.__file__=str(m.ROOT/'code/full_ssb_local_continuation.py')
     fake.verify_canonical=lambda:calls.append('canonical public') or proof
-    monkeypatch.setitem(sys.modules,'full_ssb_local_canonical',fake)
+    monkeypatch.setitem(sys.modules,'full_ssb_local_continuation',fake)
     failed=types.ModuleType('full_ssb_local_replay');failed.verify=lambda:pytest.fail('failed9c is never a delegate')
     monkeypatch.setitem(sys.modules,'full_ssb_local_replay',failed)
     monkeypatch.setattr(m.previous,'verify_local_formal',lambda *a:pytest.fail('the original F is exclusively inside the canonical boundary'))
     assert m._verified_parent_canonical(m.ROOT) is proof and calls==['canonical public']
 
 
-@pytest.mark.parametrize('changed',sorted(module().PRIOR_PINS.keys() | {'code/full_ssb_local_canonical.py','code/full_ssb_local_canonical_run.py','code/full_ssb_group_order.py','code/full_ssb_local_replay.py','code/full_ssb_replay.py','code/full_ssb_native_replay.py'}))
+@pytest.mark.parametrize('changed',sorted(module().PRIOR_PINS.keys() | module().PARENT_CANONICAL_PINS.keys()))
 def test_every_fixed_parent_source_pin_is_checked_before_canonical_call(monkeypatch,changed):
     m=module();called=[];pins=dict(m.PRIOR_PINS,**m.PARENT_CANONICAL_PINS)
-    fake=types.ModuleType('full_ssb_local_canonical');fake.__file__=str(m.ROOT/'code/full_ssb_local_canonical.py');fake.verify_canonical=lambda:called.append('unexpected')
-    monkeypatch.setitem(sys.modules,'full_ssb_local_canonical',fake)
+    fake=types.ModuleType('full_ssb_local_continuation');fake.__file__=str(m.ROOT/'code/full_ssb_local_continuation.py');fake.verify_canonical=lambda:called.append('unexpected')
+    monkeypatch.setitem(sys.modules,'full_ssb_local_continuation',fake)
     monkeypatch.setattr(m,'digest',lambda p:'wrong' if Path(p)==m.ROOT/changed else pins[Path(p).relative_to(m.ROOT).as_posix()])
     with pytest.raises(ValueError,match='pin changed'):m._verified_parent_canonical(m.ROOT)
     assert called==[]
 
 
-def test_canonical_lineage_inherits_full_original_proof_and_new_artifacts_once(tmp_path,monkeypatch):
+@pytest.mark.parametrize('damage',[None,'old_forward_control','new_reverse_control','duplicate_original','conflict','digest_only','wrong_public_report'])
+def test_canonical_lineage_inherits_full_original_proof_and_new_artifacts_once(tmp_path,monkeypatch,damage):
     m=module();monkeypatch.setattr(m,'native_platform',lambda:contextlib.nullcontext({}));monkeypatch.setattr(m,'PRIOR_PINS',{});monkeypatch.setattr(m,'PARENT_CANONICAL_PINS',{})
     r=parent_body(m);r.update(directory=str(tmp_path/'old'),prepared_directory=str(tmp_path/'prepared'))
     path=tmp_path/m.previous.RESULT;m.atomic(path,r);published=m.artifact(path,tmp_path);m.PARENT_RESULT_SHA=published['sha256']
     snap=dict(published_result=published,verification=published,verification_seal=published,scope=m.source.SCOPE,population_rows=m.source.N,
         sample_rows=m.source.SAMPLE_ROWS,author_different_groups=1713,author_reproduction_complete=False,full_paper_reproduction_complete=False,
         dependencies={},model_path=r['model_path'],model_sha256=r['model_sha256'],evaluation_binding={},original_mismatch=r['original_mismatch'],artifacts=[published])
-    canonical=canonical_parent(m,snap,r);canonical['artifacts']=[]
+    canonical=canonical_parent(m,snap,r,tmp_path);canonical['artifacts']=[]
     for name in ('published_result','verification','verification_seal','forward','reverse'):
-        f=tmp_path/('new_'+name+'.json');m.atomic(f,{'only':'synthetic canonical leaf'});d=m.artifact(f,tmp_path)
+        target=m.PARENT_CANONICAL_RESULT if name=='published_result' else canonical[name]['path'] if name in ('forward','reverse') else 'output/full/ssb/local_sf500_continuation/runs/'+'a'*20+'/'+name+'.json'
+        f=tmp_path/target;m.atomic(f,{'only':'synthetic canonical leaf'});d=m.artifact(f,tmp_path)
         canonical[name]=d;canonical['artifacts'].append(d)
-    canonical['published_result']['path']=m.PARENT_CANONICAL_RESULT
-    f=tmp_path/m.PARENT_CANONICAL_RESULT;m.atomic(f,{'only':'synthetic canonical leaf'});canonical['published_result']=m.artifact(f,tmp_path);canonical['artifacts'][0]=canonical['published_result']
+    controls={}
+    for key in ('accepted_forward_artifacts','retained_failure_provenance','worker_artifacts'):
+        f=tmp_path/('fixture/'+key+'.json');m.atomic(f,{'only':'synthetic consumed closure'});controls[key]=[m.artifact(f,tmp_path)];canonical['artifacts'].append(controls[key][0])
+    canonical['report'].update(forward=canonical['forward'],reverse=canonical['reverse'],plan=controls);canonical['dependencies']=controls
+    f=tmp_path/m.PARENT_CANONICAL_RESULT;m.atomic(f,canonical['report']);canonical['published_result']=m.artifact(f,tmp_path);canonical['artifacts'][0]=canonical['published_result']
     m.atomic(Path(r['directory'])/'supervisor_control/monitor.json',{'peak_owned_rss_bytes':123})
     calls=[];monkeypatch.setattr(m,'_verified_parent_canonical',lambda *a:calls.append('canonical public') or canonical)
     monkeypatch.setattr(m.previous,'verify_local_formal',lambda *a:pytest.fail('canonical is the sole delegated complete parent boundary'))
     monkeypatch.setattr(m,'prepared_shapes',lambda *a:{'metadata':'fixture only'})
+    if damage in ('old_forward_control','new_reverse_control'):
+        key='accepted_forward_artifacts' if damage=='old_forward_control' else 'worker_artifacts';canonical['artifacts'].remove(controls[key][0])
+    elif damage=='duplicate_original':canonical['parent_snapshot']['artifacts']*=2
+    elif damage=='conflict':canonical['artifacts'].append(dict(published,sha256='f'*64))
+    elif damage=='digest_only':canonical['parent_snapshot'].pop('artifacts')
+    elif damage=='wrong_public_report':canonical['report']=dict(canonical['report'],diagnostic='unpublished mutation')
+    if damage:
+        with pytest.raises((ValueError,KeyError)):m.collect_lineage(tmp_path)
+        assert calls==['canonical public'];return
     full=m.collect_lineage(tmp_path)
     assert calls==['canonical public'] and full['parent_formal']==published and full['parent_reverse']==canonical['reverse']
     assert full['parent_canonical']==canonical['published_result'] and all(d in full['artifacts'] for d in canonical['artifacts']+[published])
     assert full['historical_reverse_accepted'] is False and full['evaluation_variant']==m.EVALUATION_METADATA['evaluation_variant']
+    assert all(type(full[k]) is type(v) and full[k]==v for k,v in m.PARENT_METADATA.items())
+    assert full['parent_forward']==canonical['forward'] and all(d in full['artifacts'] for group in controls.values() for d in group)
 
 
 @pytest.mark.parametrize('key',list(module().EVALUATION_METADATA))
