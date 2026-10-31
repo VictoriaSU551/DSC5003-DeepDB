@@ -61,10 +61,10 @@ powershell -ExecutionPolicy Bypass -File setup-mscn.ps1
 .venv/Scripts/python.exe -B code/full_ssb_native_replay.py verify
 .venv/Scripts/python.exe -B code/full_ssb_native_tables.py
 
-# 新canonical1M完整事务接纳后：只读验收与独立派生表图
-# 历史full_ssb_local_replay.py已失败，不作为当前接续入口
-.venv/Scripts/python.exe -B code/full_ssb_local_canonical_run.py verify
-.venv/Scripts/python.exe -B code/full_ssb_local_canonical_tables.py
+# 新continuation完整事务接纳后才可执行；当前尚无最终PASS
+# 历史replay及canonical ROOT均失败，不能当作成功父阶段
+.venv/Scripts/python.exe -B code/full_ssb_local_continuation_run.py verify
+# canonical旧派生表入口尚未适配新continuation契约，不运行
 
 # 独立10M/table训练政策的结果与逆序重放均完成后；不能接受1M模型代替
 .venv/Scripts/python.exe -B code/full_ssb_local_ci_group_replay.py verify
@@ -129,10 +129,13 @@ GROUP BY配对排序新变体的全部13条查询通过双hash/正逆序诊断�
 正式canonical评估和独立验收尚未完成，不能运行依赖旧重放PASS的10M或LOCAL Verdict入口。
 2026-10-31首次canonical监督事务因Windows Job名称前缀不兼容，在任何模型调用前失败；旧计划和TAINTED保留。
 v2只修正两个名称字符串，正逆两个方向的真实base→venv进程门禁均通过，门禁不调用模型或数据库。
-新候选与新计划已完成完整父证据校验，新的正式事务正在运行；这仍不是最终独立验收PASS。
-本轮CI v5及LOCAL Verdict v4固定的新canonical runner SHA为
-`8d561253786e8acd68e03c3b89fce46c2655f04cdd0c4b34492b369a6d757636`；
-各冻结协议中的旧`36ff7385...`仅属于前一历史候选，不能拿旧计划运行新源码。
+第二次事务正向26次调用及2059组验收通过；逆向在科学调用前因存储监控过期停止，旧ROOT保持TAINTED。
+新continuation协议仅复用已验收的正向结果，在新命名空间执行逆向；两项源码固定为
+`7a1bf30793e0484482bda3548c9d65dc3c3732af286287e62a2a054fd5e15563`及
+`763c9c46ce34fa0b4b0e59fbeea4f43d081945b8d6e20b91dde0b91eb937c7a0`。
+独立审查和实际零科学调用进程门禁通过，尚未执行科学计划。CI v6及LOCAL Verdict v5只适配这个新父契约，
+不代表实际黄金、训练或数据库执行已通过。旧canonical runner及旧计划保持历史失败状态。
+详见[FULL_SSB_LOCAL_CONTINUATION.md](FULL_SSB_LOCAL_CONTINUATION.md)。
 本轮CI的独立逆序入口是`full_ssb_local_ci_group_replay.py`，当前固定SHA为
 `4b73cf6bed9bb001ec1bf289fadb6950bdd4f0c644e1837406eaef402b0a827c`；
 CI协议中v3段落的旧`97243fa7...`为其预热修正前的历史候选。新的worker先导入会设置NumPy种子的
@@ -158,16 +161,25 @@ Windows深路径运行Verdict的建树测试时，临时目录应使用较短的
 只读日常验收使用上述audit入口，不需要重跑golden或正式SQL。
 DBEst新路由的200K门禁实际完成101次原生聚合调用、103次拟合尝试，SUM/AVG独立数值验证通过，
 无拟合或数值验证错误；79个空样本和2个预算不支持项仍为覆盖缺口。后续1B母体测试不重跑旧4类76次调用。
+1B母体V4已实际通过：204个组件、101次拟合尝试、99次原生调用，103个空样本和2个预算不支持项；
+独立派生结果在`output/full/figures/dbest_routes_e647e45a22ca151fd40c/`，导出执行零次科学调用。
 第7条PHX/year2005使用显式拟合配置变体：目标SQL与本地精确真值匹配，可单列该变体的误差；
 发布资源的拟合预筛仅PHX，与新配置不同，不能据此称作者配置已恢复。两个SUM的差不提供联合CI。
-Scalar变体的实际连接已通过主机地址格式修正，但36M行COPY随后触及120秒语句预算；还没有收集50项计数或预测。
-600秒语句预算候选保持总30分钟及其他资源约束，实际执行需要新计划。它只用单表精确计数和
+Scalar V4已实际完成50项计数和70条预测，独立只读派生验收通过。正式目录为
+`output/full/scalar_oracle/runs/8e345a77946b8294c724/`，派生结果为
+`output/full/figures/scalar_oracle_c0f8f6a31e91b8b68058/`。它只用单表精确计数和
 预先声明的uniform-title-key公式估计多表结果，不是作者未公开的Perfect Selectivities组合器。
 派生表单独采用`EVALUATION_ONLY_FLOOR1`，保留原始Fraction/零预测；不与既有DeepDB的零值无穷大
-计分政策静默共榜。上述派生命令必须等待其真实PASS，不会缺失时补跑计数。
+计分政策静默共榜。只读派生命令不会缺失时补跑计数。
 JOB-light SRS目前完成49项纯/模拟测试及独立审查，实际采样尚未开始。每表独立WOR 1000行、
 每条查询30秒预算、原始零值和超时null均保留；合法首次SQL前超时也占一个终态，不能补采或丢弃。
-它是本地预声明变体，作者原n/预算/回退策略未识别，IBJS未实现。详见采样协议，勿把源代码门禁当实际70条验收。
+它是本地预声明变体，作者原n/预算/回退策略未识别。启动时可用RAM不足5GiB，本轮未创建SRS批准或科学运行目录。
+IBJS核心与运行层另已通过独立代码审查，实际采样尚未执行；勿把源代码门禁当实际70条验收。
+
+按用户要求，最终清理将只保留必要源数据、最终处理数据、代码和结果。当前自动审批以
+`blocked by policy`拒绝了缓存和未完成草稿的删除，已完成盘点而未执行删除。
+详见`output/full/results/cleanup_plan_current.json`；失败父目录中的已验收正向结果须单独保留。
+历史完整审计依赖仍在；将来退役这些依赖时，原fullF及依赖它的continuation/CI/Verdict验收也必须明确退役。
 
 ## 组员可直接接手的内容
 
