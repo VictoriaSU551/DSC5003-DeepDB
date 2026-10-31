@@ -24,7 +24,8 @@ SSB已遍历4000片，但实际3,000,028,334行比作者记录多92行，2059项
 这是新变体诊断。首次正式事务在模型调用前因Windows Job名称不兼容停止，失败计划保留。
 最小修正已通过正逆两个方向的真实进程启动门禁（零模型调用），新候选及新计划已通过完整父证据校验，
 第二次事务的正向26次调用及2059组结果已经通过；逆向在模型调用前因存储监控过期停止。
-独立审查通过的continuation入口将复用已验收的正向结果，仅执行新逆向；真实进程零科学调用门禁已通过，尚未启动科学运行。
+首个continuation事务在来源核对后因可用RAM不足5GiB停于零模型调用；没有改写失败状态。
+v2加入独立attempt_id及目录认领前的资源检查，真实进程零科学调用门禁通过，新候选已生成，待审阅及封存计划。
 Figure11的10M/table训练政策另有独立模块和科学黄金测试接口，代码已审查，实际黄金及
 正式10M训练尚未执行。实际事实样本为9,996,946行，不声称恰好10M或作者母体一致。
 SSB的原Verdict在SF2完成38次实际调用：540个必要样本缩放组通过；原Q4 no-bound的
@@ -40,18 +41,21 @@ Verdict原引擎另完成同一Flights样本的12SQL对照：331个真值组、3
 F3.3单列为拟合预筛配置变体，F5.2两SUM之差没有联合CI；缺组不能作为完整覆盖。
 Scalar-oracle的独立uniform-title-key变体已完成50项单表计数及70条预测，并通过独立只读派生验收。
 其中位q-error为8.7393、p95为818.6583，采用明确的evaluation-only floor1口径；它不冒充作者Perfect Selectivities。
-本地JOB-light独立WOR采样变体（每表1000行）也已通过49项测试及独审，实际70条查询采样尚未执行；
-它不代表作者Table1采样配置。IBJS运行层已通过独立代码审查，实际查询尚未执行。
+本地JOB-light独立WOR采样（每表1000行）与IBJS（n1000/b100K）均已实际完成70条查询、严格验收和独立汇总。
+WOR的70条估计均为零，q-error均为无穷大；IBJS中位q-error1.458495，13条零估计使p90/p95/最大值均为无穷大。
+没有将零值改成1，全部70条均计入。这些是明确的LOCAL配置，作者Table1原配置仍未识别，不能称相应作者结果已恢复。
 按用户要求，最终仅保留必要源数据、最终处理数据、代码和结果。当前清理操作被系统自动审批以
-`blocked by policy`拒绝，尚未删除缓存、失败目录或未完成草稿；详细盘点在`output/full/results/cleanup_plan_current.json`。
+`blocked by policy`拒绝，缓存和失败目录尚未清除；原采样汇总草稿已补齐为正式代码、测试及协议。
+详细盘点在`output/full/results/cleanup_plan_current.json`。
 公开683条真值中74条差异已全部
 由另一套精确PostgreSQL语句确认本地计数，原published文件保留，另存local真值指标。
 不能据此宣布完整复现。
 
-本地最新覆盖状态为 `output/full/completion_status.json`，可运行
+完整覆盖状态由 `output/full/completion_status.json`记录，可运行
 `.venv/Scripts/python.exe code/full_status.py` 重建。方法、差异和完成条件见
 [完整复现协议](docs/FULL_REPRODUCTION_PROTOCOL.md)、[执行记录](docs/FULL_REPRODUCTION_PLAN.md)、
 [推理修正](docs/FULL_INFERENCE_CORRECTIONS.md)、[参数口径](docs/FULL_PARAMETER_STUDIES.md)。
+较新的Scalar、DBEst新路由及两种采样实际结果另见`output/results/fullpaper_additional_baselines.json`；旧协作快照保留其原时间。
 当前阶段说明见[复现状态与证据](docs/FULL_REPRODUCTION_STATUS.md)，正式Flights入口见
 [运行说明](docs/FULL_FLIGHTS_MODEL_RUN.md)。
 组员接续入口见[完整阶段运行指南](docs/FULL_RUNNING_GUIDE.md)。

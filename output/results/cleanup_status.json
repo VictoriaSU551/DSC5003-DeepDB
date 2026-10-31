@@ -1,6 +1,6 @@
 {
   "schema": "deepdb_cleanup_status_public_v1",
-  "updated_at_utc": "2026-10-31T03:08:15.464620+00:00",
+  "updated_at_utc": "2026-10-31T04:18:20.641114+00:00",
   "cleanup_complete": false,
   "status": "AUTOMATIC_APPROVAL_REJECTED_DELETION",
   "automatic_review_reason": "blocked by policy",
@@ -12,11 +12,31 @@
   "tmp_fixture_files": 33832,
   "tmp_fixture_bytes": 685506550,
   "necessary_data_and_accepted_results_preserved": true,
-  "unfinished_untracked_drafts_still_present": [
-    "code/tests/test_full_job_sampling_tables.py",
-    "docs/FULL_JOB_SAMPLING_TABLES.md"
-  ],
+  "unfinished_untracked_drafts_still_present": [],
   "project_postgresql_stopped": true,
   "full_paper_reproduction_complete": false,
-  "local_plan": "output/full/results/cleanup_plan_current.json"
+  "local_plan": "output/full/results/cleanup_plan_current.json",
+  "previously_blocked_drafts_completed_as_required_consumer": true,
+  "inventory_is_prior_read_only_snapshot": true,
+  "accepted_anchor_files_freshly_verified_unchanged": 6,
+  "necessary_source_data_freshly_verified_present": true,
+  "latest_deletion_rejection": {
+    "targets": [
+      "output/tmp/n7259",
+      "output/tmp/c6all",
+      "output/tmp/c3final",
+      "output/tmp/c3all",
+      "output/tmp/cv2",
+      "output/tmp/cv3",
+      "output/tmp/c10",
+      "output/tmp/c11",
+      "output/tmp/cr"
+    ],
+    "action": "Delete closed test fixture directories",
+    "reason": "blocked by policy",
+    "command_executed": false,
+    "deleted_files": 0,
+    "bytes_freed": 0,
+    "bypass_attempted": false
+  }
 }

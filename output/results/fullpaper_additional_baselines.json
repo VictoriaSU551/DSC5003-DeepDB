@@ -1,6 +1,6 @@
 {
   "schema": "deepdb_additional_baselines_snapshot_v1",
-  "updated_at_utc": "2026-10-31T03:08:15.464620+00:00",
+  "updated_at_utc": "2026-10-31T04:18:20.641114+00:00",
   "full_paper_reproduction_complete": false,
   "scalar": {
     "status": "PASS_VERIFIED_LOCAL_SCALAR_ORACLE_DERIVED_TABLES",
@@ -327,18 +327,253 @@
     }
   },
   "canonical": {
-    "status": "FORWARD_ACCEPTED_REVERSE_NOT_ACCEPTED",
+    "status": "FORWARD_ACCEPTED_NEW_REVERSE_NOT_ACCEPTED_FIRST_CONTINUATION_RESOURCE_GATE_FAILED",
     "forward_queries": 13,
     "forward_actual_calls": 26,
     "forward_groups": 2059,
     "new_continuation_actual_scientific_calls": 0,
-    "continuation_no_science_job_gate": "PASS",
+    "continuation_no_science_job_gate": "V2_PASS_1_TEST",
     "author_different_groups": 1713,
-    "author_reproduction_complete": false
+    "author_reproduction_complete": false,
+    "failed_continuation_worker_started": false,
+    "new_attempt_id": "ram_retry_02",
+    "new_attempt_status": "CANDIDATE_METADATA_COMPLETE_REQUIRES_ROOT_REVIEW_NOT_SEALED",
+    "operational_attempts_v2_commit": "ada3e6e"
   },
   "sampling": {
-    "SRS": "NOT_STARTED_RESOURCE_ADMISSION_BELOW5GiB",
-    "IBJS": "CODE_REVIEWED_NOT_RUN"
+    "status": "PASS_TWO_LOCAL_METHODS_COMPLETE70_EACH_AND_INDEPENDENT_EXPORT",
+    "methods": {
+      "IBJS": {
+        "scope": {
+          "adaptive_path_unbiasedness_claimed": false,
+          "author_configuration_identified": false,
+          "author_reproduction_complete": false,
+          "full_paper_reproduction_complete": false,
+          "live_driver_implemented": true,
+          "method": "LOCAL_JOB70_IBJS_SQL_N1000_B100K",
+          "truth_or_scalar_selectivities_used": false
+        },
+        "config": {
+          "lookup_budget": 100000,
+          "n": 1000,
+          "seed": 1
+        },
+        "summary": {
+          "completed": 70,
+          "conditional_finite": {
+            "max": {
+              "status": "FINITE",
+              "value": "3084475125/166236514"
+            },
+            "median": {
+              "status": "FINITE",
+              "value": "39320582697/30808996250"
+            },
+            "p90": {
+              "status": "FINITE",
+              "value": "126623173800902051/47438589270107500"
+            },
+            "p95": {
+              "status": "FINITE",
+              "value": "14219276236324227892/3221815882639458125"
+            },
+            "queries": 57
+          },
+          "infinite": 13,
+          "queries": 70,
+          "raw_zero": 13,
+          "status_counts": {
+            "COMPLETE": 57,
+            "ZERO_SAMPLE": 13
+          },
+          "unfinished": 0,
+          "whole70": {
+            "max": {
+              "status": "INFINITE",
+              "value": "Infinity"
+            },
+            "median": {
+              "status": "FINITE",
+              "value": "361337617859440995681/247746898779015970600"
+            },
+            "p90": {
+              "status": "INFINITE",
+              "value": "Infinity"
+            },
+            "p95": {
+              "status": "INFINITE",
+              "value": "Infinity"
+            },
+            "queries": 70
+          }
+        },
+        "costs": {
+          "admission_physical_validation_seconds": 6.4044478,
+          "after_projection_seconds": 176.4081959,
+          "all_online_queries_and_leaf_checkpoint_seconds": 58.98706779999998,
+          "before_projection_seconds": 179.4712949,
+          "binary_copy_bytes_both_passes": 3271486004,
+          "binary_copy_calls": 12,
+          "charged_logical_lookups": 425577,
+          "collection_and_checkpoint_seconds": 431.7054508,
+          "collection_seconds": 431.6745563,
+          "common_recorded_sql_seconds": 16.62676060000003,
+          "common_sql_roundtrips": 67,
+          "end_to_end_latency_claimed": false,
+          "external_command_wall_not_supplied": true,
+          "external_command_wall_seconds": null,
+          "fresh_postflight_physical_validation_seconds": 6.596136400000034,
+          "id_attempts_total": 254036,
+          "live_population_metadata_seconds": 16.59143320000001,
+          "measured_client_wall_seconds_before_final_records": 465.7906188,
+          "method": "LOCAL_JOB70_IBJS_SQL_N1000_B100K",
+          "offline_math_prepublication_validation_seconds": 19.132681899999966,
+          "online_query_sql_roundtrips": 6354,
+          "online_query_wall_seconds": 47.31254569999987,
+          "physical_rows_scanned": null,
+          "physical_rows_scanned_unknown": true,
+          "schema_sql": 36,
+          "setup_identity_metadata_reset_sql": 19
+        },
+        "verification": {
+          "path": "output/full/sampling/job70_ibjs/runs/da6334a896570c01d792/verification.json",
+          "bytes": 1982,
+          "sha256": "acf80b85e6f2d898484990d21d531cbb7ed98d74cca859dfc839bb215e0fb33a"
+        },
+        "external_process_wall": {
+          "exit_code": 0,
+          "scope": "IBJS process including admission_collection_postflight_independent_validation_finalIO_and_exit",
+          "schema": "root_external_process_wall_v1",
+          "started_at_utc": "2026-10-31T03:56:34.1587651+00:00",
+          "finished_at_utc": "2026-10-31T04:04:20.6144229+00:00",
+          "external_wall_seconds": 466.4549559
+        },
+        "external_process_wall_includes_pg_server_start": false,
+        "author_configuration_identified": false
+      },
+      "SRS": {
+        "scope": {
+          "author_method_configuration_identified": false,
+          "author_sampling_reproduction_complete": false,
+          "full_paper_reproduction_complete": false,
+          "ibjs_implemented": false,
+          "method": "LOCAL_JOB70_SRS_WOR_N1000",
+          "original_csv_current_database_full_value_identity_claimed": false,
+          "truth_used_for_prediction": false
+        },
+        "config": {
+          "batch_size": 128,
+          "max_id_attempts_per_table": 100000,
+          "max_query_seconds": 30.0,
+          "max_sql_roundtrips": 2000,
+          "samples_per_table": 1000,
+          "seed": 1,
+          "statement_timeout_ms": 5000
+        },
+        "summary": {
+          "completed": 70,
+          "conditional_finite": {
+            "max": null,
+            "median": null,
+            "p90": null,
+            "p95": null,
+            "queries": 0
+          },
+          "infinite": 70,
+          "queries": 70,
+          "raw_zero": 70,
+          "status_counts": {
+            "COMPLETE_ZERO": 70
+          },
+          "unfinished": 0,
+          "whole70": {
+            "max": {
+              "status": "INFINITE",
+              "value": "Infinity"
+            },
+            "median": {
+              "status": "INFINITE",
+              "value": "Infinity"
+            },
+            "p90": {
+              "status": "INFINITE",
+              "value": "Infinity"
+            },
+            "p95": {
+              "status": "INFINITE",
+              "value": "Infinity"
+            },
+            "queries": 70
+          }
+        },
+        "costs": {
+          "admission_physical_validation_seconds": 7.274782200000001,
+          "after_projection_seconds": 174.6362487,
+          "all_online_queries_and_leaf_checkpoint_seconds": 19.823547899999994,
+          "before_projection_seconds": 180.19456160000001,
+          "binary_copy_bytes_both_passes": 3271486004,
+          "binary_copy_calls": 12,
+          "charged_logical_lookups": null,
+          "collection_and_checkpoint_seconds": 391.46041169999995,
+          "collection_seconds": 391.1897398,
+          "common_recorded_sql_seconds": 16.531698700000028,
+          "common_sql_roundtrips": 65,
+          "end_to_end_latency_claimed": false,
+          "external_command_wall_not_supplied": true,
+          "external_command_wall_seconds": null,
+          "fresh_postflight_physical_validation_seconds": 7.150356700000032,
+          "id_attempts_total": 254036,
+          "live_population_metadata_seconds": 16.506852199999997,
+          "measured_client_wall_seconds_before_final_records": 414.835801,
+          "method": "LOCAL_JOB70_SRS_WOR_N1000",
+          "offline_math_prepublication_validation_seconds": 8.299679700000013,
+          "online_query_sql_roundtrips": 4344,
+          "online_query_wall_seconds": 15.374808900000005,
+          "physical_rows_scanned": null,
+          "physical_rows_scanned_unknown": true,
+          "schema_sql": 36,
+          "setup_identity_metadata_reset_sql": 17
+        },
+        "verification": {
+          "path": "output/full/sampling/job70/runs/bfdbb8efeab95c9c1ba9/verification.json",
+          "bytes": 1875,
+          "sha256": "e1fcae67826f93d93d7da31a777bdf084d78ab5615e49037941cb1b8ee76b57a"
+        },
+        "external_process_wall": {
+          "schema": "root_external_process_wall_v1",
+          "scope": "SRS process including admission_collection_postflight_validation_finalIO_and_exit",
+          "exit_code": 0,
+          "finished_at_utc": "2026-10-31T03:52:34.3914674+00:00",
+          "started_at_utc": "2026-10-31T03:45:38.8737664+00:00",
+          "external_wall_seconds": 415.5175959
+        },
+        "external_process_wall_includes_pg_server_start": false,
+        "author_configuration_identified": false
+      }
+    },
+    "metric_policy": {
+      "finite_summary": "CONDITIONAL_WITH_EXPLICIT_COUNT",
+      "positive_truth_zero": "Infinity",
+      "quantiles": "LINEAR_EXTENDED_REAL;EXACT_ENDPOINT_BEFORE_INTERPOLATION;POSITIVE_WEIGHT_INFINITY_IS_INFINITY",
+      "raw_predictions_modified": false,
+      "scalar_floor1_policy_applied": false,
+      "shared_author_ranking": false,
+      "unfinished": "NULL_NOT_DROPPED",
+      "whole70": "ONLY_IF_ALL70_COMPLETED_INCLUDING_INFINITY"
+    },
+    "accepted_joint_manifest": {
+      "path": "output/full/figures/sampling_b23bd4bd6edb87315fe8/manifest.json",
+      "bytes": 102333,
+      "sha256": "be950e374c1e4672389ad1052d8a669249b70c29d9f6f22799604ccf6b72cde9"
+    },
+    "matched_consumed_input_evidence": {
+      "path": "output/full/results/sampling_matched_input_evidence.json",
+      "bytes": 3217,
+      "sha256": "e819b74a9702eab8d6c00e0e92fa9bd93e76480906d76b2e92ad11ace47d85f9"
+    },
+    "author_Table1_sampling_configuration_recovered": false,
+    "shared_author_ranking": false,
+    "full_paper_reproduction_complete": false
   },
   "prior_fullpaper_snapshots_are_earlier_snapshots": true,
   "new_scientific_calls_during_this_export": 0

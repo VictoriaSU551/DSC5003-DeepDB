@@ -64,7 +64,7 @@ powershell -ExecutionPolicy Bypass -File setup-mscn.ps1
 # 新continuation完整事务接纳后才可执行；当前尚无最终PASS
 # 历史replay及canonical ROOT均失败，不能当作成功父阶段
 .venv/Scripts/python.exe -B code/full_ssb_local_continuation_run.py verify
-# canonical旧派生表入口尚未适配新continuation契约，不运行
+.venv/Scripts/python.exe -B code/full_ssb_local_continuation_tables.py
 
 # 独立10M/table训练政策的结果与逆序重放均完成后；不能接受1M模型代替
 .venv/Scripts/python.exe -B code/full_ssb_local_ci_group_replay.py verify
@@ -73,6 +73,9 @@ powershell -ExecutionPolicy Bypass -File setup-mscn.ps1
 # Scalar本地变体实际收集与完整封存后；不连接PG、不重新收集计数
 .venv/Scripts/python.exe -B code/full_scalar_oracle_audit.py --directory <已封存的独立run目录>
 .venv/Scripts/python.exe -B code/full_scalar_oracle_tables.py --directory <同一run目录>
+
+# 两种采样均已通过；只读验收和派生，不连接PG或补跑采样
+.venv/Scripts/python.exe -B code/full_job_sampling_tables.py --srs-run output/full/sampling/job70/runs/bfdbb8efeab95c9c1ba9 --ibjs-run output/full/sampling/job70_ibjs/runs/da6334a896570c01d792
 
 # 仅导出显式白名单派生CSV/PNG，作为可提交的协作快照
 .venv/Scripts/python.exe code/full_public_summary.py
@@ -131,9 +134,12 @@ GROUP BY配对排序新变体的全部13条查询通过双hash/正逆序诊断�
 v2只修正两个名称字符串，正逆两个方向的真实base→venv进程门禁均通过，门禁不调用模型或数据库。
 第二次事务正向26次调用及2059组验收通过；逆向在科学调用前因存储监控过期停止，旧ROOT保持TAINTED。
 新continuation协议仅复用已验收的正向结果，在新命名空间执行逆向；两项源码固定为
-`7a1bf30793e0484482bda3548c9d65dc3c3732af286287e62a2a054fd5e15563`及
-`763c9c46ce34fa0b4b0e59fbeea4f43d081945b8d6e20b91dde0b91eb937c7a0`。
-独立审查和实际零科学调用进程门禁通过，尚未执行科学计划。CI v6及LOCAL Verdict v5只适配这个新父契约，
+`151b29aac633aa85902578ccb115de749a31be74d8f525b1e62d5d99257dd6d1`及
+`e3135eea0469eb00df42ea8c27370d6af445356bb4c136f2c71ee2e11ebf41be`。
+首个接续事务在完整来源核对后因RAM不足5GiB停于0worker/0模型调用，旧f263命名空间保持TAINTED。
+v2用显式`--attempt-id`将新尝试绑定到独立计划和目录，目录认领前先检查5GiB，worker前也保留原门禁。
+v2独立审查及实际零科学调用进程门禁通过，新候选使用`ram_retry_02`，尚未执行逆向科学调用。
+CI v7及LOCAL Verdict v6仅更新两个source pins，科学、黄金及资源策略不变，
 不代表实际黄金、训练或数据库执行已通过。旧canonical runner及旧计划保持历史失败状态。
 详见[FULL_SSB_LOCAL_CONTINUATION.md](FULL_SSB_LOCAL_CONTINUATION.md)。
 本轮CI的独立逆序入口是`full_ssb_local_ci_group_replay.py`，当前固定SHA为
@@ -171,13 +177,16 @@ Scalar V4已实际完成50项计数和70条预测，独立只读派生验收通�
 预先声明的uniform-title-key公式估计多表结果，不是作者未公开的Perfect Selectivities组合器。
 派生表单独采用`EVALUATION_ONLY_FLOOR1`，保留原始Fraction/零预测；不与既有DeepDB的零值无穷大
 计分政策静默共榜。只读派生命令不会缺失时补跑计数。
-JOB-light SRS目前完成49项纯/模拟测试及独立审查，实际采样尚未开始。每表独立WOR 1000行、
+JOB-light SRS和IBJS均已实际完成70条及严格验收。SRS每表独立WOR 1000行、
 每条查询30秒预算、原始零值和超时null均保留；合法首次SQL前超时也占一个终态，不能补采或丢弃。
-它是本地预声明变体，作者原n/预算/回退策略未识别。启动时可用RAM不足5GiB，本轮未创建SRS批准或科学运行目录。
-IBJS核心与运行层另已通过独立代码审查，实际采样尚未执行；勿把源代码门禁当实际70条验收。
+SRS70条均为原始零估计；IBJS n1000/b100K有13条零估计、57条正估计，无未完成项。
+零对应无穷大q-error，完整70条IBJS中位1.458495、p90/p95/最大值无穷大；条件有限57条指标另列。
+独立汇总位于`output/full/figures/sampling_b23bd4bd6edb87315fe8/`。两种方法所有相关表的schema及
+两个全量query-column COPY哈希逐一相同。作者原n/预算/回退配置未识别，不称作者Table1原结果已恢复。
 
 按用户要求，最终清理将只保留必要源数据、最终处理数据、代码和结果。当前自动审批以
-`blocked by policy`拒绝了缓存和未完成草稿的删除，已完成盘点而未执行删除。
+`blocked by policy`拒绝了缓存和草稿的删除，已完成盘点而未执行删除；草稿现已补齐为正式采样汇总代码及测试，
+缓存和失败产物仍待清理。
 详见`output/full/results/cleanup_plan_current.json`；失败父目录中的已验收正向结果须单独保留。
 历史完整审计依赖仍在；将来退役这些依赖时，原fullF及依赖它的continuation/CI/Verdict验收也必须明确退役。
 
