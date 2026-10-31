@@ -3,10 +3,15 @@
 - `results/`：每条查询的估计、真值、耗时，以及复核记录；小文件可上传仓库。
 - `models/`：已训练模型，保留供重新评估；不上传 GitHub。
 - `logs/`：正式运行日志；不上传 GitHub。
-- `hdf/`：可重新生成的预处理数据；最终核验后可以删除。
+- `hdf/`：保留最终使用的预处理数据，仅将不再引用的旧版本列为清理候选。
 
 `results/verification_1000000.json` 的 PASS 仅表示本次 JOB-light 基础模型流程与数值复核通过，
 不表示论文所有实验和最优性能均已复现。
+
+`results/fullpaper_sampling_predictions_scored.csv`保留两种LOCAL采样方法的全部140条预测，
+`fullpaper_sampling_method_costs.csv`和`fullpaper_sampling_RESULTS.md`分别说明耗时口径与评分范围。
+`fullpaper_sampling_manifest.json`绑定三个文件及其已验收本地来源，公开文件与对应来源逐字节相同。
+没有公开原始表、模型或运行环境，也不把两种LOCAL配置当作作者Table1原配置。
 
 完整阶段单独放在`full/`，与上述首阶段结果隔离：
 

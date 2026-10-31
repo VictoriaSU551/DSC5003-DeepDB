@@ -45,6 +45,7 @@ Scalar-oracle的独立uniform-title-key变体已完成50项单表计数及70条�
 本地JOB-light独立WOR采样（每表1000行）与IBJS（n1000/b100K）均已实际完成70条查询、严格验收和独立汇总。
 WOR的70条估计均为零，q-error均为无穷大；IBJS中位q-error1.458495，13条零估计使p90/p95/最大值均为无穷大。
 没有将零值改成1，全部70条均计入。这些是明确的LOCAL配置，作者Table1原配置仍未识别，不能称相应作者结果已恢复。
+两种方法共140条最终预测及评分说明已整理到`output/results/fullpaper_sampling_*`，供组员逐条核查。
 按用户要求，最终仅保留必要源数据、最终处理数据、代码和结果。当前清理操作被系统自动审批以
 `blocked by policy`拒绝，缓存和失败目录尚未清除；原采样汇总草稿已补齐为正式代码、测试及协议。
 详细盘点在`output/full/results/cleanup_plan_current.json`。
