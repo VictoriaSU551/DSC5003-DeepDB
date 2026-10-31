@@ -111,6 +111,7 @@ v1/v2、原模型和原published真值均保留为历史证据。只有完整v3�
 | 新canonical1M评估事务与历史失败分界 | [FULL_SSB_LOCAL_CANONICAL_PROTOCOL.md](FULL_SSB_LOCAL_CANONICAL_PROTOCOL.md)、[FULL_SSB_GROUP_ORDER_DIAGNOSTIC.md](FULL_SSB_GROUP_ORDER_DIAGNOSTIC.md) |
 | LOCAL10M/table训练政策及独立重放/只读外层 | [FULL_SSB_LOCAL_CI_PROTOCOL.md](FULL_SSB_LOCAL_CI_PROTOCOL.md)、[FULL_SSB_LOCAL_CI_REPLAY.md](FULL_SSB_LOCAL_CI_REPLAY.md) |
 | 新DBEst单维兼容查询路由与两次运行入口修复 | [FULL_DBEST_FLIGHTS_ROUTES.md](FULL_DBEST_FLIGHTS_ROUTES.md) |
+| 独立JOB-light每表1000行WOR采样与全部终态保留 | [FULL_JOB_SAMPLING_PROTOCOL.md](FULL_JOB_SAMPLING_PROTOCOL.md) |
 | 独立Scalar oracle与作者Perfect Selectivities分界 | [FULL_SCALAR_ORACLE_PROTOCOL.md](FULL_SCALAR_ORACLE_PROTOCOL.md) |
 | LOCAL Verdict的canonical父证据与预算 | [FULL_VERDICT_LOCAL_SSB_IMPLEMENTATION.md](FULL_VERDICT_LOCAL_SSB_IMPLEMENTATION.md) |
 | 原Verdict SSB SF2实际38调用与缺口 | [FULL_VERDICT_SSB_SF2_AUDIT.md](FULL_VERDICT_SSB_SF2_AUDIT.md) |
@@ -126,8 +127,13 @@ v1/v2、原模型和原published真值均保留为历史证据。只有完整v3�
 查询已经实际执行，无查询错误，三阶段封存通过；旧独立重放9c因S4.3置信区间差异失败并保留TAINTED。
 GROUP BY配对排序新变体的全部13条查询通过双hash/正逆序诊断，点与区间一致；
 正式canonical评估和独立验收尚未完成，不能运行依赖旧重放PASS的10M或LOCAL Verdict入口。
-2026-10-31的新canonical具体计划已封存，当前监督事务正在执行；这不是最终PASS。
-本轮CI v4的独立逆序入口是`full_ssb_local_ci_group_replay.py`，当前固定SHA为
+2026-10-31首次canonical监督事务因Windows Job名称前缀不兼容，在任何模型调用前失败；旧计划和TAINTED保留。
+v2只修正两个名称字符串，正逆两个方向的真实base→venv进程门禁均通过，门禁不调用模型或数据库。
+新候选已完成完整父证据校验，正在重新封存源绑定计划；这仍不是正式推断或独立验收PASS。
+本轮CI v5及LOCAL Verdict v4固定的新canonical runner SHA为
+`8d561253786e8acd68e03c3b89fce46c2655f04cdd0c4b34492b369a6d757636`；
+各冻结协议中的旧`36ff7385...`仅属于前一历史候选，不能拿旧计划运行新源码。
+本轮CI的独立逆序入口是`full_ssb_local_ci_group_replay.py`，当前固定SHA为
 `4b73cf6bed9bb001ec1bf289fadb6950bdd4f0c644e1837406eaef402b0a827c`；
 CI协议中v3段落的旧`97243fa7...`为其预热修正前的历史候选。新的worker先导入会设置NumPy种子的
 原推断模块，再由冻结通用重放器设置声明的74031种子；不会逐query重新播种。
@@ -150,10 +156,16 @@ Verdict的当前验收只核文件/JAR/源码及历史数据库记录，不连�
 它保留F5.2原始错误、单独的两SUM适配和缺组；原生95%区间不能混作DeepDB中央90%区间。
 Windows深路径运行Verdict的建树测试时，临时目录应使用较短的`--basetemp output/tmp/v`，避免MAX_PATH；
 只读日常验收使用上述audit入口，不需要重跑golden或正式SQL。
+DBEst新路由的200K门禁实际完成101次原生聚合调用、103次拟合尝试，SUM/AVG独立数值验证通过，
+无拟合或数值验证错误；79个空样本和2个预算不支持项仍为覆盖缺口。后续1B母体测试不重跑旧4类76次调用。
+第7条PHX/year2005是显式查询变体，不能对不匹配的公开SQL真值评分；两个SUM的差不提供联合CI。
 Scalar变体目前只完成实现、独审和源绑定计划，实际数据库收集尚未开始。它只用单表精确计数和
 预先声明的uniform-title-key公式估计多表结果，不是作者未公开的Perfect Selectivities组合器。
 派生表单独采用`EVALUATION_ONLY_FLOOR1`，保留原始Fraction/零预测；不与既有DeepDB的零值无穷大
 计分政策静默共榜。上述派生命令必须等待其真实PASS，不会缺失时补跑计数。
+JOB-light SRS目前完成49项纯/模拟测试及独立审查，实际采样尚未开始。每表独立WOR 1000行、
+每条查询30秒预算、原始零值和超时null均保留；合法首次SQL前超时也占一个终态，不能补采或丢弃。
+它是本地预声明变体，作者原n/预算/回退策略未识别，IBJS未实现。详见采样协议，勿把源代码门禁当实际70条验收。
 
 ## 组员可直接接手的内容
 
