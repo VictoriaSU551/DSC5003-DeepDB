@@ -42,7 +42,7 @@ PRIOR_PINS=dict(source.STRICT_PINS,**{'code/full_ssb_local_source.py':'699f85ec4
     'code/full_ssb_local_model.py':'0b736cb30e7f1e93c66d2ac632c9b8a0ac0023595440c46b8d9215962184bced',
     'code/full_ssb_local_model_run.py':'fd676fb41780ae96074a08f2478a7cef9820b7c55a65717b9b8e28ea9545dee3'})
 PARENT_CANONICAL_PINS={'code/full_ssb_local_canonical.py':'9c041ffc8ca40386ad9e3582fd81cb1f0e76fd3db1a337cb97bb686a521ff6b6',
-    'code/full_ssb_local_canonical_run.py':'36ff7385082662163fafe972747d70b6c83506e3d2db5e91eafbbaf243583012',
+    'code/full_ssb_local_canonical_run.py':'8d561253786e8acd68e03c3b89fce46c2655f04cdd0c4b34492b369a6d757636',
     GROUP_ADAPTER:EVALUATION_METADATA['group_order_adapter_sha256'],
     'code/full_ssb_local_replay.py':'9c2211af6b6385944010e079eef2fbc1f1dae381ccd39590f4acef9479c98aac',
     'code/full_ssb_replay.py':'fc0fcf4045450df9b74e165eb26d0c72d902a2cd9cbc9b85d5b8b78f8ee71fab',

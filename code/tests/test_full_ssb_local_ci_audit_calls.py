@@ -111,6 +111,18 @@ def test_pin_failure_happens_before_frozen_canonical_public_call(monkeypatch):
     assert called==[]
 
 
+def test_canonical_runner_v2_reviewed_literal_is_current_before_delegation(monkeypatch):
+    m=module();key='code/full_ssb_local_canonical_run.py'
+    expected='8d561253786e8acd68e03c3b89fce46c2655f04cdd0c4b34492b369a6d757636'
+    assert m.PARENT_CANONICAL_PINS[key]==expected
+    assert m.digest(m.ROOT/key)==expected
+    calls=[];proof=object();fake=types.ModuleType('full_ssb_local_canonical')
+    fake.__file__=str(m.ROOT/'code/full_ssb_local_canonical.py');fake.verify_canonical=lambda:calls.append('mock-only canonical') or proof
+    monkeypatch.setitem(sys.modules,'full_ssb_local_canonical',fake)
+    monkeypatch.setattr(m.previous,'verify_local_formal',lambda *a:pytest.fail('No actual parent/F in pin gate'))
+    assert m._verified_parent_canonical(m.ROOT) is proof and calls==['mock-only canonical']
+
+
 def test_verified_canonical_delegate_calls_only_its_public_verifier_once(monkeypatch):
     m=module();calls=[];proof=object()
     fake=types.ModuleType('full_ssb_local_canonical');fake.__file__=str(m.ROOT/'code/full_ssb_local_canonical.py')
