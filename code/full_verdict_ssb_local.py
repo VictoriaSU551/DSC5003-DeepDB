@@ -4,6 +4,8 @@ Import/describe are inert. Parent scientific providers are imported lazily only
 after exact, complete final publications have been supplied and checked.
 """
 import copy
+import builtins
+from contextlib import contextmanager
 from fractions import Fraction
 import hashlib
 import importlib
@@ -184,6 +186,65 @@ def verify_artifacts(records):
     for path,rec in records.items():require(path==rec['path'] and verify_parent_descriptor(rec)==rec,'Physical artifact changed: '+path)
 
 
+@contextmanager
+def forbid_parent_operations(audit,core):
+    """Allow cached SQLite definitions; delegate every frozen operation block.
+
+    Native source-verifier modules import sqlite3 without opening a database.
+    All three stdlib exposure points are disabled before initializing wrapper
+    definitions or invoking any parent callback. Only loaded definitions bypass
+    its blanket SQLite import ban; no module is reloaded under that exception.
+    """
+    with audit.forbid_science(core):
+        importer=builtins.__import__;module_importer=importlib.import_module
+        loader=importlib.__import__;native=importer('_sqlite3',fromlist=('*',))
+        names=('connect','Connection','Cursor');original={name:getattr(native,name) for name in names}
+        modules={'_sqlite3':native};saved=[(native,name,original[name]) for name in names]
+        def forbidden(*args,**kwargs):raise RuntimeError('SQLite connections and constructors forbidden during LOCAL parent verification')
+        try:
+            for obj,name,unused in saved:setattr(obj,name,forbidden)
+            # A read-only caller may already be inside the original import ban.
+            # Disable native DB entry points first, then load only these definitions
+            # through the stdlib loader; all other imports keep the frozen guard.
+            def initializing_import(name,globals=None,locals=None,fromlist=(),level=0):
+                if level==0 and name in ('sqlite3','sqlite3.dbapi2'):
+                    return loader(name,globals,locals,fromlist,level)
+                return importer(name,globals,locals,fromlist,level)
+            try:
+                builtins.__import__=initializing_import
+                for module_name in ('sqlite3.dbapi2','sqlite3'):
+                    obj=loader(module_name,fromlist=('*',));modules[module_name]=obj
+                    for name in names:
+                        value=getattr(obj,name)
+                        saved.append((obj,name,original[name] if value is forbidden else value))
+                        setattr(obj,name,forbidden)
+            finally:
+                builtins.__import__=importer
+            def definition_import(name,globals=None,locals=None,fromlist=(),level=0):
+                if level==0 and name in modules:
+                    return modules[name] if fromlist else modules[name.split('.')[0]]
+                return importer(name,globals,locals,fromlist,level)
+            def definition_module(name,package=None):
+                absolute=importlib.util.resolve_name(name,package) if name.startswith('.') else name
+                if absolute in modules:return modules[absolute]
+                if absolute.split('.')[0] in ('sqlite3','_sqlite3','psycopg2'):
+                    raise RuntimeError('Forbidden SQL module import during LOCAL parent verification')
+                return module_importer(name) if package is None else module_importer(name,package)
+            try:
+                builtins.__import__=definition_import;importlib.import_module=definition_module
+                yield
+            finally:
+                importlib.import_module=module_importer;builtins.__import__=importer
+        finally:
+            # Failed package initialization may leave a completed child cached
+            # before it could be added to saved. Restore only our exact blockers.
+            for module_name in ('sqlite3','sqlite3.dbapi2'):
+                obj=sys.modules.get(module_name)
+                for name in names:
+                    if obj is not None and getattr(obj,name,None) is forbidden:setattr(obj,name,original[name])
+            for obj,name,value in reversed(saved):setattr(obj,name,value)
+
+
 def collect_lineage(expected):
     """Read-only, lazy, complete parents; never touch an unfinished moments file."""
     spec=local_spec();require(isinstance(expected,dict) and set(expected)=={'source','model','canonical','reverse'},'Exact final parent source/model/canonical/reverse descriptors required')
@@ -226,7 +287,7 @@ def collect_lineage(expected):
     helper=importlib.import_module('full_windows_fingerprint')
     require(digest(ROOT/'code/full_windows_fingerprint.py')==FROZEN['code/full_windows_fingerprint.py'],'Native helper changed')
     audit=importlib.import_module('full_verdict_ssb_audit');core=load_frozen()
-    with audit.forbid_science(core),helper.verified_platform(spec['platform'],spec['machine']):
+    with forbid_parent_operations(audit,core),helper.verified_platform(spec['platform'],spec['machine']):
         provider=importlib.import_module('full_ssb_local_continuation')
         require(Path(getattr(provider,'__file__','')).resolve()==(ROOT/spec['canonical_provider']).resolve(),
             'Actually loaded continuation provider differs from the pinned physical source')

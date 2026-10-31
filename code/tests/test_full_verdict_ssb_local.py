@@ -1,4 +1,4 @@
-"""Pure LOCAL source/oracle contracts; no growing outputs or scientific imports."""
+"""Pure LOCAL contracts; no parent F, data scan or scientific operations."""
 import copy
 import importlib.util
 from pathlib import Path
@@ -258,3 +258,219 @@ def test_shadow_loaded_canonical_module_is_rejected_before_its_verifier(tmp_path
     monkeypatch.setattr(m.importlib,'import_module',shadow)
     with pytest.raises(ValueError,match='loaded|Loaded'):m.collect_lineage(expected)
     assert calls==[]
+
+
+def test_sqlite_definition_import_in_pinned_native_provider_preserves_one_lineage_call(tmp_path,monkeypatch):
+    """Reproduce v6's exact import boundary without running a parent verifier."""
+    import full_verdict_ssb_audit as audit
+    from types import SimpleNamespace
+    m,s,expected,p,calls,old,new=canonical_fixture(tmp_path,monkeypatch)
+    original=m.importlib.import_module
+    imported=[]
+    def importer(name):
+        if name=='full_verdict_ssb_audit':return audit
+        provider=original(name)
+        if name=='full_ssb_local_continuation':
+            def definitions_only():
+                spec=importlib.util.spec_from_file_location('verdict_local_native_definition_probe',str(ROOT/'code/full_ssb_native_v2.py'))
+                native=importlib.util.module_from_spec(spec);spec.loader.exec_module(native)
+                assert native.sqlite3.sqlite_version
+                imported.append('native definitions only')
+                return provider.verify_canonical()
+            return SimpleNamespace(__file__=provider.__file__,verify_canonical=definitions_only)
+        return provider
+    monkeypatch.setattr(m.importlib,'import_module',importer)
+    lineage=m.collect_lineage(expected)
+    assert imported==['native definitions only'] and calls==['CANONICAL']
+    assert lineage['files'][old['path']]==old and lineage['files'][new['path']]==new
+
+
+@pytest.mark.parametrize('statement',[
+    'import sqlite3; sqlite3.connect(":memory:")',
+    'import sqlite3; sqlite3.Connection(":memory:")',
+    'import sqlite3; sqlite3.Cursor(None)',
+    'import sqlite3.dbapi2 as db; db.connect(":memory:")',
+    'import sqlite3.dbapi2 as db; db.Connection(":memory:")',
+    'import sqlite3.dbapi2 as db; db.Cursor(None)',
+    'import _sqlite3 as native; native.connect(":memory:")',
+    'import _sqlite3 as native; native.Connection(":memory:")',
+    'import _sqlite3 as native; native.Cursor(None)',
+    'from sqlite3 import connect as alias; alias(":memory:")',
+    'from sqlite3.dbapi2 import Connection as alias; alias(":memory:")',
+    'from _sqlite3 import connect as alias; alias(":memory:")',
+    'from _sqlite3 import Connection as alias; alias(":memory:")'])
+def test_parent_operations_forbid_sqlite_calls_and_imported_aliases_without_opening_a_DB(monkeypatch,statement):
+    import sqlite3,sqlite3.dbapi2,_sqlite3
+    import full_verdict_ssb_audit as audit
+    from types import SimpleNamespace
+    m=module();attempts=[]
+    def tripwire(*a,**k):attempts.append('bypass');raise AssertionError('real connection API must never be reached')
+    for native in (sqlite3,sqlite3.dbapi2,_sqlite3):
+        for name in ('connect','Connection','Cursor'):monkeypatch.setattr(native,name,tripwire)
+    with m.forbid_parent_operations(audit,SimpleNamespace()):
+        with pytest.raises(RuntimeError,match='SQLite'):exec(statement,{})
+    assert attempts==[]
+
+
+@pytest.mark.parametrize('raises',[False,True])
+def test_parent_operations_delegate_all_frozen_blocks_and_restore_hooks_on_exception(monkeypatch,raises):
+    import builtins,os,sqlite3,sqlite3.dbapi2,_sqlite3,subprocess
+    import full_verdict_ssb_audit as audit
+    from types import SimpleNamespace
+    m=module();attempts=[]
+    def tripwire(*a,**k):attempts.append('bypass');raise AssertionError('operational API must never be reached')
+    names=('connect','pg_control','start_owned_server','bounded_process','run_sf2','run_oracle','import_postgres','execute_original','adopt_oracle','adopt_registered_files')
+    core=SimpleNamespace(**{name:tripwire for name in names})
+    for name in ('run','Popen','call','check_call','check_output'):monkeypatch.setattr(subprocess,name,tripwire)
+    for name in ('system','startfile','popen'):
+        if hasattr(os,name):monkeypatch.setattr(os,name,tripwire)
+    importer=builtins.__import__;module_importer=m.importlib.import_module
+    saved=[(native,name,getattr(native,name)) for native in (sqlite3,sqlite3.dbapi2,_sqlite3) for name in ('connect','Connection','Cursor')]
+    class BodyFailure(Exception):pass
+    try:
+        with m.forbid_parent_operations(audit,core):
+            for name in names:
+                with pytest.raises(RuntimeError,match='Forbidden operational'):getattr(core,name)()
+            for name in ('run','Popen','call','check_call','check_output'):
+                with pytest.raises(RuntimeError,match='Forbidden operational'):getattr(subprocess,name)(['forbidden'])
+            for name in ('system','startfile','popen'):
+                if hasattr(os,name):
+                    with pytest.raises(RuntimeError,match='Forbidden operational'):getattr(os,name)('forbidden')
+            for pg in ('psycopg2','psycopg2.extensions'):
+                with pytest.raises(RuntimeError):builtins.__import__(pg)
+                with pytest.raises(RuntimeError):m.importlib.import_module(pg)
+            with pytest.raises(RuntimeError):m.importlib.import_module('.extensions','psycopg2')
+            with pytest.raises(RuntimeError):builtins.__import__('sqlite3.dump')
+            with pytest.raises(RuntimeError):m.importlib.import_module('sqlite3.dump')
+            assert m.importlib.import_module('sqlite3') is sqlite3
+            assert m.importlib.import_module('sqlite3.dbapi2') is sqlite3.dbapi2
+            assert m.importlib.import_module('_sqlite3') is _sqlite3
+            if raises:raise BodyFailure('restore after delegated verifier failure')
+    except BodyFailure:
+        assert raises
+    assert builtins.__import__ is importer and m.importlib.import_module is module_importer
+    assert all(getattr(obj,name) is value for obj,name,value in saved)
+    assert all(getattr(core,name) is tripwire for name in names)
+    assert subprocess.Popen is tripwire and os.system is tripwire and attempts==[]
+
+
+def test_parent_operations_enter_frozen_guard_before_wrapper_definitions(monkeypatch):
+    from contextlib import contextmanager
+    import sqlite3,sqlite3.dbapi2,_sqlite3
+    from types import SimpleNamespace
+    m=module();events=[];loader=m.importlib.__import__
+    @contextmanager
+    def frozen_guard(core):
+        events.append('enter unchanged delegated guard');yield;events.append('leave unchanged delegated guard')
+    def definitions(*args,**kwargs):
+        assert events==['enter unchanged delegated guard']
+        with pytest.raises(RuntimeError,match='SQLite'):_sqlite3.Connection(':memory:')
+        return loader(*args,**kwargs)
+    monkeypatch.setattr(m.importlib,'__import__',definitions)
+    with m.forbid_parent_operations(SimpleNamespace(forbid_science=frozen_guard),SimpleNamespace()):
+        events.append('provider may import definitions')
+    assert events==['enter unchanged delegated guard','provider may import definitions','leave unchanged delegated guard']
+
+
+def test_parent_operations_support_cold_sqlite_definitions_inside_existing_frozen_guard(monkeypatch):
+    import builtins,sys,sqlite3,sqlite3.dbapi2,_sqlite3
+    import full_verdict_ssb_audit as audit
+    from types import SimpleNamespace
+    m=module();attempts=[]
+    def tripwire(*a,**k):attempts.append('bypass');raise AssertionError('no actual database connection')
+    for name in ('connect','Connection','Cursor'):monkeypatch.setattr(_sqlite3,name,tripwire)
+    monkeypatch.delitem(sys.modules,'sqlite3.dbapi2');monkeypatch.delitem(sys.modules,'sqlite3')
+    before=builtins.__import__;module_importer=m.importlib.import_module
+    with audit.forbid_science(SimpleNamespace()):
+        outer=builtins.__import__
+        with m.forbid_parent_operations(audit,SimpleNamespace()):
+            import sqlite3 as definitions
+            assert definitions.sqlite_version
+            with pytest.raises(RuntimeError,match='SQLite'):definitions.connect(':memory:')
+            with pytest.raises(RuntimeError):__import__('psycopg2')
+        assert builtins.__import__ is outer
+        with pytest.raises(RuntimeError):__import__('sqlite3')
+    assert builtins.__import__ is before and m.importlib.import_module is module_importer
+    assert _sqlite3.connect is tripwire and attempts==[]
+
+
+@pytest.mark.parametrize('raises',[False,True])
+def test_fresh_sqlite_definitions_restore_actual_original_API_identities_without_DB_calls(monkeypatch,raises):
+    import builtins,sys,sqlite3,sqlite3.dbapi2,_sqlite3
+    import full_verdict_ssb_audit as audit
+    from types import SimpleNamespace
+    m=module();names=('connect','Connection','Cursor')
+    original={name:getattr(_sqlite3,name) for name in names}
+    monkeypatch.delitem(sys.modules,'sqlite3.dbapi2');monkeypatch.delitem(sys.modules,'sqlite3')
+    before=builtins.__import__;module_importer=m.importlib.import_module
+    class ExitFailure(Exception):pass
+    with audit.forbid_science(SimpleNamespace()):
+        outer=builtins.__import__
+        try:
+            with m.forbid_parent_operations(audit,SimpleNamespace()):
+                fresh=[sys.modules[n] for n in ('sqlite3','sqlite3.dbapi2','_sqlite3')]
+                assert all(getattr(obj,name) is not original[name] for obj in fresh for name in names)
+                if raises:raise ExitFailure('cold initialization followed by verifier exception')
+        except ExitFailure:assert raises
+        assert all(getattr(obj,name) is original[name] for obj in fresh for name in names)
+        assert builtins.__import__ is outer and m.importlib.import_module is module_importer
+        with pytest.raises(RuntimeError):__import__('sqlite3')
+    assert builtins.__import__ is before
+
+
+def test_nested_parent_operations_keep_all_frozen_bans_after_inner_exception(monkeypatch):
+    import builtins,os,sqlite3,sqlite3.dbapi2,_sqlite3,subprocess
+    import full_verdict_ssb_audit as audit
+    from types import SimpleNamespace
+    m=module();attempts=[]
+    def tripwire(*a,**k):attempts.append('bypass');raise AssertionError('no actual operations')
+    names=('connect','pg_control','start_owned_server','bounded_process','run_sf2','run_oracle','import_postgres','execute_original','adopt_oracle','adopt_registered_files')
+    core=SimpleNamespace(**{name:tripwire for name in names})
+    for name in ('run','Popen','call','check_call','check_output'):monkeypatch.setattr(subprocess,name,tripwire)
+    for name in ('system','startfile','popen'):
+        if hasattr(os,name):monkeypatch.setattr(os,name,tripwire)
+    def assert_bans():
+        for name in names:
+            with pytest.raises(RuntimeError):getattr(core,name)()
+        for name in ('run','Popen','call','check_call','check_output'):
+            with pytest.raises(RuntimeError):getattr(subprocess,name)(['forbidden'])
+        for name in ('system','startfile','popen'):
+            if hasattr(os,name):
+                with pytest.raises(RuntimeError):getattr(os,name)('forbidden')
+        with pytest.raises(RuntimeError):__import__('psycopg2')
+        with pytest.raises(RuntimeError):m.importlib.import_module('psycopg2')
+        for obj in (sqlite3,sqlite3.dbapi2,_sqlite3):
+            # Identity check is enough here; the tripwire API tests cover calls.
+            assert obj.connect is sqlite3.connect and obj.Connection is sqlite3.Connection
+    before=builtins.__import__;module_importer=m.importlib.import_module
+    native={name:getattr(_sqlite3,name) for name in ('connect','Connection','Cursor')}
+    with m.forbid_parent_operations(audit,core):
+        outer=builtins.__import__;outer_module=m.importlib.import_module;outer_connect=sqlite3.connect
+        assert_bans()
+        with pytest.raises(ValueError,match='inner verifier failed'):
+            with m.forbid_parent_operations(audit,core):assert_bans();raise ValueError('inner verifier failed')
+        assert sqlite3.connect is outer_connect and builtins.__import__ is outer and m.importlib.import_module is outer_module
+        assert_bans()
+    assert builtins.__import__ is before and m.importlib.import_module is module_importer
+    assert all(getattr(_sqlite3,name) is value for name,value in native.items())
+    assert all(getattr(core,name) is tripwire for name in names) and attempts==[]
+
+
+def test_parent_operations_restore_partially_initialized_wrapper_apis_on_entry_failure(monkeypatch):
+    import builtins,sys,sqlite3,sqlite3.dbapi2,_sqlite3
+    import full_verdict_ssb_audit as audit
+    from types import SimpleNamespace
+    m=module();names=('connect','Connection','Cursor');original={n:getattr(_sqlite3,n) for n in names}
+    monkeypatch.delitem(sys.modules,'sqlite3.dbapi2');monkeypatch.delitem(sys.modules,'sqlite3')
+    loader=m.importlib.__import__;before=builtins.__import__;module_importer=m.importlib.import_module
+    class InitializationFailure(Exception):pass
+    def broken_loader(*a,**k):
+        result=loader(*a,**k)
+        raise InitializationFailure('stdlib definitions loaded but context entry failed')
+    monkeypatch.setattr(m.importlib,'__import__',broken_loader)
+    with pytest.raises(InitializationFailure):
+        with m.forbid_parent_operations(audit,SimpleNamespace()):pytest.fail('provider cannot be called')
+    wrappers=[sys.modules[n] for n in ('sqlite3','sqlite3.dbapi2') if n in sys.modules]
+    assert wrappers  # At least one completed child remains after its parent import failed.
+    assert all(getattr(obj,name) is original[name] for obj in wrappers+[_sqlite3] for name in names)
+    assert builtins.__import__ is before and m.importlib.import_module is module_importer

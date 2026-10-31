@@ -70,3 +70,33 @@ V5 explicitly consumes the independently reviewed canonical continuation. The ni
 The accepted canonical scope/status are now `LOCAL_SSB_SF500_CANONICAL_CONTINUATION` / `PASS_READ_ONLY_LOCAL_SSB_SF500_CANONICAL_CONTINUATION_WITH_AUTHOR_MISMATCH`, with exact protocol `ADOPT_ACCEPTED_FORWARD_FRESH_REVERSE_WITH_CONSUMED_CLOSURE_V1`. The public result path remains unchanged; the reverse must be under `output/full/ssb/local_sf500_continuation/runs/` and share its directory with the new canonical report. That report must say `adopted_forward=true` and `forward_reexecuted=false`. The returned Verdict lineage binds those facts and `canonical_execution_protocol`, while preserving the unchanged full original model, source, native moments, N/n oracle, typed group adapter,1713 author differences and false author/full-paper flags. The three protected databases, original Java and38-call plan, SQL, resource limits and all numerical methods are unchanged.
 
 The busy-science scanner also explicitly covers the actual `full_ssb_local_continuation_run.py` bootstrap, worker and supervisor names. Those names do not contain model/ci/replay/canonical, so the old regex would miss them. Six focused tests first observed the missing two pins, new reverse namespace rejection and three missed process names. Validation remains pure fixtures only: no actual parent F, process scan, PG, JVM, model, moments scan, scientific call or plan is performed. A new source-bound plan and ROOT's exclusive actual resource approval are still required.
+
+V7 fixes a definition-import boundary in LOCAL metadata planning. The actual v6
+`pilot-plan` reached the pinned continuation verifier, whose original physical
+source verifier imports the pinned native generator module. That module's
+top-level `import sqlite3` was rejected by the frozen SF2 audit guard, before
+any SQLite connection or native operation. A pure regression reproduces that
+exact native definition import through a single stub parent call, with the
+real frozen guard and no actual parent F or data scan.
+
+Only LOCAL `forbid_parent_operations` adapts this boundary. It first enters the
+unchanged frozen `audit.forbid_science(core)`, then disables native `_sqlite3`
+`connect`, `Connection` and `Cursor` and initializes only
+the standard `sqlite3`/`sqlite3.dbapi2` definitions with those APIs disabled.
+It guards the same three APIs on all three modules. Only these three already-loaded modules may bypass
+the blanket SQLite import rejection. Other builtin imports retain the frozen
+guard; dynamic PG imports and other SQLite module imports are rejected too.
+All existing core, subprocess and OS operation blocks remain delegated to the
+frozen guard. Cold initialization inside an already-active frozen guard is
+covered too. SQLite APIs and both import hooks are restored on normal exit or
+exception; freshly created wrapper modules recover their original native API
+identities, including a completed child left cached by a failed package import.
+A nested LOCAL guard restores its outer guard rather than exposing live APIs.
+Negative tests replace native entry points with fail-fast tripwires,
+so even an escaping test cannot create a real database. Native definitions,
+ordinary imported aliases, constructors, process/PG bans and hook restoration
+are covered. The original guard, parent/CI/native sources, Java/ops/runner,
+moment arithmetic, resource limits and all accepted results remain unchanged.
+V7 focused checks passed 47 tests (30 unrelated tests deselected) in 2.57s.
+No actual F, PG/JVM, model, pilot or plan was run for this revision; ROOT alone
+reviews the new source-bound metadata plan before actual baseline execution.
