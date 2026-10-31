@@ -30,7 +30,7 @@ def fixture(m,root,source_sha='a'*64):
     r.update(directory=str(run),prepared_directory=str(before/'prepared'),moments_directory=str(before/'sample_moments_native'),
         moments_helper_directory=str(root/old.OUTPUT/'runtime/native'),truth_projection_path=str(before/'core_truth_checkpoint.json'),
         scope=ci.SCOPE,status=ci.PASS,author_population_row_count_and_13_truths_match=False,author_full_row_byte_identity_proven=False,
-        model_path=str(run/'model/ensemble_single.pkl'),evaluation_directory=str(run/'evaluation/cache'))
+        model_path=str(run/'model/ensemble_single.pkl'),evaluation_directory=str(run/'evaluation/cache'),**ci.EVALUATION_METADATA)
     r['evaluation_directory']=str(next((run/'evaluation').glob('*')))
     # Actual frame rows, complete frozen core model guard and outer receipts.
     model=r['model'];model['model_path']=r['model_path'];model['binding']['samples_per_spn']=10000000
@@ -75,3 +75,14 @@ def test_configurable_validation_rejects_wrong_phase_or_incomplete_reuse(tmp_pat
     elif damage=='query_subset':r['queries']=r['queries'][:12]
     else:r['prepared_directory']=str(Path(r['directory'])/'prepared')
     with pytest.raises((ValueError,OSError,KeyError)):m.validate(r,ci.validation_config(),root)
+
+
+@pytest.mark.parametrize('key',['evaluation_variant','group_order_adapter_sha256'])
+def test_stage_scope_rejects_noncanonical_variant_before_scientific_files(key):
+    m=module();ci=ci_module()
+    r=dict(scope=ci.SCOPE,status=ci.PASS,author_different_groups=1713,author_reproduction_complete=False,full_paper_reproduction_complete=False,
+        author_population_row_count_and_13_truths_match=False,author_full_row_byte_identity_proven=False,
+        original_mismatch={'path':ci.source.NATIVE_REPORT,'sha256':ci.source.NATIVE_REPORT_SHA},
+        inputs={'status':ci.source.STATUS,'scope':ci.source.SCOPE,'different_author_groups':1713},**ci.EVALUATION_METADATA)
+    m.validate_scope(r,ci.validation_config());r[key]='wrong'
+    with pytest.raises(ValueError,match='variant|canonical|adapter'):m.validate_scope(r,ci.validation_config())

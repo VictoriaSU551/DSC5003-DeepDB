@@ -54,14 +54,14 @@ def capsule(kind='FORMAL'):
 
 def candidate_body(kind,codes_sha256,golden,dependencies,lineage):
     require(kind in ('GOLDEN','FORMAL'),'known10M experiment kind required')
-    return dict(schema='ssb_local_ci10m_plan_v1',status='CANDIDATE_REQUIRES_ROOT_REVIEW',executable=False,scope=model.SCOPE,kind=kind,
+    return dict(schema='ssb_local_ci10m_plan_v2_canonical',status='CANDIDATE_REQUIRES_ROOT_REVIEW',executable=False,scope=model.SCOPE,kind=kind,
         reviewed_codes_sha256=codes_sha256,model=dict(model.PARAMETERS),actual_training_rows_per_table=dict(model.EXPECTED_ROWS),
         author_different_groups=1713,author_reproduction_complete=False,full_paper_reproduction_complete=False,
         budget_metadata=dict(model.BUDGET_METADATA),
         original_mismatch_sha256=model.source.NATIVE_REPORT_SHA,source_receipt_sha256=model.SOURCE_RECEIPT_SHA,
         root_decision_sha256=model.source.DECISION_SHA,golden=golden,dependencies=dependencies,lineage=lineage,
         operational_policy=dict(ops.OPERATIONAL_POLICY),operational_capsule=capsule_binding(),
-        resource_admission=dict(minimum_launch_memory_bytes=model.MINIMUM_LAUNCH_MEMORY_BYTES,additional_bytes=model.OPERATIONAL_RESERVE_BYTES))
+        resource_admission=dict(minimum_launch_memory_bytes=model.MINIMUM_LAUNCH_MEMORY_BYTES,additional_bytes=model.OPERATIONAL_RESERVE_BYTES),**model.EVALUATION_METADATA)
 
 
 def build_candidate(kind,reviewed_codes_sha256,auxiliary_sources=None):
@@ -88,6 +88,18 @@ def read_plan(path,expected_sha,root=ROOT):
     expected=candidate_body(p['kind'],p['reviewed_codes_sha256'],p['golden'],p['dependencies'],p['lineage'])
     candidate=dict(p);approved=candidate.pop('root_reviewed_candidate_sha256');candidate.update(status='CANDIDATE_REQUIRES_ROOT_REVIEW',executable=False)
     require(candidate==expected and value_hash(candidate)==approved and p['status']=='ROOT_REVIEWED_LOCAL_SSB_10M_CI_PLAN' and p['executable'] is True,'exact reviewed10M scope/model/resources/approval required')
+    sources=p['dependencies']['ci_sources'];require(set(sources)==set(model.FILES)
+        and p['reviewed_codes_sha256']==value_hash(sources),'complete reviewed10M code-set source map required')
+    lineage=p['lineage'];require(all(lineage.get(k)==v for k,v in model.EVALUATION_METADATA.items())
+        and lineage.get('historical_reverse_accepted') is False,'canonical parent variant with failed historical reverse rejected required')
+    for key in ('parent_formal','parent_reverse','parent_canonical'):
+        d=lineage.get(key,{})
+        require(set(d)=={'path','bytes','sha256'} and type(d.get('path')) is str and type(d.get('bytes')) is int and d['bytes']>0
+            and type(d.get('sha256')) is str and re.fullmatch('[a-f0-9]{64}',d['sha256']) is not None,'complete canonical parent lineage descriptor required')
+    require(lineage['parent_formal']['path']==model.previous.RESULT and lineage['parent_formal']['sha256']==model.PARENT_RESULT_SHA
+        and lineage['parent_canonical']['path']==model.PARENT_CANONICAL_RESULT
+        and re.fullmatch('output/full/ssb/local_sf500_canonical/runs/[a-f0-9]{20}/reverse/verification.json',lineage['parent_reverse']['path']) is not None,
+        'canonical1M original/new reverse/result identity required; raw or failed9c lineage cannot authorize a plan')
     return p
 
 

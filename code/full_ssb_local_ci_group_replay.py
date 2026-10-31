@@ -101,7 +101,11 @@ def validate_execution(result): return engine().validate_execution(result)
 def binding_for(snapshot): return engine().binding_for(snapshot)
 def worker_command(): return engine().worker_command()
 def worker_environment_record(): return engine().worker_environment_record()
-def worker(): return engine().worker()
+def worker():
+    # The released module seeds NumPy(1) at import. Warm it only in the
+    # explicit scientific worker, before ScopedReplay sets its declared seed.
+    import ensemble_compilation.spn_ensemble
+    return engine().worker()
 def verify(): return engine().verify()
 def replay(): return engine().replay()
 

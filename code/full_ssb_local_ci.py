@@ -27,7 +27,12 @@ GOLDEN_RESULT='output/full/results/ssb_local_ci10m_cap_golden.json'
 WINDOWS_HELPER='code/full_windows_fingerprint.py'
 WINDOWS_HELPER_SHA='a9e9034efad01e258c521934aea43f0f405ff78c42caffb7841a73fd03d96784'
 INFERENCE_PINS={'code/full_ssb_scoped_replay.py':'f2514ac1e35cfea892096a7c9c338ab7c3aad6d905b4b35bfe6025f9ebca200c',
-    'code/full_ssb_local_ci_replay.py':'9707baddd1b30ca8afd858f0c016432b985590adf0829f7e52c2caa2640d18f1'}
+    'code/full_ssb_local_ci_group_replay.py':'4b73cf6bed9bb001ec1bf289fadb6950bdd4f0c644e1837406eaef402b0a827c',
+    'code/full_ssb_group_order.py':'48220a0474a838c8dc9a7cf3fef0e8a84459a05e3fa8e15405307acae430ae5c'}
+GROUP_ADAPTER='code/full_ssb_group_order.py'
+EVALUATION_METADATA=dict(evaluation_variant='CANONICAL_DECODED_GROUP_PROTOTYPE_V1',group_order_adapter_sha256=INFERENCE_PINS[GROUP_ADAPTER])
+PARENT_CANONICAL_RESULT='output/full/results/ssb_local_sf500_canonical_aqp_ci.json'
+PARENT_RESULT_SHA='da358d52a0005bb28cd606c8e539099bdf242b72d4f6e663db6c0a3f84e15c82'
 EXPECTED_ROWS=dict(lineorder=9996946,dwdate=2556,customer=10000000,part=1800000,supplier=1000000)
 BUDGET_METADATA=dict(paper_figure11_training_budget_policy_applied=True,exact10000000_fact_training_rows_claimed=False)
 OPERATIONAL_RESERVE_BYTES=2*2**30+64*2**20
@@ -36,7 +41,10 @@ FILES=('code/full_ssb_local_ci.py','code/full_ssb_local_ci_run.py','code/full_ss
 PRIOR_PINS=dict(source.STRICT_PINS,**{'code/full_ssb_local_source.py':'699f85ec4d24c326a7b491cd4cbf9c5746a98e7947d5b79db60200d08c0e3ca3',
     'code/full_ssb_local_model.py':'0b736cb30e7f1e93c66d2ac632c9b8a0ac0023595440c46b8d9215962184bced',
     'code/full_ssb_local_model_run.py':'fd676fb41780ae96074a08f2478a7cef9820b7c55a65717b9b8e28ea9545dee3'})
-PARENT_REPLAY_PINS={'code/full_ssb_local_replay.py':'9c2211af6b6385944010e079eef2fbc1f1dae381ccd39590f4acef9479c98aac',
+PARENT_CANONICAL_PINS={'code/full_ssb_local_canonical.py':'9c041ffc8ca40386ad9e3582fd81cb1f0e76fd3db1a337cb97bb686a521ff6b6',
+    'code/full_ssb_local_canonical_run.py':'36ff7385082662163fafe972747d70b6c83506e3d2db5e91eafbbaf243583012',
+    GROUP_ADAPTER:EVALUATION_METADATA['group_order_adapter_sha256'],
+    'code/full_ssb_local_replay.py':'9c2211af6b6385944010e079eef2fbc1f1dae381ccd39590f4acef9479c98aac',
     'code/full_ssb_replay.py':'fc0fcf4045450df9b74e165eb26d0c72d902a2cd9cbc9b85d5b8b78f8ee71fab',
     'code/full_ssb_native_replay.py':'6c8de16e03a8ba20448121fd4659c092c668d4db0f7214b932a40bf20d30302d'}
 require=source.require
@@ -94,6 +102,14 @@ def runtime_cap_adapter(core,namespace=None):
     finally:core.train_single_models=original
 
 
+@contextmanager
+def canonical_evaluation():
+    require(digest(ROOT/GROUP_ADAPTER)==EVALUATION_METADATA['group_order_adapter_sha256'],'frozen canonical evaluation adapter changed')
+    import full_ssb_group_order as adapter
+    require(Path(adapter.__file__).resolve()==ROOT/GROUP_ADAPTER,'canonical evaluation adapter loaded from a different path')
+    with adapter.canonical_group_order():yield
+
+
 def run_golden(reviewed_codes_sha256,memory_approved=False):
     require(memory_approved,'separate reviewed golden memory release required')
     raise ValueError('Use root-reviewed GOLDEN plan through the owned supervisor')
@@ -105,7 +121,7 @@ def execute_formal(plan,memory_approved=False):
 
 
 def validation_config():
-    return dict(scope=SCOPE,output=OUTPUT,parameters=PARAMETERS,expected_rows=EXPECTED_ROWS,statuses=[PASS,ERRORS])
+    return dict(scope=SCOPE,output=OUTPUT,parameters=PARAMETERS,expected_rows=EXPECTED_ROWS,statuses=[PASS,ERRORS],**EVALUATION_METADATA)
 
 
 def code_snapshot():
@@ -113,13 +129,19 @@ def code_snapshot():
     source.strict_unchanged();return {path:digest(ROOT/path) for path in FILES}
 
 
-def validate_lineage_headers(formal,reverse):
+def validate_lineage_headers(formal,canonical):
     require(formal.get('status')==previous.API_PASS and formal.get('scope')==source.SCOPE and formal.get('sample_rows')==source.SAMPLE_ROWS
         and formal.get('population_rows')==source.N and formal.get('author_different_groups')==1713 and formal.get('author_reproduction_complete') is False
         and formal.get('full_paper_reproduction_complete') is False and formal['report']['plan']['model']==previous.MODEL,'complete accepted1M formal prerequisite required')
-    require(reverse.get('status')=='PASS_LOCAL_SSB_SF500_REVERSE_REPLAY_WITH_AUTHOR_MISMATCH' and reverse.get('scope')==source.SCOPE
-        and reverse.get('author_different_groups')==1713 and reverse.get('author_reproduction_complete') is False
-        and reverse.get('full_paper_reproduction_complete') is False,'complete successful1M reverse prerequisite required')
+    require(canonical.get('status')=='PASS_READ_ONLY_LOCAL_SSB_SF500_CANONICAL_CI_WITH_AUTHOR_MISMATCH'
+        and canonical.get('scope')=='LOCAL_SSB_SF500_CANONICAL_CI' and canonical.get('sample_rows')==source.SAMPLE_ROWS
+        and canonical.get('population_rows')==source.N and canonical.get('author_different_groups')==1713
+        and canonical.get('author_reproduction_complete') is False and canonical.get('full_paper_reproduction_complete') is False
+        and canonical.get('historical_reverse_accepted') is False
+        and all(canonical.get(k)==v for k,v in EVALUATION_METADATA.items()),'complete successful canonical1M evaluation prerequisite required')
+    require(formal.get('proof_method')=='DIRECT_FROZEN_PREVIOUS_VERIFY_LOCAL_FORMAL'
+        and canonical['parent_formal']==formal['published_result'] and canonical['published_result']['path']==PARENT_CANONICAL_RESULT
+        and all(canonical[k]==formal[k] for k in ('model_path','model_sha256')),'canonical delegated original formal identity differs')
 
 
 def lineage_snapshot(full):
@@ -150,33 +172,28 @@ def prepared_shapes(report):
     return shapes
 
 
-def _verified_parent_reverse(root):
-    require(Path(root).resolve()==ROOT,'real1M reverse verifier requires original root')
-    for path,sha in dict(PRIOR_PINS,**PARENT_REPLAY_PINS).items():
+def _verified_parent_canonical(root):
+    require(Path(root).resolve()==ROOT,'real1M canonical verifier requires original root')
+    for path,sha in dict(PRIOR_PINS,**PARENT_CANONICAL_PINS).items():
         require(digest(ROOT/path)==sha,'frozen delegated parent verifier pin changed: '+path)
-    import full_ssb_local_replay as replay
-    require(Path(replay.__file__).resolve()==ROOT/'code/full_ssb_local_replay.py','delegated frozen reverse module loaded from a different path')
-    return replay,replay.verify()
+    import full_ssb_local_canonical as canonical
+    require(Path(canonical.__file__).resolve()==ROOT/'code/full_ssb_local_canonical.py','delegated frozen canonical module loaded from a different path')
+    return canonical.verify_canonical()
 
 
-def _read_delegated_parent(reverse,root):
-    """Inherit the frozen reverse verifier's full current formal proof, not a fabricated API PASS."""
-    require(reverse.get('status')=='PASS_LOCAL_SSB_SF500_REVERSE_REPLAY_WITH_AUTHOR_MISMATCH'
-        and reverse.get('scope')==source.SCOPE and type(reverse.get('author_different_groups')) is int and reverse['author_different_groups']==1713
-        and reverse.get('author_reproduction_complete') is False and reverse.get('full_paper_reproduction_complete') is False,'complete successful1M reverse prerequisite required')
-    snap=reverse['source_snapshot']
-    require(snap.get('scope')==source.SCOPE and snap.get('population_rows')==source.N and snap.get('sample_rows')==source.SAMPLE_ROWS
-        and snap.get('author_different_groups')==1713 and snap.get('author_reproduction_complete') is False
-        and snap.get('full_paper_reproduction_complete') is False,'delegated complete1M formal identity differs')
+def _read_delegated_parent(canonical,root):
+    """Inherit canonical's direct frozen formal proof, never certify the failed9c reverse."""
+    snap=canonical['parent_snapshot'];validate_lineage_headers(snap,canonical)
     d=snap['published_result'];path=Path(root)/previous.RESULT
-    require(set(d)=={'path','bytes','sha256'} and d['path']==previous.RESULT and type(d['bytes']) is int and d['bytes']>0,'exact delegated parent publication descriptor required')
+    require(set(d)=={'path','bytes','sha256'} and d['path']==previous.RESULT and d['sha256']==PARENT_RESULT_SHA
+        and type(d['bytes']) is int and d['bytes']>0,'exact delegated parent publication descriptor required')
     raw=path.read_bytes();require(len(raw)==d['bytes'] and hashlib.sha256(raw).hexdigest()==d['sha256'],'delegated parent publication physical bytes/SHA differ')
     r=json.loads(raw)
     require(r.get('status')==previous.PASS and r.get('stage')=='LOCAL_SSB_SF500_SINGLE_1M_AQP_CI' and r.get('scope')==source.SCOPE
         and r.get('population_rows')==source.N and r.get('actual_sample_rows')==source.SAMPLE_ROWS and r.get('author_different_groups')==1713
         and all(r.get(k) is False for k in ('author_reproduction_complete','full_paper_reproduction_complete','author_population_row_count_and_13_truths_match','author_full_row_byte_identity_proven'))
         and r.get('point_query_errors')==r.get('ci_query_errors')==0 and r['plan']['model']==previous.MODEL,'delegated successful1M report fields differ')
-    require(r['plan']['dependencies']==snap['dependencies'] and all(r[k]==snap[k] for k in ('model_path','model_sha256','evaluation_binding','original_mismatch'))
+    require(r==snap['report'] and r['plan']['dependencies']==snap['dependencies'] and all(r[k]==snap[k] for k in ('model_path','model_sha256','evaluation_binding','original_mismatch'))
         and r['inputs']['receipt_sha256']==SOURCE_RECEIPT_SHA and r['original_mismatch']['path']==source.NATIVE_REPORT
         and r['original_mismatch']['sha256']==source.NATIVE_REPORT_SHA,'delegated1M report/source snapshot binding differs')
     return snap,r
@@ -184,26 +201,23 @@ def _read_delegated_parent(reverse,root):
 
 @native_boundary
 def collect_lineage(root=ROOT):
-    root=Path(root);replay,reverse=_verified_parent_reverse(root);formal,r=_read_delegated_parent(reverse,root)
-    require(formal['dependencies']['auxiliary_sources'].get('code/full_ssb_local_replay.py')==PARENT_REPLAY_PINS['code/full_ssb_local_replay.py'],'explicit frozen1M reverse source pin required')
-    home=root/reverse['directory'];records={d['path']:d for d in formal['artifacts']}
-    for path,sha in dict(PRIOR_PINS,**PARENT_REPLAY_PINS).items():
+    root=Path(root);canonical=_verified_parent_canonical(root);formal,r=_read_delegated_parent(canonical,root)
+    records={d['path']:d for d in formal['artifacts']+canonical['artifacts']}
+    for path,sha in dict(PRIOR_PINS,**PARENT_CANONICAL_PINS).items():
         d=artifact(root/path,root);require(d['sha256']==sha,'delegated parent source changed after verification');records[d['path']]=d
-    required=[home/name for name in replay.required_query_files()]+[home/name for name in ('verification.json','verification_seal.json','lifecycle.json')]
-    required += [replay.OUTPUT/name for name in ('verification.json','verification_seal.json','last_run.json','last_process.json')]
-    process=read(replay.OUTPUT/'last_process.json');required += [root/process[k]['path'] for k in ('stdout','stderr')]
-    for f in required:
-        d=artifact(f,root);records[d['path']]=d
+    for d in (canonical['published_result'],canonical['verification'],canonical['verification_seal'],canonical['forward'],canonical['reverse']):
+        require(records.get(d['path'])==d and artifact(root/d['path'],root)==d,'complete accepted canonical lineage descriptor absent/changed')
     monitor=read(Path(r['directory'])/'supervisor_control/monitor.json')
     return dict(parent_formal=formal['published_result'],formal_verification=formal['verification'],formal_seal=formal['verification_seal'],
-        parent_reverse=artifact(replay.OUTPUT/'verification.json',root),
-        reverse=artifact(replay.OUTPUT/'verification.json',root),reverse_seal=artifact(replay.OUTPUT/'verification_seal.json',root),
+        parent_canonical=canonical['published_result'],parent_reverse=canonical['reverse'],canonical_verification=canonical['verification'],canonical_seal=canonical['verification_seal'],
+        reverse=canonical['reverse'],
         inputs=r['inputs'],prepared_directory=r['prepared_directory'],moments_directory=str(Path(r['directory'])/'sample_moments_native'),
         moments_helper_directory=str(root/previous.OUTPUT/'runtime/native'),truth_projection_path=str(Path(r['directory'])/'core_truth_checkpoint.json'),
-        delegated_formal_proof=dict(method='Frozen reverse.verify -> source_snapshot -> complete previous.verify_local_formal',
-            frozen_sources=dict(PRIOR_PINS,**PARENT_REPLAY_PINS),published_result=formal['published_result'],direct_formal_reexecuted=False),
+        delegated_formal_proof=dict(method='Frozen canonical.verify_canonical -> parent_snapshot -> direct complete previous.verify_local_formal',
+            frozen_sources=dict(PRIOR_PINS,**PARENT_CANONICAL_PINS),published_result=formal['published_result'],canonical_result=canonical['published_result'],direct_formal_reexecuted=False),
         prior_dependencies=formal['dependencies'],prior_peak_owned_rss_bytes=monitor['peak_owned_rss_bytes'],actual_prepared_shapes=prepared_shapes(r),
-        artifacts=[records[p] for p in sorted(records)],author_different_groups=1713,author_reproduction_complete=False,full_paper_reproduction_complete=False)
+        artifacts=[records[p] for p in sorted(records)],author_different_groups=1713,author_reproduction_complete=False,full_paper_reproduction_complete=False,
+        historical_reverse_accepted=False,**EVALUATION_METADATA)
 
 
 @native_boundary
@@ -212,9 +226,9 @@ def dependency_snapshot(auxiliary_sources=None):
     import full_ssb_local_stage_validation as stages
     import full_ssb_local_ci_run as runner
     with native_platform() as proof:
-        return dict(environment=base.dependency_snapshot(),prior_provider_sources=PRIOR_PINS,delegated_parent_sources=PARENT_REPLAY_PINS,ci_sources=code_snapshot(),auxiliary_sources=auxiliary,
+        return dict(environment=base.dependency_snapshot(),prior_provider_sources=PRIOR_PINS,delegated_parent_sources=PARENT_CANONICAL_PINS,ci_sources=code_snapshot(),auxiliary_sources=auxiliary,
             runtime_cap=adapt_training_source(original_training_source())[1],stage_validation=stages.binding(validation_config()),operational_capsule=runner.capsule_binding(),
-            windows_fingerprint=dict(adapter=artifact(ROOT/WINDOWS_HELPER),proof=proof))
+            windows_fingerprint=dict(adapter=artifact(ROOT/WINDOWS_HELPER),proof=proof),**EVALUATION_METADATA)
 
 
 def validate_auxiliary_sources(auxiliary_sources):
@@ -242,15 +256,16 @@ def dependency_artifacts(r,root=ROOT):
         require(artifact(root/item['path'],root)==item,'prior scientific golden dependency changed');records[item['path']]=item
     deps=r['plan']['dependencies']
     for d in source.environment_artifacts(deps['environment'],root):records[d['path']]=d
-    require(deps['prior_provider_sources']==PRIOR_PINS and deps['delegated_parent_sources']==PARENT_REPLAY_PINS and set(deps['ci_sources'])==set(FILES),'complete prior/new provider source sets required')
-    for path,sha in dict(PRIOR_PINS,**PARENT_REPLAY_PINS,**deps['ci_sources'],**deps['auxiliary_sources']).items():
+    require(deps['prior_provider_sources']==PRIOR_PINS and deps['delegated_parent_sources']==PARENT_CANONICAL_PINS and set(deps['ci_sources'])==set(FILES)
+        and all(deps.get(k)==v for k,v in EVALUATION_METADATA.items()),'complete prior/new canonical provider source sets required')
+    for path,sha in {**PRIOR_PINS,**PARENT_CANONICAL_PINS,**deps['ci_sources'],**deps['auxiliary_sources']}.items():
         d=artifact(root/path,root);require(d['sha256']==sha,'10M closure source changed');records[d['path']]=d
     helper=artifact(root/WINDOWS_HELPER,root);require(helper==deps['windows_fingerprint']['adapter'] and helper['sha256']==WINDOWS_HELPER_SHA,'physical native fingerprint adapter differs');records[helper['path']]=helper
     require(r['runtime_cap']==deps['runtime_cap']==adapt_training_source(original_training_source())[1],'executed cap adapter binding changed')
     if r['kind']=='FORMAL':
         import full_ssb_local_stage_validation as stages
         require(r['validation_binding']==deps['stage_validation']==stages.binding(validation_config()),'configured required-set source changed')
-        for key in ('parent_formal','parent_reverse'):
+        for key in ('parent_formal','parent_reverse','parent_canonical'):
             item=r['lineage'][key];require(item['path'] in records and records[item['path']]==item,'actual complete1M lineage descriptors required')
     return list(records.values())
 
@@ -339,7 +354,7 @@ def execute_reviewed(plan):
         with runtime_cap_adapter(core) as cap:
             learned=guard.guarded_train(schema,Path(lineage['prepared_directory']),10000000,run/'model')
         truth=core.population_truth_groups(Path(lineage['truth_projection_path']))
-        evaluated=guard.guarded_evaluate(learned,truth,moments['queries'],run/'evaluation')
+        with canonical_evaluation():evaluated=guard.guarded_evaluate(learned,truth,moments['queries'],run/'evaluation')
         r=dict(status=PASS if not evaluated['point_query_errors'] and not evaluated['ci_query_errors'] else ERRORS,stage=STAGE,scope=SCOPE,kind='FORMAL',directory=str(run),plan=plan,
             plan_path=path.relative_to(ROOT).as_posix(),plan_file_sha256=digest(path),plan_binding_sha256=key,lineage=lineage,inputs=inputs,inherited_artifacts=inherited_extras(full),
             golden_artifacts=[d for d in golden['artifacts'] if d['path'] not in {p['path'] for p in full['artifacts']}],source_receipt_sha256=SOURCE_RECEIPT_SHA,
@@ -351,7 +366,7 @@ def execute_reviewed(plan):
             evaluation=evaluated,queries=evaluated['queries'],evaluation_directory=evaluated['directory'],evaluation_binding=evaluated['binding'],point_query_errors=evaluated['point_query_errors'],ci_query_errors=evaluated['ci_query_errors'],
             runtime_cap=cap,validation_binding=plan['dependencies']['stage_validation'],adapter_source_sha256=digest(__file__),resources_at_start=resources,
             ci_scope='Original central90, actual retained9996946 reference sample, count<10 exclusion; all original errors retained',
-            model_training_cap_per_table=10000000,**BUDGET_METADATA)
+            model_training_cap_per_table=10000000,**BUDGET_METADATA,**EVALUATION_METADATA)
         return r
     def validate(r):
         import full_ssb_local_stage_validation as stages
@@ -382,6 +397,7 @@ def _verify_scientific_publication(kind,root,current,golden):
     """Private same-stack composition; callers cannot inject proofs into public verification."""
     root=Path(root);path=root/result_path(kind);require(path.is_file(),'completed10M scientific publication missing');r=read(path)
     require(r['kind']==kind and r['scope']==SCOPE and r['plan']['kind']==kind,'distinct10M publication kind/scope required')
+    require(all(r.get(k)==v for k,v in EVALUATION_METADATA.items()),'exact canonical evaluation variant/adapter required')
     import full_ssb_local_ci_run as runner
     require(runner.read_plan(root/r['plan_path'],r['plan_file_sha256'],root)==r['plan'] and Path(r['directory']).resolve()==root/OUTPUT/'runs'/r['plan_binding_sha256'][:20], '10M actual plan/run namespace differs')
     if kind=='FORMAL':
@@ -405,7 +421,7 @@ def verify_published(root=ROOT):
     result.update(status=API_PASS+('_WITH_ERRORS' if r['point_query_errors'] or r['ci_query_errors'] else ''),model_path=r['model_path'],model_sha256=r['model_sha256'],
         sample_rows=source.SAMPLE_ROWS,population_rows=source.N,queries=r['queries'],evaluation_binding=r['evaluation_binding'],original_mismatch=r['original_mismatch'],
         scope=SCOPE,author_different_groups=1713,author_reproduction_complete=False,full_paper_reproduction_complete=False,training_cap_per_table=10000000,
-        actual_training_rows_per_table=EXPECTED_ROWS,lineage=r['lineage'],database_connected=False,training_executed=False,inference_executed=False,files_modified=False,**BUDGET_METADATA)
+        actual_training_rows_per_table=EXPECTED_ROWS,lineage=r['lineage'],database_connected=False,training_executed=False,inference_executed=False,files_modified=False,**BUDGET_METADATA,**EVALUATION_METADATA)
     return result
 
 
@@ -513,7 +529,7 @@ def execute_golden(reviewed_codes_sha256,plan=None):
             runtime_cap=cap,adapter_source_sha256=digest(__file__),lineage=lineage_snapshot(full),inputs=full['inputs'],inherited_artifacts=inherited_extras(full),
             sample_cap=10000,original_reference=reference,whole_model=whole,resumed_model=recovered,
             comparisons=comparisons,preserved_first_two=preserved,resumed_actual_fit_calls=len(calls),cap10m_boundary_only_verified=True,
-            scientific_scope='Small SF2 equivalence only; no SF500 training or author truth PASS',author_different_groups=1713,author_reproduction_complete=False,full_paper_reproduction_complete=False)
+            scientific_scope='Small SF2 equivalence only; no SF500 training or author truth PASS',author_different_groups=1713,author_reproduction_complete=False,full_paper_reproduction_complete=False,**EVALUATION_METADATA)
     def validate(r):
         after,after_fixture=_verify_prerequisites('GOLDEN')
         require(lineage_snapshot(after)==lineage_snapshot(full) and after_fixture==fixture

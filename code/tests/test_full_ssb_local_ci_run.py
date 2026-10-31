@@ -12,7 +12,11 @@ def module():
 
 
 def plan_fixture(m,root,kind='FORMAL'):
-    c=m.candidate_body(kind,'a'*64,{}, {'ci_sources':{p:'b'*64 for p in m.model.FILES}}, {'parent_formal':{'path':'old-formal','sha256':'c'*64},'parent_reverse':{'path':'old-reverse','sha256':'d'*64}})
+    deps={'ci_sources':{p:'b'*64 for p in m.model.FILES}}
+    lineage=dict(parent_formal={'path':m.model.previous.RESULT,'bytes':1,'sha256':m.model.PARENT_RESULT_SHA},
+        parent_reverse={'path':'output/full/ssb/local_sf500_canonical/runs/'+'a'*20+'/reverse/verification.json','bytes':1,'sha256':'d'*64},
+        parent_canonical={'path':m.model.PARENT_CANONICAL_RESULT,'bytes':1,'sha256':'e'*64},historical_reverse_accepted=False,**m.model.EVALUATION_METADATA)
+    c=m.candidate_body(kind,m.value_hash(deps['ci_sources']),{},deps,lineage)
     p=dict(c,status='ROOT_REVIEWED_LOCAL_SSB_10M_CI_PLAN',executable=True,root_reviewed_candidate_sha256=m.value_hash(c))
     path=root/m.model.OUTPUT/'plans'/m.value_hash(p)[:20]/'plan.json';m.atomic(path,p);m.atomic(path.with_suffix('.seal.json'),{'sha256':m.digest(path)})
     return p,path
@@ -45,6 +49,28 @@ def test_operational_capsule_binds_exact_frozen_implementation_and_distinct_sche
     assert b['frozen_operational_sha256']==m.model.PRIOR_PINS['code/full_ssb_local_model_run.py']
     assert b['source_sha256']!=b['configured_source_sha256'] and b['scope']==m.model.SCOPE
     assert {'verify_supervisor_result','verify_supervisor','start_handshake','bootstrap_entry','taint_local_tail'}==set(b['functions'])
+
+
+@pytest.mark.parametrize('key',['evaluation_variant','group_order_adapter_sha256'])
+def test_self_resealed_plan_cannot_change_required_canonical_policy(tmp_path,key):
+    m=module();p,path=plan_fixture(m,tmp_path)
+    assert p[key]==m.model.EVALUATION_METADATA[key]
+    p[key]='wrong';c=dict(p);c.pop('root_reviewed_candidate_sha256');c.update(status='CANDIDATE_REQUIRES_ROOT_REVIEW',executable=False);p['root_reviewed_candidate_sha256']=m.value_hash(c)
+    path=tmp_path/m.model.OUTPUT/'plans'/m.value_hash(p)[:20]/'plan.json';m.atomic(path,p);m.atomic(path.with_suffix('.seal.json'),{'sha256':m.digest(path)})
+    with pytest.raises(ValueError):m.read_plan(path,m.digest(path),tmp_path)
+
+
+@pytest.mark.parametrize('damage',['missing_canonical','old_reverse','raw_variant','code_sha','source_subset'])
+def test_resealed_new_plan_rejects_old_or_incomplete_parent_and_code_set(tmp_path,damage):
+    m=module();p,path=plan_fixture(m,tmp_path)
+    if damage=='missing_canonical':p['lineage'].pop('parent_canonical')
+    elif damage=='old_reverse':p['lineage']['parent_reverse']['path']='output/full/ssb/local_sf500_replay/verification.json'
+    elif damage=='raw_variant':p['lineage']['evaluation_variant']='ORIGINAL'
+    elif damage=='code_sha':p['reviewed_codes_sha256']='f'*64
+    else:p['dependencies']['ci_sources'].pop(m.model.FILES[-1]);p['reviewed_codes_sha256']=m.value_hash(p['dependencies']['ci_sources'])
+    c=dict(p);c.pop('root_reviewed_candidate_sha256');c.update(status='CANDIDATE_REQUIRES_ROOT_REVIEW',executable=False);p['root_reviewed_candidate_sha256']=m.value_hash(c)
+    path=tmp_path/m.model.OUTPUT/'plans'/m.value_hash(p)[:20]/'plan.json';m.atomic(path,p);m.atomic(path.with_suffix('.seal.json'),{'sha256':m.digest(path)})
+    with pytest.raises(ValueError):m.read_plan(path,m.digest(path),tmp_path)
 
 
 def test_ci_supervisor_reuses_complete_evidence_checks_and_adds7gib_launch(tmp_path):

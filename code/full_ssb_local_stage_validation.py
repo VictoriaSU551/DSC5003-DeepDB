@@ -33,6 +33,7 @@ def binding(configuration):
 
 
 def validate_scope(report,configuration):
+    require(all(report.get(k)==configuration[k] for k in ('evaluation_variant','group_order_adapter_sha256')),'canonical evaluation variant/adapter differs')
     require(report.get('scope')==configuration['scope'] and report.get('status') in configuration['statuses']
         and report.get('author_different_groups')==1713 and report.get('author_reproduction_complete') is False
         and report.get('full_paper_reproduction_complete') is False and report.get('author_population_row_count_and_13_truths_match') is False
@@ -43,7 +44,8 @@ def validate_scope(report,configuration):
 
 
 def validate(report,configuration,root=frozen.ROOT):
-    require(set(configuration)=={'scope','output','parameters','expected_rows','statuses'} and set(configuration['expected_rows'])==set(frozen.base.TABLES),'complete validation configuration required')
+    require(set(configuration)=={'scope','output','parameters','expected_rows','statuses','evaluation_variant','group_order_adapter_sha256'}
+        and set(configuration['expected_rows'])==set(frozen.base.TABLES),'complete validation configuration required')
     namespace=dict(vars(frozen));namespace.update(OUTPUT=configuration['output'],MODEL=configuration['parameters'],expected_training_rows=configuration['expected_rows'],
         validate_scope=lambda r:validate_scope(r,configuration))
     exec(compile(configured_source()[1],'<sealed-configurable-local-stage-validation>','exec'),namespace)

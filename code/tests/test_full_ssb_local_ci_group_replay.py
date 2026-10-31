@@ -1,5 +1,6 @@
 """New CI behavior must explicitly depend on canonical groups, never old PASS."""
 from contextlib import contextmanager
+import builtins
 from pathlib import Path
 import sys
 from types import SimpleNamespace
@@ -8,6 +9,24 @@ import pytest
 
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
 import full_ssb_local_ci_group_replay as target
+
+
+def test_worker_warms_seed_resetting_inference_import_before_generic_seeding(monkeypatch):
+    events=[]
+    original=builtins.__import__
+    def import_probe(name,*args,**kwargs):
+        if name=='ensemble_compilation.spn_ensemble':
+            events.append('import-time-seed-1')
+            return SimpleNamespace()
+        return original(name,*args,**kwargs)
+    def generic_worker():
+        assert events==['import-time-seed-1']
+        events.append('generic-worker-seed-74031')
+        return {'status':'fixture'}
+    monkeypatch.setattr(builtins,'__import__',import_probe)
+    monkeypatch.setattr(target,'engine',lambda:SimpleNamespace(worker=generic_worker))
+    assert target.worker()=={'status':'fixture'}
+    assert events==['import-time-seed-1','generic-worker-seed-74031']
 
 
 def test_executor_enters_adapter_before_original_call_and_restores_on_error(monkeypatch):

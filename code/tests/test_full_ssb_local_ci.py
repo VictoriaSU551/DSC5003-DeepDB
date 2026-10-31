@@ -69,23 +69,43 @@ def test_scientific_golden_and_formal_require_explicit_review_and_resource_relea
     with pytest.raises(ValueError,match='review|memory'):m.execute_formal({},memory_approved=False)
 
 
-@pytest.mark.parametrize('damage',['missing','with_errors','cap','reverse','rows','gap'])
-def test_ci_requires_complete_successful1m_formal_and_reverse_lineage(monkeypatch,tmp_path,damage):
+@pytest.mark.parametrize('damage',[None,'missing','with_errors','cap','reverse','rows','gap'])
+def test_ci_requires_complete_successful1m_formal_and_canonical_lineage(monkeypatch,tmp_path,damage):
     m=module()
     if damage=='missing':
         with pytest.raises((ValueError,OSError)):m.collect_lineage(tmp_path)
         assert list(tmp_path.iterdir())==[];return
     formal={'status':m.previous.API_PASS,'sample_rows':9996946,'population_rows':m.source.N,'scope':m.source.SCOPE,
         'author_different_groups':1713,'author_reproduction_complete':False,'full_paper_reproduction_complete':False,
-        'report':{'plan':{'model':dict(m.previous.MODEL)}}}
-    reverse={'status':'PASS_LOCAL_SSB_SF500_REVERSE_REPLAY_WITH_AUTHOR_MISMATCH','scope':m.source.SCOPE,'author_different_groups':1713,
-        'author_reproduction_complete':False,'full_paper_reproduction_complete':False}
+        'report':{'plan':{'model':dict(m.previous.MODEL)}},'proof_method':'DIRECT_FROZEN_PREVIOUS_VERIFY_LOCAL_FORMAL',
+        'published_result':{'path':m.previous.RESULT},'model_path':'model.pkl','model_sha256':'a'*64}
+    reverse={'status':'PASS_READ_ONLY_LOCAL_SSB_SF500_CANONICAL_CI_WITH_AUTHOR_MISMATCH','scope':'LOCAL_SSB_SF500_CANONICAL_CI','author_different_groups':1713,
+        'author_reproduction_complete':False,'full_paper_reproduction_complete':False,'historical_reverse_accepted':False,
+        'sample_rows':m.source.SAMPLE_ROWS,'population_rows':m.source.N,'parent_formal':formal['published_result'],'published_result':{'path':m.PARENT_CANONICAL_RESULT},
+        'model_path':formal['model_path'],'model_sha256':formal['model_sha256'],**m.EVALUATION_METADATA}
     if damage=='with_errors':formal['status']+='_WITH_ERRORS'
     elif damage=='cap':formal['report']['plan']['model']['samples_per_spn']=10000000
     elif damage=='reverse':reverse['status']='RUNNING'
     elif damage=='rows':formal['sample_rows']=10000000
-    else:reverse['author_different_groups']=0
-    with pytest.raises(ValueError):m.validate_lineage_headers(formal,reverse)
+    elif damage=='gap':reverse['author_different_groups']=0
+    if damage is None:m.validate_lineage_headers(formal,reverse)
+    else:
+        with pytest.raises(ValueError):m.validate_lineage_headers(formal,reverse)
+
+
+def test_canonical_evaluation_context_restores_adapter_even_on_error(monkeypatch):
+    import contextlib,sys,types
+    m=module();events=[]
+    @contextlib.contextmanager
+    def context():
+        events.append('enter')
+        try:yield
+        finally:events.append('exit')
+    fake=types.ModuleType('full_ssb_group_order');fake.__file__=str(m.ROOT/m.GROUP_ADAPTER);fake.canonical_group_order=context
+    monkeypatch.setitem(sys.modules,'full_ssb_group_order',fake)
+    with pytest.raises(RuntimeError):
+        with m.canonical_evaluation():events.append('original evaluator');raise RuntimeError('synthetic')
+    assert events==['enter','original evaluator','exit']
 
 
 def synthetic_publication(m,root,monkeypatch,publish=True):
@@ -182,3 +202,15 @@ def test_optional_ci_inference_sources_must_equal_explicit_root_frozen_pins(dama
     if damage is None:assert m.validate_auxiliary_sources(pins)==pins and m.validate_auxiliary_sources({})=={}
     else:
         with pytest.raises(ValueError):m.validate_auxiliary_sources(pins)
+
+
+def test_dependency_closure_merges_shared_canonical_adapter_exactly_once(monkeypatch):
+    m=module();cap=m.adapt_training_source(m.original_training_source())[1]
+    deps=dict(environment={},prior_provider_sources=m.PRIOR_PINS,delegated_parent_sources=m.PARENT_CANONICAL_PINS,
+        ci_sources=m.code_snapshot(),auxiliary_sources=m.INFERENCE_PINS,runtime_cap=cap,
+        windows_fingerprint={'adapter':m.artifact(m.ROOT/m.WINDOWS_HELPER)},**m.EVALUATION_METADATA)
+    r=dict(kind='GOLDEN',inputs={'physical_artifacts':[]},inherited_artifacts=[],lineage={'artifacts_sha256':m.value_hash([])},plan={'dependencies':deps},runtime_cap=cap)
+    monkeypatch.setattr(m.source,'environment_artifacts',lambda *a:[])
+    records=m.dependency_artifacts(r)
+    assert sum(d['path']==m.GROUP_ADAPTER for d in records)==1 and len(records)==len({d['path'] for d in records})
+    assert all(any(d['path']==p for d in records) for p in m.PARENT_CANONICAL_PINS)
