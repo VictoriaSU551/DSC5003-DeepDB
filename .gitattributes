@@ -1,7 +1,23 @@
 * text=auto
 *.py text eol=lf
+*.java text eol=lf
 *.md text eol=lf
 *.json text eol=lf
 *.txt text eol=lf
 *.ps1 text eol=crlf
 *.patch text eol=lf
+# Vendor archive hashes are byte-level input seals, including original newlines.
+code/vendor/** -text -whitespace
+# These completed-run sources are sealed with their existing CRLF bytes.
+# Preserve them on clone; normalizing would invalidate the scientific receipts.
+code/full_local_truth_eval_v3.py -text
+# Its sealed last line also has an extra CR; keep these proved bytes unchanged.
+code/full_mscn_local_truth.py -text -whitespace
+code/full_mscn_verify.py -text
+docs/FULL_MSCN_REBUILT.md -text
+# Reviewed CI replay closure contains CRLF; preserve its pinned physical bytes.
+code/full_ssb_local_ci_replay.py -text
+code/full_ssb_scoped_replay.py -text
+code/tests/test_full_ssb_local_ci_replay.py -text
+# Public derived CSV checksums describe exact copied bytes, including newlines.
+output/results/fullpaper_*.csv -text
