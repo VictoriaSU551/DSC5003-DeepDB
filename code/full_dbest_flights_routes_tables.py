@@ -77,7 +77,7 @@ def derive(legacy,queries,truth):
         require(type(q.get('original_api_calls')) is int and q['original_api_calls']==api_calls,'Actual native query counter differs')
     for i,(ref,old) in enumerate(zip(truth['queries'],legacy['queries'])):
         require(type(old.get('query_no')) is int and old['query_no']==i and old['name']==routes.QUERY_NAMES[i],'Exact original12 report no/name identity differs')
-        require(old['status']==('SUPPORTED' if i in LEGACY else 'UNSUPPORTED') and (i in LEGACY or not old['predictions']),'Legacy support scope differs')
+        require(old['status']==('SUPPORTED_WITH_COVERAGE_GAPS' if i==8 else 'SUPPORTED' if i in LEGACY else 'UNSUPPORTED') and (i in LEGACY or not old['predictions']),'Legacy support scope differs')
         exact={}
         for g in ref['groups']:
             k=key(g['key']);require(len(k)==(0 if i in (0,1) else 1) and k not in exact and type(g['numerator']) is int and type(g['denominator']) is int and g['denominator']>0,'Unique exact rational truth required')

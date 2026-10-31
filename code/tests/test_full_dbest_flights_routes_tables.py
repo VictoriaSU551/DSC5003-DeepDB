@@ -27,7 +27,9 @@ def data(m):
     for i,name in enumerate(m.routes.QUERY_NAMES):
         key=[] if i in (0,1) else ['1995'] if i in (5,10) else ['X']
         truth['queries'].append(dict(query_no=i,query_name=name,sql=m.routes.SQLS[i],groups=[dict(key=key,numerator=10,denominator=1)]))
-        legacy['queries'].append(dict(query_no=i,name=name,status='SUPPORTED' if i in m.LEGACY else 'UNSUPPORTED',predictions=[dict(group='all' if not key else key[0],estimate=10,native=dict(integral_verified=True))] if i in m.LEGACY else []))
+        legacy['queries'].append(dict(query_no=i,name=name,status='SUPPORTED_WITH_COVERAGE_GAPS' if i==8 else 'SUPPORTED' if i in m.LEGACY else 'UNSUPPORTED',predictions=[dict(group='all' if not key else key[0],estimate=10,native=dict(integral_verified=True))] if i in m.LEGACY else []))
+    truth['queries'][8]['groups'].append(dict(key=['DE'],numerator=20,denominator=1))
+    legacy['queries'][8].update(unavailable_groups=[dict(group='DE',status='UNSUPPORTED_INSUFFICIENT_SAMPLE',estimate=None,fit_n=0)],missing_truth_groups=['DE'])
     for spec in m.routes.route_specs():
         i=spec['query_no'];key=truth['queries'][i]['groups'][0]['key']
         children=[raw(i,key,c,estimate=12 if c=='taxi_out' else 2 if c=='taxi_in' else 10) for c in spec['components']]
@@ -92,6 +94,28 @@ def test_empty_fit_error_unsupported_missing_invalid_zero_negative_null_and_extr
     assert s['missing_groups']==1 and s['unavailable_groups']==3 and s['invalid_points']==1 and s['extra_groups']==1 and s['zero_truth_groups']==1
     assert r['counters']['empty_fixed_sample_components']==1 and r['counters']['fit_errors']==1 and r['counters']['numerical_budget_unsupported']==1
     null=next(g for g in r['groups'] if g['query_no']==6 and g['key_json']=='[null]');assert null['relative_error']==pytest.approx(.2)
+
+
+def test_frozen_f41_exact_supported_gap_status_retains_52_predictions_and_missing_DE():
+    m=module();old,q,t=data(m)
+    states='AK AL AR AZ CA CO CT FL GA HI IA ID IL IN KS KY LA MA MD ME MI MN MO MS MT NC ND NE NH NJ NM NV NY OH OK OR PA PR RI SC SD TN TT TX UT VA VI VT WA WI WV WY'.split()
+    assert len(states)==52 and 'DE' not in states
+    old['queries'][8]['predictions']=[dict(group=g,estimate=8,native=dict(integral_verified=True)) for g in states]
+    t['queries'][8]['groups']=[dict(key=[g],numerator=10,denominator=1) for g in states+['DE']]
+    derived=m.derive(old,q,t);summary=derived['queries'][8]
+    assert summary['truth_groups']==53 and summary['output_groups']==summary['finite_matched_groups']==52
+    assert summary['missing_groups']==1 and summary['extra_groups']==summary['invalid_points']==0
+    assert summary['matched_conditional_mean_relative_error']==pytest.approx(.2)
+    assert summary['all_nonzero_truth_mean_relative_error'] is None
+    missing=next(g for g in derived['groups'] if g['query_no']==8 and g['key_json']=='["DE"]')
+    assert missing['status']=='MISSING_PREDICTION_GROUP' and missing['estimate'] is None and missing['absolute_error'] is missing['relative_error'] is None
+    assert missing['truth_numerator']=='10' and missing['truth_denominator']=='1'
+
+
+@pytest.mark.parametrize('i,status',[(8,'SUPPORTED'),(8,'UNSUPPORTED'),(5,'SUPPORTED_WITH_COVERAGE_GAPS'),(0,'SUPPORTED_WITH_COVERAGE_GAPS'),(2,'SUPPORTED_WITH_COVERAGE_GAPS')])
+def test_legacy_status_mapping_is_exact_not_a_general_supported_gap_exception(i,status):
+    m=module();old,q,t=data(m);old['queries'][i]['status']=status
+    with pytest.raises(ValueError):m.derive(old,q,t)
 
 
 @pytest.mark.parametrize('bad',['number','duplicate','sql','variant_flag','training_truth','metadata_truth','ci','difference','group_width','legacy_scope','legacy_calls'])
