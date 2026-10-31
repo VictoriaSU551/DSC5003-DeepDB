@@ -144,7 +144,10 @@ v2的`ram_retry_02`已经整体通过，新计划位于`output/full/ssb/local_sf
 结果为`output/full/results/ssb_local_sf500_canonical_aqp_ci.json`，SHA为`f37833fdc2b249e22632f5fa3e0ea98499c748487a43fcd42b0d692768fbeac8`。
 3张派生表及2张图已通过独立只读验收和图像检查，来源为`output/full/figures/aqp_ssb_local_continuation_82803cb6f9608f78/`。
 公开副本和哈希来源记录见`output/results/fullpaper_ssb_local_continuation_*`。
-10M/table科学小黄金等价验证事务正在运行，尚未最终验收；正式10M训练未执行。
+10M/table训练入口的实际小黄金等价验证已经整体通过，结果为`output/full/results/ssb_local_ci10m_cap_golden.json`，
+SHA为`469fe011130f4b55e3f4e6603a622cd8286f65b0f35f2e10f0d02ef450b46ff1`。
+五表矩阵、结构、NumPy/Python随机状态一致；恢复只补拟合三个组件，前两个组件的四个checkpoint文件字节不变。
+这只是既有SF2/10K夹具的算法等价证据。正式10M训练正在生成候选计划，不能把小黄金记作正式CI模型。
 CI v7及LOCAL Verdict v6仅更新两个source pins，科学、黄金及资源策略不变，
 不代表实际黄金、训练或数据库执行已通过。旧canonical runner及旧计划保持历史失败状态。
 详见[FULL_SSB_LOCAL_CONTINUATION.md](FULL_SSB_LOCAL_CONTINUATION.md)。

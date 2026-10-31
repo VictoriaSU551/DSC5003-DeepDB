@@ -1,6 +1,6 @@
 {
   "schema": "deepdb_additional_baselines_snapshot_v1",
-  "updated_at_utc": "2026-10-31T05:12:41.023434+00:00",
+  "updated_at_utc": "2026-10-31T05:40:38.566674+00:00",
   "full_paper_reproduction_complete": false,
   "scalar": {
     "status": "PASS_VERIFIED_LOCAL_SCALAR_ORACLE_DERIVED_TABLES",
@@ -375,7 +375,7 @@
     "external_wall_includes_full_parent_pre_post_verification": true,
     "inference_only_latency_claimed": false,
     "derived_tables_export_started": true,
-    "ci10m_golden_status": "REVIEWED_GOLDEN_SUPERVISOR_RUNNING_NOT_ACCEPTED_FORMAL_TRAINING_NOT_STARTED",
+    "ci10m_golden_status": "PASS_COMPLETE_SMALL_GOLDEN_ONLY_FORMAL_CANDIDATE_METADATA_RUNNING",
     "derived_tables_status": "PASS_VERIFIED_LOCAL_SSB_DERIVED_TABLES",
     "derived_tables_manifest": {
       "path": "output/full/figures/aqp_ssb_local_continuation_82803cb6f9608f78/manifest.json",
@@ -630,5 +630,48 @@
     "full_paper_reproduction_complete": false
   },
   "prior_fullpaper_snapshots_are_earlier_snapshots": true,
-  "new_scientific_calls_during_this_export": 0
+  "new_scientific_calls_during_this_export": 0,
+  "ssb_ci10m": {
+    "status": "PASS_SMALL_GOLDEN_ONLY_FORMAL_NOT_EXECUTED",
+    "golden_publication": {
+      "path": "output/full/results/ssb_local_ci10m_cap_golden.json",
+      "bytes": 9772084,
+      "sha256": "469fe011130f4b55e3f4e6603a622cd8286f65b0f35f2e10f0d02ef450b46ff1"
+    },
+    "golden_supervisor_lifecycle": {
+      "path": "output/full/ssb/local_sf500_ci10m/runs/96d99f2d24ae2215c549/supervisor_control/lifecycle.json",
+      "bytes": 1806,
+      "sha256": "c0bd386b66ecdd33b3aef2cbeff6710a3da6d4f7c8ad54e83fd1b9218fd8d294"
+    },
+    "golden_small_fixture_cap": 10000,
+    "golden_fixture_scope": "Existing SF2 algorithm-equivalence fixture; no SF500 or author-fidelity claim",
+    "actual_original_reference_fits": 5,
+    "actual_checkpointed_whole_fits": 5,
+    "actual_resumed_fits": 3,
+    "table_comparisons_per_whole_and_resumed": 5,
+    "compared_fields": [
+      "sample_matrix_sha256",
+      "structure_sha256",
+      "numpy_rng_sha256",
+      "python_rng_sha256"
+    ],
+    "preserved_prefix_checkpoint_files": 4,
+    "cap10m_boundary_only_verified": true,
+    "formal10m_training_executed": false,
+    "formal_candidate_status": "METADATA_RUNNING",
+    "planned_formal_cap_per_table": 10000000,
+    "planned_actual_rows": {
+      "lineorder": 9996946,
+      "dwdate": 2556,
+      "customer": 10000000,
+      "part": 1800000,
+      "supplier": 1000000
+    },
+    "golden_external_command_wall_seconds": 2112.5571135,
+    "external_wall_includes_full_root_and_worker_parent_verifications": true,
+    "training_only_latency_claimed": false,
+    "author_different_groups": 1713,
+    "author_reproduction_complete": false,
+    "full_paper_reproduction_complete": false
+  }
 }
