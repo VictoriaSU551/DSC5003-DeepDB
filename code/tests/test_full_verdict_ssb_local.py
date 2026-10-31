@@ -474,3 +474,114 @@ def test_parent_operations_restore_partially_initialized_wrapper_apis_on_entry_f
     assert wrappers  # At least one completed child remains after its parent import failed.
     assert all(getattr(obj,name) is original[name] for obj in wrappers+[_sqlite3] for name in names)
     assert builtins.__import__ is before and m.importlib.import_module is module_importer
+
+
+@pytest.mark.skipif(__import__('sys').platform!='win32',reason='actual sealed Windows stdlib definition only')
+def test_frozen_guard_reproduces_cold_windows_Popen_class_definition_failure():
+    import full_verdict_ssb_audit as audit
+    from types import SimpleNamespace
+    import sys
+    path=Path(sys.base_prefix)/'Lib/asyncio/windows_utils.py'
+    spec=importlib.util.spec_from_file_location('verdict_v8_cold_windows_definition',str(path))
+    definition=importlib.util.module_from_spec(spec)
+    with audit.forbid_science(SimpleNamespace()):
+        with pytest.raises(TypeError,match='function|code'):spec.loader.exec_module(definition)
+
+
+@pytest.mark.skipif(__import__('sys').platform!='win32',reason='actual Windows module; no synthetic cross-platform PASS')
+def test_load_frozen_prepares_only_stdlib_definition_before_real_outer_guard(tmp_path,monkeypatch):
+    import asyncio,sys,subprocess
+    import full_verdict_ssb_audit as audit
+    m=module();old=asyncio.windows_utils
+    monkeypatch.setattr(asyncio,'windows_utils',old)
+    monkeypatch.delitem(sys.modules,'asyncio.windows_utils',raising=False)
+    core=m.load_frozen()  # The real runner calls this before entering its guard.
+    assert 'asyncio.windows_utils' in sys.modules
+    definitions=sys.modules['asyncio.windows_utils'];assert definitions is not old
+    assert Path(definitions.__file__).resolve()==(Path(sys.base_prefix)/'Lib/asyncio/windows_utils.py').resolve()
+    def tripwire(*a,**k):raise AssertionError('no native process constructor may run')
+    monkeypatch.setattr(definitions.Popen,'__init__',tripwire)
+    monkeypatch.setattr(subprocess,'Popen',tripwire)
+    with audit.forbid_science(core):
+        assert m.load_frozen()  # Cached definition loading works inside the outer guard.
+        with m.forbid_parent_operations(audit,core):
+            import asyncio.windows_utils as loaded
+            assert loaded is definitions
+            with pytest.raises(RuntimeError,match='process'):loaded.Popen(['forbidden'])
+            with pytest.raises(RuntimeError):subprocess.Popen(['forbidden'])
+            with pytest.raises(RuntimeError):__import__('psycopg2')
+    assert definitions.Popen.__init__ is tripwire and subprocess.Popen is tripwire
+
+
+@pytest.mark.skipif(__import__('sys').platform!='win32',reason='actual Windows cached subclass constructor')
+@pytest.mark.parametrize('raises',[False,True])
+def test_parent_operations_block_cached_windows_Popen_alias_and_restore_nested_identity(monkeypatch,raises):
+    import sys,subprocess
+    import full_verdict_ssb_audit as audit
+    from types import SimpleNamespace
+    m=module();m.load_frozen();cls=sys.modules['asyncio.windows_utils'].Popen
+    def tripwire(*a,**k):raise AssertionError('no native Popen constructor')
+    monkeypatch.setattr(cls,'__init__',tripwire);monkeypatch.setattr(subprocess,'Popen',tripwire)
+    class Failure(Exception):pass
+    with m.forbid_parent_operations(audit,SimpleNamespace()):
+        outer=cls.__init__
+        with pytest.raises(RuntimeError,match='process'):cls(['forbidden'])
+        try:
+            with m.forbid_parent_operations(audit,SimpleNamespace()):
+                with pytest.raises(RuntimeError,match='process'):cls(['forbidden'])
+                with pytest.raises(RuntimeError):subprocess.Popen(['forbidden'])
+                if raises:raise Failure('nested callback failed')
+        except Failure:assert raises
+        assert cls.__init__ is outer
+        with pytest.raises(RuntimeError,match='process'):cls(['forbidden'])
+    assert cls.__init__ is tripwire and subprocess.Popen is tripwire
+
+
+def test_import_and_describe_do_not_prepare_stdlib_or_run_parent(monkeypatch,capsys):
+    m=module()
+    monkeypatch.setattr(m,'load_frozen',lambda:pytest.fail('describe must remain inert'))
+    monkeypatch.setattr(m,'collect_lineage',lambda *a:pytest.fail('describe cannot verify parent'))
+    spec=importlib.util.spec_from_file_location('local_verdict_v8_describe_probe',str(ROOT/'code/full_verdict_ssb_local_run.py'))
+    runner=importlib.util.module_from_spec(spec);spec.loader.exec_module(runner);runner.contract=m
+    runner.main(['describe'])
+    import json
+    assert json.loads(capsys.readouterr().out)['status']=='CANDIDATE_CODE_ONLY'
+
+
+@pytest.mark.skipif(__import__('sys').platform!='win32',reason='actual Windows stdlib pin')
+def test_changed_windows_stdlib_source_is_rejected_before_definition_import(monkeypatch):
+    import sys
+    m=module();path=(Path(sys.base_prefix)/'Lib/asyncio/windows_utils.py').resolve();original=m.digest
+    monkeypatch.setattr(m,'digest',lambda p:'0'*64 if Path(p).resolve()==path else original(p))
+    monkeypatch.setattr(m.importlib,'import_module',lambda *a:pytest.fail('changed source must fail before import'))
+    with pytest.raises(ValueError,match='definition source'):m.load_frozen()
+
+
+@pytest.mark.skipif(__import__('sys').platform!='win32',reason='cold Windows definition must not bypass process guard')
+def test_cold_windows_definition_inside_existing_guard_fails_closed_without_live_Popen_swap(monkeypatch):
+    import sys,asyncio,subprocess
+    import full_verdict_ssb_audit as audit
+    from types import SimpleNamespace
+    m=module();monkeypatch.setattr(asyncio,'windows_utils',asyncio.windows_utils)
+    monkeypatch.delitem(sys.modules,'asyncio.windows_utils',raising=False)
+    with audit.forbid_science(SimpleNamespace()):
+        forbidden=subprocess.Popen
+        with pytest.raises(ValueError,match='prepared before'):m.preload_readonly_definitions()
+        assert subprocess.Popen is forbidden and 'asyncio.windows_utils' not in sys.modules
+        with pytest.raises(RuntimeError):subprocess.Popen(['forbidden'])
+
+
+@pytest.mark.skipif(__import__('sys').platform!='win32',reason='physical Windows stdlib artifact closure')
+def test_windows_definition_is_bound_in_planning_source_closure_without_runtime_or_parent_F(monkeypatch):
+    from contextlib import nullcontext
+    from types import SimpleNamespace
+    m=module();definition=m.preload_readonly_definitions();spec=m.local_spec()
+    core=SimpleNamespace(runtime_closure=lambda:{'fixture':'no runtime scan'},candidate=lambda:SimpleNamespace(SQL_PATH=ROOT/'query.sql',SCHEMA_PATH=ROOT/'schema.sql'))
+    monkeypatch.setattr(m,'load_frozen',lambda:core)
+    monkeypatch.setattr(m,'local_spec',lambda:spec)
+    monkeypatch.setattr(m.importlib,'import_module',lambda name:SimpleNamespace(verified_platform=lambda *a:nullcontext()))
+    monkeypatch.setattr(m,'SOURCES',[]);monkeypatch.setattr(m,'FROZEN',{});monkeypatch.setattr(m,'PARENT_PINS',{})
+    monkeypatch.setattr(m,'artifact',lambda p:dict(path=str(p),bytes=1,sha256='a'*64))
+    checked=m.dependency_snapshot()
+    assert str(definition.__file__) in checked['source_files']
+    assert checked['runtime']=={'fixture':'no runtime scan'}

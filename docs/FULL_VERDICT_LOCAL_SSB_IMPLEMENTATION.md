@@ -100,3 +100,35 @@ moment arithmetic, resource limits and all accepted results remain unchanged.
 V7 focused checks passed 47 tests (30 unrelated tests deselected) in 2.57s.
 No actual F, PG/JVM, model, pilot or plan was run for this revision; ROOT alone
 reviews the new source-bound metadata plan before actual baseline execution.
+
+V8 addresses a separate cold standard-library definition dependency. In the
+real v7 metadata attempt, importing sklearn's definitions eventually imported
+`numpy.testing`, `unittest` and Windows asyncio. The stdlib declaration
+`class Popen(subprocess.Popen)` failed because the frozen process guard correctly
+replaced `subprocess.Popen` with its forbidden function. No process was started.
+A pure test executes that exact sealed stdlib file under the unchanged guard
+and retains the original TypeError as the reference behavior.
+
+`load_frozen()` now prepares only `asyncio.windows_utils` and its ordinary
+stdlib dependencies before entering the outer read-only guard, matching the
+existing runner's ordering. Its physical source SHA is fixed to
+`e6fcffefa2521666bc2aed0f5caf8e862c1c1014ad12d2ab5fbce09c2df9c6f0`,
+with the actual base-Python stdlib path and imported module identity checked;
+its descriptor is included in the planning source closure. This imports class
+definitions, not an event loop or process. Neither sklearn nor parent F is
+preloaded. Nested verifier entry uses the cached definition. If a first cold
+definition is requested after the process guard has already been entered, it
+fails closed rather than replacing the forbidden Popen with a live constructor.
+Non-Windows code does not claim this Windows preparation; the Windows-specific
+tests are explicitly skipped there.
+
+The LOCAL parent context additionally disables the cached Windows Popen
+class's `__init__` while verification runs. This covers ordinary aliases to the
+preloaded class as well as the module attribute, preserving the process ban
+without changing the class definition or the frozen audit. Normal, exception
+and nested exits restore the previous constructor identity. SQLite adaptation
+and all original core/process/OS/PG bans remain intact. Module import and default
+`describe` remain inert. No frozen runner, parent, CI, native, Java, scientific
+formula, resource value or accepted result changes. V8 evidence is 29 focused
+pure tests passing in 0.84s, with 56 unrelated tests deselected; no actual F,
+model, process constructor, PG/JVM, metadata pilot or plan was run.

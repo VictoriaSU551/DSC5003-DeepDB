@@ -18,6 +18,7 @@ import sys
 
 sys.dont_write_bytecode=True
 ROOT=Path(__file__).resolve().parents[1]
+WINDOWS_ASYNCIO_SHA='e6fcffefa2521666bc2aed0f5caf8e862c1c1014ad12d2ab5fbce09c2df9c6f0'
 FROZEN={
  'code/full_verdict_ssb_run.py':'e1416b4201ea22df9ca7abaa2ce5fecb38ee70ee716ede7323acdaeff778b5c8',
  'code/full_verdict_ssb.py':'2068722a30f99f40ddc3be17a5663322300c2eb48b7218da426dfea568058082',
@@ -91,8 +92,24 @@ def verify_parent_descriptor(record):
     return actual
 
 
+def preload_readonly_definitions():
+    """Only inert, fixed Windows stdlib definitions; never restore live Popen."""
+    if sys.platform!='win32':return None
+    path=(Path(sys.base_prefix)/'Lib/asyncio/windows_utils.py').resolve()
+    require(path.is_file() and digest(path)==WINDOWS_ASYNCIO_SHA,'Fixed Windows asyncio definition source differs')
+    definition=sys.modules.get('asyncio.windows_utils')
+    if definition is None:
+        import subprocess
+        require(isinstance(subprocess.Popen,type),'Cold Windows stdlib definitions must be prepared before entering the process guard')
+        definition=importlib.import_module('asyncio.windows_utils')
+    require(Path(getattr(definition,'__file__','')).resolve()==path and isinstance(definition.Popen,type),
+        'Loaded Windows stdlib definition identity differs')
+    return definition
+
+
 def load_frozen():
     for path,sha in FROZEN.items():require(digest(ROOT/path)==sha,'Frozen source differs: '+path)
+    preload_readonly_definitions()  # Real readonly runner entry points call load_frozen before their outer guard.
     p=ROOT/'code/full_verdict_ssb_run.py';s=importlib.util.spec_from_file_location('local_verdict_frozen_utilities',str(p))
     m=importlib.util.module_from_spec(s);s.loader.exec_module(m);return m
 
@@ -201,8 +218,13 @@ def forbid_parent_operations(audit,core):
         names=('connect','Connection','Cursor');original={name:getattr(native,name) for name in names}
         modules={'_sqlite3':native};saved=[(native,name,original[name]) for name in names]
         def forbidden(*args,**kwargs):raise RuntimeError('SQLite connections and constructors forbidden during LOCAL parent verification')
+        def forbidden_process(*args,**kwargs):raise RuntimeError('Windows asyncio process construction forbidden during LOCAL parent verification')
         try:
             for obj,name,unused in saved:setattr(obj,name,forbidden)
+            definition=sys.modules.get('asyncio.windows_utils')
+            if definition is not None:
+                cls=definition.Popen;require(isinstance(cls,type),'Cached Windows process definition must remain a class')
+                saved.append((cls,'__init__',cls.__init__));cls.__init__=forbidden_process
             # A read-only caller may already be inside the original import ban.
             # Disable native DB entry points first, then load only these definitions
             # through the stdlib loader; all other imports keep the frozen guard.
@@ -355,6 +377,9 @@ def dependency_snapshot():
     helper=importlib.import_module('full_windows_fingerprint')
     with helper.verified_platform(spec['platform'],spec['machine']):runtime=core.runtime_closure()
     own={p:artifact(ROOT/p) for p in SOURCES}
+    definition=preload_readonly_definitions()
+    if definition is not None:
+        rec=artifact(definition.__file__);own[rec['path']]=rec
     for p in FROZEN:own[p]=artifact(ROOT/p)
     for p in PARENT_PINS:own[p]=artifact(ROOT/p)
     for p in (core.candidate().SQL_PATH,core.candidate().SCHEMA_PATH):own[p]=artifact(ROOT/p)
