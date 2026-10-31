@@ -21,7 +21,7 @@ LABEL_PINS={OFFICIAL:'87e66a3a5977d38a5e32db43451f7213776d1046f57ea2f85da854c04b
     CONFIRMED:'c65ae65c781936be7da0be91185299d36d763082b5b5de328bc25dedb2c4dc06',
     CONFIRMATION:'614426bd8d3a1d837e5db78ef8d1ff7737ff33f9772fcbc240af9b82b931bdaf'}
 SOURCE_PINS={'code/full_scalar_oracle.py':'a804301149e370eabf1055cdcb94d8157502032ab37a81e33a1b2396225964df',
-    'code/full_scalar_oracle_run.py':'16e95d0a261baa952a6eab11a9c9b65437ee6b438cba7550044c54b62e0f7628',
+    'code/full_scalar_oracle_run.py':'d5d31f3460d84942a2f22a0874f0c73bfcbbecb45a048a2ab78be76496ee9e26',
     'code/full_scalar_oracle_audit.py':'15912c8e98a620553bc861e3b6dbe1821227f6cf8779bf1ab5eba6bb225f0307'}
 SOURCE_FILES=tuple(SOURCE_PINS)+('code/full_scalar_oracle_tables.py','code/tests/test_full_scalar_oracle_tables.py',
     'docs/superpowers/plans/2026-10-31-scalar-oracle-tables.md')

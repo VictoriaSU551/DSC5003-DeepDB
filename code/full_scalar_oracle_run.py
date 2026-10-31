@@ -27,7 +27,7 @@ FILES = ('plan.json','approval.json','counts.json','predictions.json','verificat
 GIB = 1024**3
 POLICY = dict(startup_available_memory_bytes=5*GIB, running_available_memory_bytes=GIB,
               max_client_rss_bytes=512*1024**2, min_free_disk_bytes=8*GIB,
-              work_mem_mb=16, temp_file_limit_mb=1024, statement_timeout_ms=120000,
+              work_mem_mb=16, temp_file_limit_mb=1024, statement_timeout_ms=600000,
               lock_timeout_ms=5000, max_parallel_workers_per_gather=0,
               max_snapshot_bytes_per_table=2*GIB, memory_poll_seconds=1,max_total_seconds=1800)
 
@@ -287,7 +287,7 @@ def collect(plan,root=ROOT):
             cursor=GuardedCursor(raw_cursor,check)
             cursor.execute('SET LOCAL lock_timeout = '+str(POLICY['lock_timeout_ms']))
             cursor.execute('LOCK TABLE '+', '.join('public."'+t+'"' for t in contract['tables'])+' IN SHARE MODE NOWAIT')
-            for text in ("SET LOCAL search_path = pg_catalog, public", "SET LOCAL work_mem = '16MB'", "SET LOCAL temp_file_limit = '1GB'", 'SET LOCAL statement_timeout = 120000', 'SET LOCAL max_parallel_workers_per_gather = 0'):
+            for text in ("SET LOCAL search_path = pg_catalog, public", "SET LOCAL work_mem = '16MB'", "SET LOCAL temp_file_limit = '1GB'", 'SET LOCAL statement_timeout = '+str(POLICY['statement_timeout_ms']), 'SET LOCAL max_parallel_workers_per_gather = 0'):
                 cursor.execute(text)
             cursor.execute("SELECT current_database(),current_setting('server_version_num'),host(inet_server_addr()),inet_server_port(),current_setting('data_directory'),pg_backend_pid(),current_setting('transaction_read_only'),current_setting('transaction_isolation'),pg_postmaster_start_time()::text")
             r=cursor.fetchone();require(r[:4]==('deepdb_job','110005','127.0.0.1',55432)

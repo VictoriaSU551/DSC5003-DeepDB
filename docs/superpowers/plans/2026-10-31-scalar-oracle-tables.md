@@ -41,3 +41,5 @@
 Default discovery also fails unless exactly one accepted scalar run exists. An unchanged result reuses only byte-identical derived files after a fresh strict offline verification; no raw results or author-series exporter is overwritten. This command is documentation and has not been executed in this implementation task.
 
 Candidate v2 binds the collector v3 host-only PostgreSQL identity fix (`16e95d0a...`). The original three exporter sources and freeze are preserved. Only the runner literal changes in production; arithmetic, raw-zero handling, labels, seven-artifact acceptance and the single offline-verifier call remain unchanged. The old physical-source check correctly failed before this update; it did not invoke the scalar verifier or connect to a database.
+
+Candidate v3 binds collector v4 (`d5d31f34...`), whose per-statement validation cap is 600 seconds after the real 36M-row snapshot exceeded 120 seconds. This exporter changes only that literal; no actual result is accepted or exported by updating the pin. Its original tests and calculation/acceptance rules are unchanged.

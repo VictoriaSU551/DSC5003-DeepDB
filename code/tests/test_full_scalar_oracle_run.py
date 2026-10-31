@@ -159,6 +159,7 @@ def test_actual_collection_control_flow_sets_readonly_before_any_sql_and_release
     assert len(r['scalar_counts'])==50 and len(r['operations'])==11
     assert r['database_identity']['address']=='127.0.0.1'
     assert 'host(inet_server_addr())' in next(s for s in seen if s.startswith('SELECT current_database'))
+    assert 'SET LOCAL statement_timeout = 600000' in seen
     assert sum(s.startswith('COPY ') for s in seen)==12
     assert not any(s.startswith(('CREATE','INSERT','UPDATE','DROP','BEGIN')) for s in seen)
     assert seen.index(next(s for s in seen if s.startswith('LOCK TABLE'))) < seen.index(next(s for s in seen if s.startswith('SELECT')))
