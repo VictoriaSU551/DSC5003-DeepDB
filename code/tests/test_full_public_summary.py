@@ -159,3 +159,37 @@ def test_canonical_bundle_preserves_reviewed_evaluation_variant(tmp_path,monkeyp
         assert export.BUNDLES['ssb_local_canonical'][0]==pointer.name
     else:
         with pytest.raises(ValueError):export.checked_bundle(pointer,['table1.csv'])
+
+
+@pytest.mark.parametrize('damage',[None,'scope','protocol','adoption','reexecution','calls','readonly'])
+def test_continuation_bundle_preserves_distinct_adoption_contract(tmp_path,monkeypatch,damage):
+    old,source=bundle(tmp_path,monkeypatch)
+    pointer=tmp_path/'ssb_local_continuation_tables_latest.json'
+    manifest=source/'manifest.json';m=json.loads(manifest.read_text());p=json.loads(old.read_text())
+    scope='LOCAL_SSB_SF500_CANONICAL_CONTINUATION'
+    local=dict(scope=scope,author_reproduction_complete=False,author_different_groups=1713,
+        full_paper_complete=False,status='PASS_VERIFIED_LOCAL_SSB_DERIVED_TABLES')
+    m.update(local);p.update(local)
+    variant='CANONICAL_DECODED_GROUP_PROTOTYPE_V1'
+    protocol='ADOPT_ACCEPTED_FORWARD_FRESH_REVERSE_WITH_CONSUMED_CLOSURE_V1'
+    acceptance=dict(status='PASS_READ_ONLY_LOCAL_SSB_SF500_CANONICAL_CONTINUATION_WITH_AUTHOR_MISMATCH',
+        scope=scope,evaluation_variant=variant,execution_protocol=protocol,
+        group_order_adapter_sha256='48220a0474a838c8dc9a7cf3fef0e8a84459a05e3fa8e15405307acae430ae5c',
+        historical_reverse_accepted=False,author_reproduction_complete=False,full_paper_reproduction_complete=False,
+        database_connected=False,training_executed=False,inference_executed=False,files_modified=False,
+        continuation_validation=dict(execution_protocol=protocol,adopted_forward=True,forward_reexecuted=False,
+            phase_model_loads=dict(FORWARD=1,REVERSE=13),phase_evaluator_calls=dict(FORWARD=26,REVERSE=26)))
+    m['binding_details']=dict(presentation=dict(evaluation_variant=variant),readonly_acceptance=acceptance)
+    if damage=='scope':m['scope']='LOCAL_SSB_SF500_CANONICAL_CI'
+    if damage=='protocol':acceptance['execution_protocol']='OLD_ROOT'
+    if damage=='adoption':acceptance['continuation_validation']['adopted_forward']=False
+    if damage=='reexecution':acceptance['continuation_validation']['forward_reexecuted']=True
+    if damage=='calls':acceptance['continuation_validation']['phase_evaluator_calls']['REVERSE']=0
+    if damage=='readonly':acceptance['inference_executed']=True
+    manifest.write_text(json.dumps(m));p['manifest_sha256']=export.file_sha256(manifest);pointer.write_text(json.dumps(p))
+    if damage is None:
+        assert export.checked_bundle(pointer,['table1.csv'])[0]==[source/'table1.csv']
+        assert 'ssb_local_continuation' in export.OPTIONAL_BUNDLES
+        assert export.BUNDLES['ssb_local_continuation'][0]==pointer.name
+    else:
+        with pytest.raises(ValueError):export.checked_bundle(pointer,['table1.csv'])

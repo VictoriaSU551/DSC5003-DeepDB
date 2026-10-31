@@ -23,12 +23,14 @@ BUNDLES = {
         'training_tables.csv', 'ssb_relative_error.png', 'ssb_ci_half_width.png']),
     'ssb_local_canonical': ('ssb_local_canonical_tables_latest.json', ['query_summary.csv','all_groups.csv',
         'training_tables.csv','ssb_relative_error.png','ssb_ci_half_width.png']),
+    'ssb_local_continuation': ('ssb_local_continuation_tables_latest.json', ['query_summary.csv','all_groups.csv',
+        'training_tables.csv','ssb_relative_error.png','ssb_ci_half_width.png']),
     'ssb_local_ci10m': ('ssb_local_ci10m_tables_latest.json', ['query_summary.csv','all_groups.csv',
         'training_tables.csv','ssb_relative_error.png','ssb_ci_half_width.png']),
     'ssb_native_v2': ('ssb_native_v2_tables_latest.json', ['query_summary.csv', 'all_groups.csv',
         'training_tables.csv', 'ssb_relative_error.png', 'ssb_ci_half_width.png']),
 }
-OPTIONAL_BUNDLES = {'ssb','ssb_native_v2','ssb_local_sf500','ssb_local_canonical','ssb_local_ci10m','flights_verdict'}
+OPTIONAL_BUNDLES = {'ssb','ssb_native_v2','ssb_local_sf500','ssb_local_canonical','ssb_local_continuation','ssb_local_ci10m','flights_verdict'}
 
 
 def record(path):
@@ -54,6 +56,7 @@ def checked_bundle(pointer_path, filenames):
     manifest = load_json(manifest_path)
     local_scopes={'ssb_local_sf500_tables_latest.json':'LOCAL_SSB_SF500',
                   'ssb_local_canonical_tables_latest.json':'LOCAL_SSB_SF500_CANONICAL_CI',
+                  'ssb_local_continuation_tables_latest.json':'LOCAL_SSB_SF500_CANONICAL_CONTINUATION',
                   'ssb_local_ci10m_tables_latest.json':'LOCAL_SSB_10M_CI'}
     if pointer_path.name in local_scopes:
         if (manifest.get('status') != 'PASS_VERIFIED_LOCAL_SSB_DERIVED_TABLES'
@@ -65,13 +68,25 @@ def checked_bundle(pointer_path, filenames):
                     or type(evidence.get('author_different_groups')) is not int
                     or evidence['author_different_groups'] != 1713):
                 raise ValueError('LOCAL SSB bundle must retain author mismatch and incomplete scope')
-        if pointer_path.name in ('ssb_local_canonical_tables_latest.json','ssb_local_ci10m_tables_latest.json'):
+        if pointer_path.name in ('ssb_local_canonical_tables_latest.json','ssb_local_continuation_tables_latest.json','ssb_local_ci10m_tables_latest.json'):
             details=manifest.get('binding_details',{});accepted=details.get('readonly_acceptance',{})
             variant='CANONICAL_DECODED_GROUP_PROTOTYPE_V1'
             if (accepted.get('evaluation_variant')!=variant
                     or accepted.get('group_order_adapter_sha256')!='48220a0474a838c8dc9a7cf3fef0e8a84459a05e3fa8e15405307acae430ae5c'
                     or details.get('presentation',{}).get('evaluation_variant')!=variant):
                 raise ValueError('canonical group variant must agree in scientific acceptance and derived presentation')
+            if pointer_path.name=='ssb_local_continuation_tables_latest.json':
+                protocol='ADOPT_ACCEPTED_FORWARD_FRESH_REVERSE_WITH_CONSUMED_CLOSURE_V1'
+                adopted=accepted.get('continuation_validation',{})
+                if (accepted.get('status')!='PASS_READ_ONLY_LOCAL_SSB_SF500_CANONICAL_CONTINUATION_WITH_AUTHOR_MISMATCH'
+                        or accepted.get('scope')!=local_scopes[pointer_path.name]
+                        or accepted.get('execution_protocol')!=protocol or adopted.get('execution_protocol')!=protocol
+                        or adopted.get('adopted_forward') is not True or adopted.get('forward_reexecuted') is not False
+                        or adopted.get('phase_model_loads')!=dict(FORWARD=1,REVERSE=13)
+                        or adopted.get('phase_evaluator_calls')!=dict(FORWARD=26,REVERSE=26)
+                        or any(accepted.get(k) is not False for k in ('historical_reverse_accepted','author_reproduction_complete',
+                            'full_paper_reproduction_complete','database_connected','training_executed','inference_executed','files_modified'))):
+                    raise ValueError('distinct accepted-forward/fresh-reverse continuation contract required')
     if manifest.get('full_paper_complete') is not False:
         raise ValueError('snapshot must retain the explicit incomplete scope')
     artifacts = manifest.get('artifacts', [])
@@ -104,7 +119,8 @@ def coverage_rows(stages, prefix=''):
             rows[label] = {key:value for key,value in stage.items()
                 if key in {'status', 'scope', 'queries', 'generated_rows','requested_rows','author_different_groups',
                     'author_reproduction_complete','full_paper_reproduction_complete','evaluation_variant',
-                    'model_training_cap_per_table','historical_reverse_accepted'}}
+                    'model_training_cap_per_table','historical_reverse_accepted','execution_protocol',
+                    'adopted_forward','forward_reexecuted'}}
         else:
             rows.update(coverage_rows(stage, label+'/'))
     return rows
@@ -140,7 +156,7 @@ def main():
              '来源状态时间：' + status['updated_at_utc'], '',
              '作者Table1数值与本地重跑各有evidence标签；配置、样本和尾部误差有差异，不能互相替代。',
              '公开工作负载为683条，其中4--6表413条；作者200条具体成员未找到。',
-             'Flights为本地生成的1B母体；DBEst仅4类SQL/20K拟合，八类不支持，未做等预算或延迟排名。',
+             'Flights为本地生成的1B母体；历史对照图中的DBEst只覆盖4类SQL/20K拟合，新路由另见fullpaper_additional_baselines.json，不混作等预算或延迟排名。',
              'CI仅一次样本，少于10行的组排除，不能解读为重复抽样覆盖率校准。', '']
     if 'flights_verdict' in evidence:
         lines += ['Verdict仅执行已物化的同一样本：原F5.2错误和两个原SUM的外部差分适配分别列出；',
@@ -153,6 +169,10 @@ def main():
         lines += ['SSB canonical1M使用原五个已保存模型，仅规范配对分组顺序；新鲜双hash正逆序另行验收。',
                   '历史逆序区间失败记录保留。作者2059项真值中1713项不同，本地母体结果不能替代作者结果。',
                   '该变体训练上限1M/table，独立参考使用实际9,996,946行样本；仍未完成Figure11的10M训练政策。','']
+    if 'ssb_local_continuation' in evidence:
+        lines += ['SSB接续事务复用已独立验收的正向26次调用，并在新进程完成逆向26次调用；五个1M模型不重训。',
+                  '旧ROOT及旧逆向失败状态不改写。作者2059项真值中1713项不同，图表仅评价本地母体。',
+                  '训练上限1M/table，独立参考实际9,996,946行；Figure11的10M训练政策另列。','']
     if 'ssb_local_ci10m' in evidence:
         lines += ['SSB另训练五个10M/table上限模型，事实表实际9,996,946行；复用同一已封存预处理与独立样本统计。',
                   '使用canonical配对分组顺序并经过独立逆序核验。这是Figure11训练上限政策的本地实验，',
