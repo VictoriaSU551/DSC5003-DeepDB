@@ -120,7 +120,10 @@ def test_actual_collection_control_flow_sets_readonly_before_any_sql_and_release
             assert connection.session==dict(isolation_level='REPEATABLE READ',readonly=True,autocommit=False)
             seen.append(statement);self.result=[]
             if statement.startswith('SELECT current_database'):
-                self.result=[('deepdb_job','110005','127.0.0.1',55432,str(tmp_path/'data/postgresql/cluster'),456,'on','repeatable read','synthetic')]
+                # Actual PostgreSQL 11 inet::text includes /32; host(inet)
+                # returns the host-only value used by the strict identity gate.
+                address='127.0.0.1' if 'host(inet_server_addr())' in statement else '127.0.0.1/32'
+                self.result=[('deepdb_job','110005',address,55432,str(tmp_path/'data/postgresql/cluster'),456,'on','repeatable read','synthetic')]
             elif statement.startswith('SELECT c.oid'):
                 table=parameters[0];i=tables.index(table)+1;self.result=[(i,'r',i,False)]
             elif statement.startswith('SELECT attname'):
@@ -154,6 +157,8 @@ def test_actual_collection_control_flow_sets_readonly_before_any_sql_and_release
     plan=dict(contract=contract,source_boundary='HISTORIC_IMPORT_LINEAGE_PLUS_CURRENT_QUERY_COLUMN_SNAPSHOT_NOT_FULL_CSV_IDENTITY')
     r=run.collect(plan,tmp_path)
     assert len(r['scalar_counts'])==50 and len(r['operations'])==11
+    assert r['database_identity']['address']=='127.0.0.1'
+    assert 'host(inet_server_addr())' in next(s for s in seen if s.startswith('SELECT current_database'))
     assert sum(s.startswith('COPY ') for s in seen)==12
     assert not any(s.startswith(('CREATE','INSERT','UPDATE','DROP','BEGIN')) for s in seen)
     assert seen.index(next(s for s in seen if s.startswith('LOCK TABLE'))) < seen.index(next(s for s in seen if s.startswith('SELECT')))

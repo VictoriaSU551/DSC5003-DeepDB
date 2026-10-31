@@ -289,7 +289,7 @@ def collect(plan,root=ROOT):
             cursor.execute('LOCK TABLE '+', '.join('public."'+t+'"' for t in contract['tables'])+' IN SHARE MODE NOWAIT')
             for text in ("SET LOCAL search_path = pg_catalog, public", "SET LOCAL work_mem = '16MB'", "SET LOCAL temp_file_limit = '1GB'", 'SET LOCAL statement_timeout = 120000', 'SET LOCAL max_parallel_workers_per_gather = 0'):
                 cursor.execute(text)
-            cursor.execute("SELECT current_database(),current_setting('server_version_num'),inet_server_addr()::text,inet_server_port(),current_setting('data_directory'),pg_backend_pid(),current_setting('transaction_read_only'),current_setting('transaction_isolation'),pg_postmaster_start_time()::text")
+            cursor.execute("SELECT current_database(),current_setting('server_version_num'),host(inet_server_addr()),inet_server_port(),current_setting('data_directory'),pg_backend_pid(),current_setting('transaction_read_only'),current_setting('transaction_isolation'),pg_postmaster_start_time()::text")
             r=cursor.fetchone();require(r[:4]==('deepdb_job','110005','127.0.0.1',55432)
                 and Path(r[4]).resolve()==(root/'data/postgresql/cluster').resolve() and r[6:8]==('on','repeatable read'), 'Unexpected database server/transaction identity')
             image=backend_image(r[5]);require(Path(image)==(root/'.runtime/postgresql-11.5/pgsql/bin/postgres.exe').resolve(),'Database backend runtime differs from sealed executable')
