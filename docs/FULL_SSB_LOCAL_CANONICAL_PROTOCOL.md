@@ -28,7 +28,9 @@ The complete operational ledger is candidate1F + seal-plan's independent candida
 
 ## Current execution boundary
 
-Implementation and pure/synthetic tests only. No actual parent verifier, preparation, training, moments executable, forward/reverse science or plan publication is authorized in this coding task. The real old9c reverse is failed/TAINTED and cannot be accepted by this provider. Historical diagnostics, including the all13 paired-order comparison, are not formal canonical receipts.
+The original v1 implementation freeze contained pure/synthetic evidence only. ROOT subsequently built/reviewed/sealed a real plan and attempted supervision in `runs/dc88ba8fe43604af9798`. Its ROOTpre full formal verification completed, but the first direct-base bootstrap failed in the frozen native job-name check before creating a venv worker or entering canonical science. ROOT and FORWARD controls remain TAINTED; there are no worker_start or forward/reverse scientific phase publications. The failed attempt is preserved and cannot be repaired or rerun as PASS.
+
+The v2 repair task performs only source preservation and pure tests. It changes two runner job-prefix literals and does not invoke any actual parent verifier, model, training, moments, forward/reverse science, DB or plan construction. The provider and its numerical/parent/read-only API code remain byte-identical. The real old9c reverse remains failed/TAINTED. Historical diagnostics, including the all13 paired-order comparison, are not formal canonical receipts.
 
 ## Complete receipt and read-only API
 
@@ -58,3 +60,27 @@ Pure/synthetic test command:
 ```
 
 Synthetic publication fixtures replace the actual parent and OS-only leaves explicitly; they test the real new query/seal/transaction/public API composition. They do not establish acceptance of any real input or canonical numerical result. Tests also cover one-load versus13-load tiny callbacks, late-import RNG reset, complete required sets, altered truth/reference/points, public repeated-call1F, four supervise boundaries, adopted PASS fresh1F, post-inference parent-byte changes and durable publication failure. Existing scientific/artifact bytes are untouched.
+
+## Runner v2: native job-name compatibility and NO_SCIENCE entry gate
+
+The frozen native `verify_owned_job_membership` requires `Local\DeepDB_SSB_NATIVE_`. The v1 runner incorrectly generated `Local\DeepDB_SSB_CANONICAL_`. Both its phase capsule `JOB_PREFIX` and actual child command now use `Local\DeepDB_SSB_NATIVE_CANONICAL_<PHASE>_<token>`. The native guard, owned-job primitives, canonical provider, numerical callbacks, parent API and resource policy are unchanged. Synthetic receipt fixtures use the same new name.
+
+Before editing, the five v1 source/test/protocol files were copied byte-exactly, and all19 small historical review/plan/run files were snapshotted with SHA/size/mtime, including all seven files of the actual failed run. Preservation receipt: `output/full/ssb/local_sf500_canonical/audits/runner_v2_prechange/preservation.json`, SHA256 `98e0a9b3d25b53e03357644b9d7b1de608ffa7264189c2216277cdc500d25e2d`. Original candidates, reviews, sealed plan and TAINTED files remain unchanged. New source hashes require a new separately reviewed candidate/plan; this task does not repin existing CI/Verdict consumers.
+
+Four new pure tests first reproduced the exact `invalid owned job name` error, then passed: FORWARD/REVERSE capsule names and the actual `_run_child` command names each pass the unmodified native verifier. Only `windows_api()` is mocked in those tests, so the real prefix predicate cannot be bypassed. The runner file's33 pure/synthetic tests pass; two real process gates are deliberately skipped by default.
+
+ROOT must separately opt into the tiny entry gate after review, before another expensive full-formal plan/supervise boundary. Each phase launches a genuine direct-base process, assigns its owned Windows Job before GO, runs the original venv through the shared inherited-worker primitive, and dispatches the real canonical bootstrap/worker entry functions. Only the test harness's plan reader and scientific callback are replaced; full parent/dependency/scientific APIs throw if called. Its worker writes a `NO_SCIENCE` marker instead of loading a model. It records actual nested PID/parent/membership, command, phase/hash and sampled owned RSS, and checks all owned PIDs exit. Artifacts stay under a fresh `output/tmp/cnj2_<phase>_<random>/` directory. This uses a synthetic RAM/storage probe to avoid full SSB scans; it is entry/ownership evidence, not a resource release or scientific result. The harness does not provide an execution bypass in the production runner or accept any fake plan through a public scientific API.
+
+ROOT-only command, not run during v2 implementation:
+
+```powershell
+$previousCanonicalGate = $env:DEEPDB_CANONICAL_NO_SCIENCE_GATE
+try {
+  $env:DEEPDB_CANONICAL_NO_SCIENCE_GATE = '1'
+  .venv/Scripts/python.exe -B -m pytest code/tests/test_full_ssb_local_canonical_run.py -q -s -p no:cacheprovider -k actual_no_science_canonical_base_to_venv_owned_bootstrap --basetemp output/tmp/cnj2 --tb=short
+} finally {
+  $env:DEEPDB_CANONICAL_NO_SCIENCE_GATE = $previousCanonicalGate
+}
+```
+
+Both phase gates must produce their own `PASS_NO_SCIENCE_CANONICAL_OWNED_BOOTSTRAP_GATE` receipt before ROOT considers a new canonical scientific launch. They do not satisfy actual parent verification, resource admission, forward/reverse52-call acceptance, publication or author-SF500 fidelity.

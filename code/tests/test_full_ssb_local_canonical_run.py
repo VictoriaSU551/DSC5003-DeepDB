@@ -1,5 +1,6 @@
 """Pure canonical supervisor planning, no actual Job/model execution."""
 import importlib.util
+import os
 from pathlib import Path
 import sys
 import pytest
@@ -100,7 +101,7 @@ def test_phase_owned_evidence_uses_actual_paths_commands_hash_and_phase(tmp_path
     if damage=='absolute_venv':env['python_executable']={'path':str((tmp_path/'venv.exe').resolve()),'sha256':env['python_executable']['sha256']}
     c=m.candidate_body(m.value_hash(deps['canonical_sources']),{},deps);p=dict(c,status='ROOT_REVIEWED_LOCAL_CANONICAL_PLAN',executable=True,root_reviewed_candidate_sha256=m.value_hash(c))
     key=m.value_hash(p);path=tmp_path/m.model.OUTPUT/'plans'/key[:20]/'plan.json';m.atomic(path,p);m.atomic(path.with_suffix('.seal.json'),{'sha256':m.digest(path)})
-    r=m.child_report(p,phase);binding=m.supervisor_binding(r);home=Path(r['directory'])/(phase.lower()+'_control');token='1'*32;job='Local\\DeepDB_SSB_CANONICAL_'+phase+'_'+token
+    r=m.child_report(p,phase);binding=m.supervisor_binding(r);home=Path(r['directory'])/(phase.lower()+'_control');token='1'*32;job='Local\\DeepDB_SSB_NATIVE_CANONICAL_'+phase+'_'+token
     command=[str(tmp_path/'base.exe'),str(tmp_path/m.SELF),'_bootstrap','--plan-path',str(path),'--plan-file-sha256',m.digest(path),'--start-token',token,'--job-name',job]
     worker=[str(tmp_path/'venv.exe'),command[1],'_worker']+command[3:]+['--bootstrap-pid','101']
     common=dict(scope=m.model.SCOPE,phase=phase,hash_seed=m.model.HASH_SEEDS[phase],membership_verified_after_go=True,named_job=job,plan_binding_sha256=key,base_executable=env['python_base_executable'])
@@ -122,3 +123,114 @@ def test_phase_owned_evidence_uses_actual_paths_commands_hash_and_phase(tmp_path
     if damage in (None,'absolute_venv'):assert len(m.verify_child(p,phase,tmp_path))==7
     else:
         with pytest.raises(ValueError):m.verify_child(p,phase,tmp_path)
+
+
+def fake_native_membership_api(monkeypatch,m):
+    """Mock only OS calls; the frozen real name/membership verifier still runs."""
+    import ctypes
+    from ctypes import wintypes
+    opened=[]
+    class Kernel:
+        def OpenJobObjectW(self,access,inherit,name):opened.append(name);return 123
+        def IsProcessInJob(self,process,job,assigned):assigned._obj.value=True;return True
+        def CloseHandle(self,handle):return True
+    monkeypatch.setattr(m.ops,'windows_api',lambda:(ctypes,wintypes,Kernel()))
+    return opened
+
+
+@pytest.mark.parametrize('phase',['FORWARD','REVERSE'])
+def test_phase_capsule_job_name_passes_the_unmodified_native_verifier(monkeypatch,phase):
+    m=module();opened=fake_native_membership_api(monkeypatch,m)
+    prefix=m.capsule(phase,{'synthetic_only':True})['JOB_PREFIX'];job=prefix+'1'*32
+    m.ops.verify_owned_job_membership(job)
+    assert prefix=='Local\\DeepDB_SSB_NATIVE_CANONICAL_'+phase+'_' and opened==[job]
+
+
+@pytest.mark.parametrize('phase',['FORWARD','REVERSE'])
+def test_actual_child_command_job_matches_capsule_and_unmodified_native_guard(tmp_path,monkeypatch,phase):
+    m=module();opened=fake_native_membership_api(monkeypatch,m);observed=[];plan={'synthetic_only':True}
+    prefix=m.capsule(phase,plan)['JOB_PREFIX'];monkeypatch.setattr(m,'ROOT',tmp_path)
+    monkeypatch.setattr(m,'child_report',lambda *a:{})
+    monkeypatch.setattr(m,'artifact',lambda p:dict(path=str(p),bytes=1,sha256='a'*64))
+    monkeypatch.setattr(m,'digest',lambda p:'a'*64)
+    monkeypatch.setattr(m.ops,'base_python_executable',lambda:tmp_path/'base.exe')
+    monkeypatch.setattr(m,'supervisor_binding',lambda r:dict(bootstrap_executable=m.artifact(m.ops.base_python_executable())))
+    monkeypatch.setattr(m.model,'run_directory',lambda p:tmp_path/'synthetic_run')
+    monkeypatch.setattr(m.ops,'operational_resources',lambda:dict(free_disk_bytes=20*2**30,available_memory_bytes=8*2**30,existing_ssb_bytes=0))
+    def child(command,home,binding,**kwargs):
+        job=kwargs['job_name'];m.ops.verify_owned_job_membership(job)
+        assert command[-2:]==['--job-name',job] and job==prefix+kwargs['start_payload']['start']
+        assert os.environ['DEEPDB_SSB_CANONICAL_PHASE']==phase and os.environ['PYTHONHASHSEED']==str(m.model.HASH_SEEDS[phase])
+        observed.append(command);return dict(artifacts=[])
+    monkeypatch.setattr(m.ops,'run_owned_child',child)
+    monkeypatch.setattr(m,'capsule',lambda *a:{'verify_supervisor_result':lambda *a:None})
+    def transaction(home,binding,producer,validator,**kw):
+        value=producer();validator(value);return value
+    monkeypatch.setattr(m.base,'formal_transaction',transaction)
+    m._run_child(plan,phase)
+    assert len(observed)==len(opened)==1 and opened[0].startswith('Local\\DeepDB_SSB_NATIVE_CANONICAL_'+phase+'_')
+
+
+@pytest.mark.skipif(os.name!='nt' or os.environ.get('DEEPDB_CANONICAL_NO_SCIENCE_GATE')!='1',
+    reason='ROOT opt-in only: real owned bootstrap/venv micro gate, never science')
+@pytest.mark.parametrize('phase',['FORWARD','REVERSE'])
+def test_actual_no_science_canonical_base_to_venv_owned_bootstrap(phase,monkeypatch):
+    """ROOT runs explicitly after review; scientific and full-F APIs are replaced."""
+    import secrets,time
+    m=module();home=ROOT/'output/tmp'/('cnj2_'+phase.lower()+'_'+secrets.token_hex(3));home.mkdir(parents=True)
+    rel=home.relative_to(ROOT).as_posix();plan=dict(synthetic_only=True,scope='NO_SCIENCE_CANONICAL_JOB_GATE',phase=phase)
+    token=secrets.token_hex(16);job=m.capsule(phase,plan)['JOB_PREFIX']+token;script=home/'entry.py'
+    definitions=dict(ROOT_CODE=str(ROOT/'code'),SCRIPT_REL=rel+'/entry.py',MOCK_OUTPUT=rel+'/mock',PLAN=plan,PHASE=phase,MARKER=str(home/'no_science.json'))
+    code='\n'.join(k+'='+repr(v) for k,v in definitions.items())+'''
+import sys,os
+from pathlib import Path
+sys.dont_write_bytecode=True
+sys.path.insert(0,ROOT_CODE)
+import full_ssb_local_canonical_run as m
+def forbidden(*a,**k):raise AssertionError('NO_SCIENCE gate attempted full parent/source/scientific API')
+m.SELF=SCRIPT_REL
+m.model.OUTPUT=MOCK_OUTPUT
+m.read_plan=lambda *a,**k:PLAN
+m.model.collect_parent=forbidden
+m.model.dependency_snapshot=forbidden
+m.model.previous.verify_local_formal=forbidden
+m.model.previous.execute_local_formal=forbidden
+m.base.formal_transaction=forbidden
+def no_science(plan,phase):
+    assert plan==PLAN and phase==PHASE
+    assert os.environ['DEEPDB_SSB_CANONICAL_PHASE']==PHASE
+    assert os.environ['PYTHONHASHSEED']==str(m.model.HASH_SEEDS[PHASE])
+    m.atomic(Path(MARKER),dict(status='PASS_NO_SCIENCE_WORKER',scope='NO_SCIENCE_CANONICAL_JOB_GATE',phase=PHASE,
+        parent_verifier_calls=0,model_calls=0,database_calls=0,pid=os.getpid(),parent_pid=os.getppid()))
+    return dict(status='PASS_NO_SCIENCE_WORKER')
+m.model.execute_worker=no_science
+raise SystemExit(m.main())
+'''
+    script.write_bytes(code.encode('utf-8'));control=home/'mock/runs'/m.value_hash(plan)[:20]/(phase.lower()+'_control')
+    original=m.ops.OwnedWindowsJob.assign
+    def delayed_assignment(self,process):time.sleep(.2);original(self,process)
+    monkeypatch.setattr(m.ops.OwnedWindowsJob,'assign',delayed_assignment)
+    resource=lambda:dict(available_memory_bytes=8*2**30,free_disk_bytes=30*2**30,existing_ssb_bytes=0,storage_scan_age_seconds=0)
+    command=[str(m.ops.base_python_executable()),str(script),'_bootstrap','--plan-path','NO_SCIENCE_NOT_A_FORMAL_PLAN',
+        '--plan-file-sha256','a'*64,'--start-token',token,'--job-name',job]
+    print('NO_SCIENCE_GATE_DIRECTORY='+str(home),flush=True)
+    with m.phase_environment(phase):
+        result=m.ops.run_owned_child(command,control,dict(scope='NO_SCIENCE_CANONICAL_JOB_GATE',phase=phase),
+            policy=dict(m.ops.OPERATIONAL_POLICY,monitor_interval_seconds=.05,wall_timeout_seconds=30),resource_probe=resource,
+            start_payload=dict(start=token,plan_binding_sha256=m.value_hash(plan)),job_name=job)
+    boot=m.read(control/'bootstrap.json');worker=m.read(control/'worker_start.json');marker=m.read(home/'no_science.json')
+    assert result['returncode']==0 and boot['status']=='PASS' and boot['returncode']==0
+    assert boot['phase']==worker['phase']==marker['phase']==phase and boot['hash_seed']==worker['hash_seed']==m.model.HASH_SEEDS[phase]
+    assert boot['named_job']==worker['named_job']==job and worker['membership_verified_after_go'] is True
+    assert worker['bootstrap_pid']==boot['pid'] and worker['parent_pid']==boot['worker_launcher_pid']==marker['parent_pid']
+    assert worker['pid']==marker['pid'] and boot['worker_command'][0]==str(ROOT/'.venv/Scripts/python.exe')
+    assert all(not m.ops.windows_process_alive(pid) for pid in (boot['pid'],boot['worker_launcher_pid'],worker['pid']))
+    assert marker['parent_verifier_calls']==marker['model_calls']==marker['database_calls']==0
+    assert not any(p.name in ('evaluation','forward','reverse') for p in home.rglob('*'))
+    receipt=dict(status='PASS_NO_SCIENCE_CANONICAL_OWNED_BOOTSTRAP_GATE',scope='NO_SCIENCE_CANONICAL_JOB_GATE',phase=phase,
+        runner_sha256=m.digest(ROOT/m.SELF),canonical_provider_sha256=m.digest(ROOT/'code/full_ssb_local_canonical.py'),
+        frozen_native_runner_sha256=m.digest(ROOT/'code/full_ssb_native_model_run.py'),synthetic_resource_probe=True,
+        actual_parent_calls=0,actual_model_calls=0,actual_database_calls=0,actual_training_calls=0,actual_inference_calls=0,
+        bootstrap=m.artifact(control/'bootstrap.json'),worker=m.artifact(control/'worker_start.json'),marker=m.artifact(home/'no_science.json'),
+        monitor=m.artifact(control/'monitor.json'),result=result)
+    m.atomic(home/'gate_receipt.json',receipt)

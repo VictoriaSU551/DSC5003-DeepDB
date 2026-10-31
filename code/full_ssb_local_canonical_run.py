@@ -55,7 +55,7 @@ def capsule_binding():
 def capsule(phase,plan):
     key=value_hash(plan);relative=model.OUTPUT+'/runs/'+key[:20]+'/'+phase.lower()+'/verification.json'
     proxy=SimpleNamespace(**dict(vars(model),RESULT=relative))
-    n=dict(globals(),model=proxy,JOB_PREFIX='Local\\DeepDB_SSB_CANONICAL_'+phase+'_')
+    n=dict(globals(),model=proxy,JOB_PREFIX='Local\\DeepDB_SSB_NATIVE_CANONICAL_'+phase+'_')
     exec(compile(configured_source(phase)[1],'<sealed-canonical-operational-capsule>','exec'),n);return n
 
 
@@ -167,7 +167,7 @@ def _run_child(plan,phase):
     def produce():
         probe=ops.operational_resources();base.check_resources(probe['free_disk_bytes'],probe['available_memory_bytes'],probe['existing_ssb_bytes'],additional_bytes=model.RESERVE_BYTES)
         require(probe['available_memory_bytes']>=ops.OPERATIONAL_POLICY['minimum_launch_available_memory_bytes'],'at least5GiB canonical admission required')
-        token=secrets.token_hex(16);job='Local\\DeepDB_SSB_CANONICAL_'+phase+'_'+token
+        token=secrets.token_hex(16);job='Local\\DeepDB_SSB_NATIVE_CANONICAL_'+phase+'_'+token
         path=ROOT/model.OUTPUT/'plans'/value_hash(plan)[:20]/'plan.json'
         require(artifact(ops.base_python_executable())==binding['bootstrap_executable'],'canonical direct base executable differs')
         command=[str(ops.base_python_executable()),str(ROOT/SELF),'_bootstrap','--plan-path',str(path),'--plan-file-sha256',digest(path),'--start-token',token,'--job-name',job]
