@@ -237,3 +237,45 @@ def test_worker_observation_cannot_hide_changed_script_or_environment(tmp_path,m
     monkeypatch.setattr(m.sys,'argv',expected['script_argv']);monkeypatch.setenv('OMP_NUM_THREADS','2')
     assert m.observe_worker_identity(expected)!=expected
 
+
+@pytest.mark.parametrize('preimport',[False,True])
+def test_cli_and_import_share_the_same_private_boundary_without_source_or_science(preimport):
+    import subprocess
+    probe=r'''
+import importlib,json,pathlib,runpy,sys
+script=pathlib.Path(sys.argv[1]).resolve();preimport=sys.argv[2]=='True'
+sys.path.insert(0,str(script.parent))
+if preimport:importlib.import_module('full_dbest_flights_routes_run')
+observed=[]
+forbidden={'source_proof','runtime_snapshot','own_snapshot','scan_category_file','selected_rows','execute_job','worker','run'}
+def trace(frame,event,arg):
+    if event=='call' and frame.f_code.co_filename==str(script):
+        if frame.f_code.co_name in forbidden:raise AssertionError('Source/scientific call in pure CLI probe')
+        if frame.f_code.co_name=='main':
+            canonical=importlib.import_module('full_dbest_flights_routes_run')
+            assert canonical.__dict__ is frame.f_globals,'CLI and canonical imports created separate module dictionaries'
+            assert canonical._Boundary is frame.f_globals['_Boundary'],'Private boundary class identity split'
+            boundary=object.__new__(canonical._Boundary)
+            assert type(boundary) is frame.f_globals['_Boundary']
+            observed.append(True)
+    return trace
+sys.argv=[str(script),'describe'];sys.settrace(trace)
+try:
+    try:runpy.run_path(str(script),run_name='__main__')
+    except SystemExit as error:assert error.code in (None,0)
+finally:sys.settrace(None)
+assert observed==[True]
+print(json.dumps({'status':'PURE_CLI_MODULE_IDENTITY_PASS','source_calls':0,'scientific_calls':0,'preimport':preimport}))
+'''
+    result=subprocess.run([sys.executable,'-B','-c',probe,str(ROOT/'code/full_dbest_flights_routes_run.py'),str(preimport)],
+        cwd=str(ROOT),capture_output=True,text=True,timeout=20)
+    assert result.returncode==0,result.stderr
+    assert 'PURE_CLI_MODULE_IDENTITY_PASS' in result.stdout
+
+
+def test_private_boundary_exact_type_still_rejects_a_foreign_same_named_class():
+    m=module()
+    foreign=type('_Boundary',(),{})()
+    with pytest.raises(ValueError,match='Private same-entry complete dependency proof'):
+        m._plan_from_boundary('CATALOG',None,foreign)
+

@@ -606,4 +606,8 @@ def main(argv=None):
     else:print(json.dumps(result,sort_keys=True,allow_nan=False))
 
 
-if __name__=='__main__':sys.exit(main())
+if __name__=='__main__':
+    # The read-only auditor imports this canonical name; keep its exact private
+    # proof type identical to the CLI's instead of executing this module twice.
+    sys.modules['full_dbest_flights_routes_run']=sys.modules[__name__]
+    sys.exit(main())
