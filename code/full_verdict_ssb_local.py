@@ -37,7 +37,7 @@ PARENT_PINS={
  'code/full_ssb_native_v2_stream.py':'ddcd3b3d387b8b6a28324ceb89b39f1b0911db8f4130ccf5dbd4567424e422b1',
  'code/full_ssb_native_v2_formal.py':'52de0f43faf554a761f8dacca3cee5e9d919113402743aacf1a211ddcd882b40',
  'code/full_ssb_local_canonical.py':'9c041ffc8ca40386ad9e3582fd81cb1f0e76fd3db1a337cb97bb686a521ff6b6',
- 'code/full_ssb_local_canonical_run.py':'36ff7385082662163fafe972747d70b6c83506e3d2db5e91eafbbaf243583012',
+ 'code/full_ssb_local_canonical_run.py':'8d561253786e8acd68e03c3b89fce46c2655f04cdd0c4b34492b369a6d757636',
  'code/full_ssb_group_order.py':'48220a0474a838c8dc9a7cf3fef0e8a84459a05e3fa8e15405307acae430ae5c'}
 SOURCES=['code/full_verdict_ssb_local.py','code/full_verdict_ssb_local_ops.py','code/full_verdict_ssb_local_run.py',
  'code/full_verdict_ssb_local_bridge.java','code/tests/test_full_verdict_ssb_local.py','code/tests/test_full_verdict_ssb_local_ops.py',
