@@ -35,7 +35,10 @@ PARENT_PINS={
  'code/full_ssb_guard.py':'fc19133d00216ceac72198eed747107d81e82f224804c69440290931a201f842',
  'code/full_ssb_native_v2.py':'9dc407892acaa14042cf4c9645b455747efbbba46d63fb8385946ee30a60eaeb',
  'code/full_ssb_native_v2_stream.py':'ddcd3b3d387b8b6a28324ceb89b39f1b0911db8f4130ccf5dbd4567424e422b1',
- 'code/full_ssb_native_v2_formal.py':'52de0f43faf554a761f8dacca3cee5e9d919113402743aacf1a211ddcd882b40'}
+ 'code/full_ssb_native_v2_formal.py':'52de0f43faf554a761f8dacca3cee5e9d919113402743aacf1a211ddcd882b40',
+ 'code/full_ssb_local_canonical.py':'9c041ffc8ca40386ad9e3582fd81cb1f0e76fd3db1a337cb97bb686a521ff6b6',
+ 'code/full_ssb_local_canonical_run.py':'36ff7385082662163fafe972747d70b6c83506e3d2db5e91eafbbaf243583012',
+ 'code/full_ssb_group_order.py':'48220a0474a838c8dc9a7cf3fef0e8a84459a05e3fa8e15405307acae430ae5c'}
 SOURCES=['code/full_verdict_ssb_local.py','code/full_verdict_ssb_local_ops.py','code/full_verdict_ssb_local_run.py',
  'code/full_verdict_ssb_local_bridge.java','code/tests/test_full_verdict_ssb_local.py','code/tests/test_full_verdict_ssb_local_ops.py',
  'code/tests/test_full_verdict_ssb_local_run.py','docs/FULL_VERDICT_LOCAL_SSB_IMPLEMENTATION.md','docs/FULL_VERDICT_LOCAL_SSB_PROPOSAL.md']
@@ -106,7 +109,13 @@ def local_spec():
         source_report='output/full/results/ssb_local_sf500_source.json',
         source_report_sha256='75fef537963dcbc183a720f2abc1b47b6972550822ba4591dec8f8336183e712',
         model_report='output/full/results/ssb_local_sf500_model_aqp_ci.json',
-        reverse_report='output/full/ssb/local_sf500_replay/verification.json',
+        model_report_sha256='da358d52a0005bb28cd606c8e539099bdf242b72d4f6e663db6c0a3f84e15c82',
+        canonical_report='output/full/results/ssb_local_sf500_canonical_aqp_ci.json',
+        canonical_namespace='output/full/ssb/local_sf500_canonical/runs',
+        reverse_report_policy='CANONICAL_RUN_REVERSE_VERIFICATION',
+        evaluation_variant='CANONICAL_DECODED_GROUP_PROTOTYPE_V1',
+        group_order_adapter_sha256=PARENT_PINS['code/full_ssb_group_order.py'],
+        historical_failed_reverse_report='output/full/ssb/local_sf500_replay/verification.json',
         original_mismatch_sha256='740e525bf5a092f6f28cb1dfc2d3e0226afc206246106fb9ced216faf79aec6e',
         author_different_groups=1713,author_reproduction_complete=False,full_paper_reproduction_complete=False,
         sampling_ratio=dict(numerator=9996946,denominator=3000028242),
@@ -172,35 +181,65 @@ def verify_artifacts(records):
 
 def collect_lineage(expected):
     """Read-only, lazy, complete parents; never touch an unfinished moments file."""
-    spec=local_spec();require(set(expected)=={'source','model','reverse'},'Exact final parent source/model/reverse descriptors required')
-    mapping={'source':spec['source_report'],'model':spec['model_report'],'reverse':spec['reverse_report']}
+    spec=local_spec();require(isinstance(expected,dict) and set(expected)=={'source','model','canonical','reverse'},'Exact final parent source/model/canonical/reverse descriptors required')
+    require(all(isinstance(r,dict) and type(r.get('path')) is str for r in expected.values()),'Complete final parent physical descriptors required')
+    mapping={key:spec[key+'_report'] for key in ('source','model','canonical')};mapping['reverse']=expected['reverse']['path']
+    reverse_path=(ROOT/mapping['reverse']).resolve();canonical_home=(ROOT/spec['canonical_namespace']).resolve()
+    require(canonical_home in reverse_path.parents and reverse_path.name=='verification.json' and reverse_path.parent.name=='reverse',
+        'Only the final canonical run reverse publication is eligible')
     for key,path in mapping.items():
         require(expected[key].get('path')==path and (ROOT/path).is_file(),'Required final parent publication missing')
     verify_delegate_sources()
     for key,path in mapping.items():
         require(artifact(ROOT/path)==expected[key],'Explicit final parent descriptor differs')
-    source,model,reverse=(read(ROOT/mapping[key]) for key in ('source','model','reverse'))
+    source,model,canonical,reverse=(read(ROOT/mapping[key]) for key in ('source','model','canonical','reverse'))
     require(source['status']=='PASS_LOCAL_SOURCE_PHYSICAL_GATE_ONLY' and source['source_id']==spec['source_id'] and expected['source']['sha256']==spec['source_report_sha256'],'Accepted LOCAL physical source differs')
     require(model.get('scope')=='LOCAL_SSB_SF500' and model.get('status') in ('PASS_LOCAL_SSB_SF500_MODEL_AQP_CI','LOCAL_MODEL_QUERY_ERRORS_RECORDED')
-        and reverse.get('status')=='PASS_LOCAL_SSB_SF500_REVERSE_REPLAY_WITH_AUTHOR_MISMATCH','Complete final parent model/reverse PASS required')
-    require(all(x.get('author_reproduction_complete') is False and x.get('full_paper_reproduction_complete') is False for x in (source,model,reverse)),'Author mismatch scope must remain explicit')
-    require(source['different_author_groups']==model['author_different_groups']==reverse['author_different_groups']==1713,'Author mismatch count changed')
+        and expected['model']['sha256']==spec['model_report_sha256'],'Complete unchanged original model publication required')
+    def canonical_scope(value):
+        require(value.get('scope')=='LOCAL_SSB_SF500_CANONICAL_CI' and value.get('group_order_adapter_sha256')==spec['group_order_adapter_sha256']
+            and value.get('author_different_groups')==1713 and value.get('author_reproduction_complete') is False
+            and value.get('full_paper_reproduction_complete') is False,'Canonical scope, adapter and author mismatch must remain explicit')
+    canonical_scope(canonical);canonical_scope(reverse)
+    require(canonical.get('status')=='PASS_LOCAL_SSB_SF500_CANONICAL_AQP_CI'
+        and canonical.get('variant')=='CANONICAL_PAIRED_DECODED_GROUP_ORDER' and canonical.get('evaluation_variant')==spec['evaluation_variant']
+        and canonical.get('historical_reverse_accepted') is False and canonical.get('parent_formal')==expected['model']
+        and canonical.get('reverse')==expected['reverse'],'Complete canonical publication and parent/reverse aliases required')
+    require(reverse.get('status')=='PASS_CANONICAL_REVERSE_EVALUATION' and reverse.get('phase')=='REVERSE'
+        and Path(reverse.get('directory','')).resolve()==Path(canonical.get('directory','')).resolve()
+        and (Path(canonical['directory'])/'reverse/verification.json').resolve()==reverse_path,'Canonical reverse phase/run identity differs')
+    require(all(x.get('author_reproduction_complete') is False and x.get('full_paper_reproduction_complete') is False for x in (source,model)),'Author mismatch scope must remain explicit')
+    require(source['different_author_groups']==model['author_different_groups']==1713,'Author mismatch count changed')
     local_names=('code/full_ssb_local_source.py','code/full_ssb_local_model.py','code/full_ssb_local_model_run.py')
     require(source['local_sources']=={name:PARENT_PINS[name] for name in local_names},'Exact independently pinned three parent providers required')
     replay_pin=model['plan']['dependencies']['auxiliary_sources'].get('code/full_ssb_local_replay.py')
-    require(replay_pin==PARENT_PINS['code/full_ssb_local_replay.py'],'Supplied reverse descriptor cannot repin the delegated verifier')
+    require(replay_pin==PARENT_PINS['code/full_ssb_local_replay.py'],'Original historical model source pin differs; it does not accept the failed reverse')
     # Only now may read-only parent verifiers import their modules. Actual PG,
     # SQLite, JVM, training/inference and all launch paths remain forbidden.
     helper=importlib.import_module('full_windows_fingerprint')
     require(digest(ROOT/'code/full_windows_fingerprint.py')==FROZEN['code/full_windows_fingerprint.py'],'Native helper changed')
     audit=importlib.import_module('full_verdict_ssb_audit');core=load_frozen()
     with audit.forbid_science(core),helper.verified_platform(spec['platform'],spec['machine']):
-        replayer=importlib.import_module('full_ssb_local_replay');actual_reverse=replayer.verify()
-    # Frozen replay.verify() invokes the complete parent verifier once itself.
-    # Its verified snapshot includes all model/science/supervisor descriptors;
-    # the published model was read above from the same exact physical descriptor.
-    formal=dict(actual_reverse['source_snapshot'],report=model)
-    require(formal['published_result']==expected['model'] and actual_reverse==reverse,'Final parent verifier result differs')
+        provider=importlib.import_module('full_ssb_local_canonical')
+        require(Path(getattr(provider,'__file__','')).resolve()==(ROOT/'code/full_ssb_local_canonical.py').resolve(),
+            'Actually loaded canonical provider differs from the pinned physical source')
+        actual=provider.verify_canonical()
+    # One complete canonical verification contains one complete original formal
+    # proof. Consume its actual original snapshot; never call failed replay9c.
+    canonical_scope(actual)
+    require(actual.get('status')=='PASS_READ_ONLY_LOCAL_SSB_SF500_CANONICAL_CI_WITH_AUTHOR_MISMATCH'
+        and actual.get('evaluation_variant')==spec['evaluation_variant'] and actual.get('variant')=='CANONICAL_PAIRED_DECODED_GROUP_ORDER'
+        and actual.get('historical_reverse_accepted') is False and actual.get('sample_rows')==spec['sample_rows']
+        and actual.get('population_rows')==spec['population_rows'] and actual.get('published_result')==expected['canonical']
+        and actual.get('report')==canonical and actual.get('parent_formal')==expected['model'] and actual.get('reverse')==expected['reverse']
+        and all(actual.get(k) is False for k in ('database_connected','training_executed','inference_executed','files_modified')),
+        'Complete read-only canonical verifier result/aliases differ')
+    formal=actual.get('parent_snapshot',{})
+    require(formal.get('status')=='PASS_READ_ONLY_LOCAL_SSB_SF500_MODEL_WITH_AUTHOR_MISMATCH' and formal.get('scope')=='LOCAL_SSB_SF500'
+        and formal.get('published_result')==expected['model'] and formal.get('report')==model,
+        'Canonical snapshot must retain the full verified original formal report')
+    require(all(isinstance(v,dict) and isinstance(v.get('artifacts'),list) and bool(v['artifacts']) for v in (formal,actual)),
+        'Complete nonempty original and canonical artifact closures required')
     report=formal['report'];run=Path(report['directory']).resolve()
     require((ROOT/'output/full/ssb/local_sf500_models').resolve() in run.parents,'Parent model namespace differs')
     moment=run/'sample_moments_native/moments.json';seal=moment.with_name('seal.json');raw=moment.with_name('moments.tsv');process=moment.with_name('process.json')
@@ -220,13 +259,11 @@ def collect_lineage(expected):
             for child in value.values():walk(child)
         elif isinstance(value,list):
             for child in value:walk(child)
-    walk(formal);walk(actual_reverse)
+    walk(formal);walk(actual)
     for path in list(mapping.values())+[str(moment),str(seal),str(raw),str(process)]:add(ROOT/path)
-    rhome=ROOT/reverse['directory']
-    for name in replayer.required_query_files()+['verification.json','verification_seal.json','lifecycle.json']:add(rhome/name)
-    for name in ('verification.json','verification_seal.json','last_run.json','last_process.json'):add(replayer.OUTPUT/name)
-    for name in ('stdout','stderr'):add(ROOT/read(replayer.OUTPUT/'last_process.json')[name]['path'])
-    return dict(status='PASS_COMPLETE_LOCAL_MODEL_REVERSE_INTEGER_MOMENT_LINEAGE',source=source,model=expected['model'],reverse=expected['reverse'],
+    return dict(status='PASS_COMPLETE_LOCAL_CANONICAL_MODEL_REVERSE_INTEGER_MOMENT_LINEAGE',source=source,model=expected['model'],canonical=expected['canonical'],reverse=expected['reverse'],
+        parent_canonical=expected['canonical'],parent_reverse=expected['reverse'],parent_formal=expected['model'],
+        evaluation_variant=spec['evaluation_variant'],group_order_adapter_sha256=spec['group_order_adapter_sha256'],historical_reverse_accepted=False,
         source_expected=expected,files=records,moments=artifact(moment),oracle=oracle,
         actual_training_rows={x['table']:x['actual_training_rows'] for x in report['training_tables']},author_different_groups=1713,
         author_reproduction_complete=False,full_paper_reproduction_complete=False)

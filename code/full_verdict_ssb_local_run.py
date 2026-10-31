@@ -210,6 +210,8 @@ def _verify_from_boundary(home,boundary=None):
         result=evaluate(plan,home);contract.require(result==contract.read(home/'evaluation.json') and final['evaluation_status']==result['status'] and final['point_gate_pass']==result['point_gate_pass'],'LOCAL raw result derivation differs')
     return dict(status='PASS_READONLY_LOCAL_VERDICT_EVIDENCE_WITH_AUTHOR_MISMATCH',final_sha256=sha,point_gate_pass=result['point_gate_pass'],evaluation_status=result['status'],
         scope=s['scope'],author_different_groups=1713,author_reproduction_complete=False,full_paper_reproduction_complete=False,
+        parent_canonical=plan['lineage']['parent_canonical'],parent_reverse=plan['lineage']['parent_reverse'],parent_formal=plan['lineage']['parent_formal'],
+        evaluation_variant=plan['lineage']['evaluation_variant'],group_order_adapter_sha256=plan['lineage']['group_order_adapter_sha256'],historical_reverse_accepted=False,
         final=contract.artifact(home/'final.json'),plan=contract.artifact(home/'plan.json'),evaluation=contract.artifact(home/'evaluation.json'),
         population_rows=s['population_rows'],sample_rows=s['sample_rows'],sampling_ratio=s['sampling_ratio'],original_calls=38,
         database_connected=False,processes_executed=False,scientific_calls_executed=False)
@@ -419,7 +421,7 @@ def main(argv=None):
     p.add_argument('--review',type=Path);p.add_argument('--review-sha256');p.add_argument('--name');p.add_argument('--start-project-postgres',action='store_true');p.add_argument('--output',type=Path)
     args=p.parse_args(argv)
     if args.output:output_path(args.output) # Before parent hashing or actual work.
-    if args.action=='describe':result=dict(status='CANDIDATE_CODE_ONLY',spec=contract.local_spec(),actual_execution_allowed=False,requirements=['completed exact parent source/model/reverse/native13moments','actual relation-width measurement and independent resource review','frozen plan/code and exact root approval'])
+    if args.action=='describe':result=dict(status='CANDIDATE_CODE_ONLY',spec=contract.local_spec(),actual_execution_allowed=False,requirements=['completed exact original source/model and canonical forward/reverse/native13moments','actual relation-width measurement and independent resource review','frozen plan/code and exact root approval'])
     elif args.action=='pilot-plan':
         contract.require(args.parents,'Complete final parent descriptors required');result=contract.build_pilot_plan(contract.read(args.parents))
     elif args.action=='plan':

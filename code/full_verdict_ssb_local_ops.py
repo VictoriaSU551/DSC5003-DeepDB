@@ -29,7 +29,7 @@ def check_science_processes(rows):
         ids.append(row['ProcessId'])
         # Match entrypoint basenames in quoted Windows paths and -m forms.
         # In particular *_ci_run.py/_worker and *_ci_replay.py lack "model".
-        if re.search(r'(?:full_ssb[^\s\\/\"\']*(?:model|ci|replay)[^\s\\/\"\']*|full_training[^\s\\/\"\']*)(?:\.py)?(?:\s|[\"\']|$)',row['CommandLine'],re.I):
+        if re.search(r'(?:full_ssb[^\s\\/\"\']*(?:model|ci|replay|canonical)[^\s\\/\"\']*|full_training[^\s\\/\"\']*)(?:\.py)?(?:\s|[\"\']|$)',row['CommandLine'],re.I):
             raise ValueError('Conflicting science/model/CI/replay active; LOCAL resource window closed: '+str(row['ProcessId']))
     contract.require(len(ids)==len(set(ids)),'Duplicate process identities in resource scan')
 
