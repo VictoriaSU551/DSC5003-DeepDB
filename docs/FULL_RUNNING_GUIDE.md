@@ -61,13 +61,18 @@ powershell -ExecutionPolicy Bypass -File setup-mscn.ps1
 .venv/Scripts/python.exe -B code/full_ssb_native_replay.py verify
 .venv/Scripts/python.exe -B code/full_ssb_native_tables.py
 
-# LOCAL1M结果和独立逆序重放均完成后：只读验收与派生表图
-.venv/Scripts/python.exe -B code/full_ssb_local_replay.py verify
-.venv/Scripts/python.exe -B code/full_ssb_local_tables.py
+# 新canonical1M完整事务接纳后：只读验收与独立派生表图
+# 历史full_ssb_local_replay.py已失败，不作为当前接续入口
+.venv/Scripts/python.exe -B code/full_ssb_local_canonical_run.py verify
+.venv/Scripts/python.exe -B code/full_ssb_local_canonical_tables.py
 
 # 独立10M/table训练政策的结果与逆序重放均完成后；不能接受1M模型代替
-.venv/Scripts/python.exe -B code/full_ssb_local_ci_replay.py verify
+.venv/Scripts/python.exe -B code/full_ssb_local_ci_group_replay.py verify
 .venv/Scripts/python.exe -B code/full_ssb_local_ci_tables.py
+
+# Scalar本地变体实际收集与完整封存后；不连接PG、不重新收集计数
+.venv/Scripts/python.exe -B code/full_scalar_oracle_audit.py --directory <已封存的独立run目录>
+.venv/Scripts/python.exe -B code/full_scalar_oracle_tables.py --directory <同一run目录>
 
 # 仅导出显式白名单派生CSV/PNG，作为可提交的协作快照
 .venv/Scripts/python.exe code/full_public_summary.py
@@ -103,7 +108,11 @@ v1/v2、原模型和原published真值均保留为历史证据。只有完整v3�
 | 修正SSB原生生成器、完整字段差分与恢复 | [FULL_SSB_NATIVE_V2.md](FULL_SSB_NATIVE_V2.md) |
 | 修正SSB模型桥与独立逆序验收 | [FULL_SSB_NATIVE_MODEL.md](FULL_SSB_NATIVE_MODEL.md)、[FULL_SSB_NATIVE_REPLAY.md](FULL_SSB_NATIVE_REPLAY.md) |
 | LOCAL1M独立模型/作者差异保留 | [FULL_SSB_LOCAL_REPLAY.md](FULL_SSB_LOCAL_REPLAY.md) |
+| 新canonical1M评估事务与历史失败分界 | [FULL_SSB_LOCAL_CANONICAL_PROTOCOL.md](FULL_SSB_LOCAL_CANONICAL_PROTOCOL.md)、[FULL_SSB_GROUP_ORDER_DIAGNOSTIC.md](FULL_SSB_GROUP_ORDER_DIAGNOSTIC.md) |
 | LOCAL10M/table训练政策及独立重放/只读外层 | [FULL_SSB_LOCAL_CI_PROTOCOL.md](FULL_SSB_LOCAL_CI_PROTOCOL.md)、[FULL_SSB_LOCAL_CI_REPLAY.md](FULL_SSB_LOCAL_CI_REPLAY.md) |
+| 新DBEst单维兼容查询路由与两次运行入口修复 | [FULL_DBEST_FLIGHTS_ROUTES.md](FULL_DBEST_FLIGHTS_ROUTES.md) |
+| 独立Scalar oracle与作者Perfect Selectivities分界 | [FULL_SCALAR_ORACLE_PROTOCOL.md](FULL_SCALAR_ORACLE_PROTOCOL.md) |
+| LOCAL Verdict的canonical父证据与预算 | [FULL_VERDICT_LOCAL_SSB_IMPLEMENTATION.md](FULL_VERDICT_LOCAL_SSB_IMPLEMENTATION.md) |
 | 原Verdict SSB SF2实际38调用与缺口 | [FULL_VERDICT_SSB_SF2_AUDIT.md](FULL_VERDICT_SSB_SF2_AUDIT.md) |
 
 正式长任务只运行一个控制器。SSB全4000片、3,000,028,242事实行与13项作者整数聚合
@@ -117,6 +126,11 @@ v1/v2、原模型和原published真值均保留为历史证据。只有完整v3�
 查询已经实际执行，无查询错误，三阶段封存通过；旧独立重放9c因S4.3置信区间差异失败并保留TAINTED。
 GROUP BY配对排序新变体的全部13条查询通过双hash/正逆序诊断，点与区间一致；
 正式canonical评估和独立验收尚未完成，不能运行依赖旧重放PASS的10M或LOCAL Verdict入口。
+2026-10-31的新canonical具体计划已封存，当前监督事务正在执行；这不是最终PASS。
+本轮CI v4的独立逆序入口是`full_ssb_local_ci_group_replay.py`，当前固定SHA为
+`4b73cf6bed9bb001ec1bf289fadb6950bdd4f0c644e1837406eaef402b0a827c`；
+CI协议中v3段落的旧`97243fa7...`为其预热修正前的历史候选。新的worker先导入会设置NumPy种子的
+原推断模块，再由冻结通用重放器设置声明的74031种子；不会逐query重新播种。
 详见[FULL_SSB_GROUP_ORDER_DIAGNOSTIC.md](FULL_SSB_GROUP_ORDER_DIAGNOSTIC.md)。10M/table政策实验
 代码已审查，但真实黄金和正式训练尚未执行。它们不能提升作者母体失败状态。
 其采样使用发布schema的精确概率0.003333，再按64位整数cutoff实施；实际样本数和n/p归一化均保留。
@@ -136,6 +150,10 @@ Verdict的当前验收只核文件/JAR/源码及历史数据库记录，不连�
 它保留F5.2原始错误、单独的两SUM适配和缺组；原生95%区间不能混作DeepDB中央90%区间。
 Windows深路径运行Verdict的建树测试时，临时目录应使用较短的`--basetemp output/tmp/v`，避免MAX_PATH；
 只读日常验收使用上述audit入口，不需要重跑golden或正式SQL。
+Scalar变体目前只完成实现、独审和源绑定计划，实际数据库收集尚未开始。它只用单表精确计数和
+预先声明的uniform-title-key公式估计多表结果，不是作者未公开的Perfect Selectivities组合器。
+派生表单独采用`EVALUATION_ONLY_FLOOR1`，保留原始Fraction/零预测；不与既有DeepDB的零值无穷大
+计分政策静默共榜。上述派生命令必须等待其真实PASS，不会缺失时补跑计数。
 
 ## 组员可直接接手的内容
 

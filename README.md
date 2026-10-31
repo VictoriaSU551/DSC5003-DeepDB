@@ -21,7 +21,8 @@ SSB已遍历4000片，但实际3,000,028,334行比作者记录多92行，2059项
 无查询错误；三阶段封存已通过，但独立逆序在S4.3发现CI不一致，失败记录保留。
 已定位GROUP BY集合顺序改变原型分组与置信区间因子分解。新配对排序变体在两个hash seed、
 正逆序的13SQL诊断中，2059个点估计及4118个区间端点完全一致；点估计与历史结果在原容差内一致，末位浮点差异保留。
-这是新变体诊断，正式独立验收仍未完成；模型不重训，旧报告和失败状态均不覆盖。
+这是新变体诊断；正式代码独审、完整父证据校验及具体计划封存已完成，正序/逆序监督事务正在运行，
+最终独立验收仍未完成。模型不重训，旧报告和失败状态均不覆盖。
 Figure11的10M/table训练政策另有独立模块和科学黄金测试接口，代码已审查，实际黄金及
 正式10M训练尚未执行。实际事实样本为9,996,946行，不声称恰好10M或作者母体一致。
 SSB的原Verdict在SF2完成38次实际调用：540个必要样本缩放组通过；原Q4 no-bound的
@@ -30,6 +31,9 @@ SSB的原Verdict在SF2完成38次实际调用：540个必要样本缩放组通�
 Verdict原引擎另完成同一Flights样本的12SQL对照：331个真值组、329个原始预测组，
 两处缺组及F5.2原始错误保留，两个SUM的外部差分适配单列。这是已物化样本上的执行，
 其95%区间、建样本成本和耗时口径与论文实验分别记录。
+新增DBEst单维路由的200K类别门禁已实际通过，固定20K行且没有新增拟合；两处入口身份缺陷已分别
+保留证据并最小修复，新增路由拟合仍未执行。Scalar-oracle的独立uniform-title-key变体已通过实现与独审，
+仅生成源绑定计划，尚未连接数据库；它不冒充作者Perfect Selectivities。
 公开683条真值中74条差异已全部
 由另一套精确PostgreSQL语句确认本地计数，原published文件保留，另存local真值指标。
 不能据此宣布完整复现。
@@ -45,6 +49,9 @@ Verdict原引擎另完成同一Flights样本的12SQL对照：331个真值组、3
 本地1M与10M实验分界见[CI协议](docs/FULL_SSB_LOCAL_CI_PROTOCOL.md)、
 [独立重放及只读验收](docs/FULL_SSB_LOCAL_CI_REPLAY.md)、
 [SSB分组顺序诊断](docs/FULL_SSB_GROUP_ORDER_DIAGNOSTIC.md)；
+新正式评估见[canonical事务协议](docs/FULL_SSB_LOCAL_CANONICAL_PROTOCOL.md)，
+新查询路由见[DBEst协议](docs/FULL_DBEST_FLIGHTS_ROUTES.md)，
+独立单表oracle变体见[Scalar协议](docs/FULL_SCALAR_ORACLE_PROTOCOL.md)；
 原Verdict小规模执行见[SF2审计](docs/FULL_VERDICT_SSB_SF2_AUDIT.md)。
 当前小型派生结果和图表可用 `code/full_public_summary.py` 从已封存产物导出到
 `output/results/fullpaper_*`；这些是明确标注未完成范围的协作快照。
