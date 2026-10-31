@@ -17,6 +17,9 @@ def configuration():
 
 def validate_formal_report(report, sample_rows, config=None):
     config=configuration() if config is None else config
+    for field in ('evaluation_variant','group_order_adapter_sha256'):
+        if field in config and report.get(field)!=config[field]:
+            raise ValueError('accepted canonical evaluation variant/adapter required')
     if (report['stage'] != config['stage']
             or report['scope'] != config['scope']
             or report['author_reproduction_complete'] is not False
@@ -35,7 +38,14 @@ def validate_formal_report(report, sample_rows, config=None):
         raise ValueError('complete five-model original training budget required')
 
 
-def draw_local(directory, queries, groups, actual_n, model_cap=1000000):
+def scope_text(report, config, field):
+    text=config.get(field,report.get(field))
+    if not isinstance(text,str) or not text.strip():
+        raise ValueError('Explicit derived scope text required: '+field)
+    return text
+
+
+def draw_local(directory, queries, groups, actual_n, model_cap=1000000, evaluation_note=''):
     """Both PNGs visibly retain the population boundary when shared alone."""
     import math
     import matplotlib
@@ -45,6 +55,7 @@ def draw_local(directory, queries, groups, actual_n, model_cap=1000000):
     plt.rcParams.update({'font.family':'DejaVu Sans','font.size':10,
         'axes.spines.top':False,'axes.spines.right':False,'savefig.dpi':180})
     warning = 'LOCAL population: 1,713 of 2,059 author truth groups differ; not author-population reproduction.'
+    if evaluation_note:warning+='\n'+evaluation_note
     fig, ax = plt.subplots(figsize=(12,5.3))
     values=[]
     for offset, field, label, color, marker in [(-.12,'model_mean_relative_error_with_missing_penalty',
@@ -103,11 +114,15 @@ def main(config=None):
     report = json.loads(payload)
     actual_n = accepted['source_snapshot']['sample_rows']
     validate_formal_report(report, actual_n, config)
+    normalizer_scope=scope_text(report,config,'normalizer_scope')
+    ci_scope=scope_text(report,config,'ci_scope')
     validate_query_identities(report['queries'], (ROOT/'code/benchmarks/ssb/sql/aqp_queries.sql').read_text().splitlines(), QUERY_NAMES)
     helpers = [Path(__file__),ROOT/'code/full_ssb_tables.py',ROOT/'code/full_aqp_tables.py']+[ROOT/p for p in config['helpers']]
     binding = dict(readonly_acceptance=accepted, sources=[source]+[artifact(p) for p in helpers],
                    full_paper_complete=False, scope=scope,model_training_cap_per_table=config['cap'],
-                   author_reproduction_complete=False, author_different_groups=1713)
+                   author_reproduction_complete=False, author_different_groups=1713,
+                   presentation=dict(normalizer_scope=normalizer_scope,ci_scope=ci_scope,
+                       evaluation_note=config.get('evaluation_note',''),evaluation_variant=config.get('evaluation_variant')))
     directory = FULL/'figures'/(config['prefix']+binding_hash(binding)[:16])
     manifest_path = directory/'manifest.json'
     pointer = FULL/'results'/config['pointer']
@@ -135,7 +150,7 @@ def main(config=None):
         scope=scope,model_training_cap_per_table=config['cap'],author_different_groups=1713,author_reproduction_complete=False)
         for t in report['training_tables']]
     csv_table(directory/'training_tables.csv',training_rows)
-    draw_local(directory, queries, groups, actual_n, config['cap'])
+    draw_local(directory, queries, groups, actual_n, config['cap'],config.get('evaluation_note',''))
     outputs = [directory/name for name in sorted(OUTPUT_NAMES)]
     # Bind the existing scientific files; this entry only computes derived views.
     for entry in binding['sources']:
@@ -147,9 +162,8 @@ def main(config=None):
         artifacts=[artifact(p) for p in outputs], full_paper_complete=False,
         group_truth_rows=sum(q['truth_groups'] for q in queries),
         training_rows_per_table={t['table']:t['actual_training_rows'] for t in report['training_tables']},
-        confidence_fact_sample_rows=actual_n, normalizer_scope=(config['normalizer_scope']
-            if 'normalizer_scope' in config else report['normalizer_scope']),
-        ci_scope=report['ci_scope'], author_full_row_byte_identity_proven=False,
+        confidence_fact_sample_rows=actual_n, normalizer_scope=normalizer_scope,
+        ci_scope=ci_scope, author_full_row_byte_identity_proven=False,
         paper_figure11_training_budget_reproduced=False,model_training_cap_per_table=config['cap'],
         paper_figure11_training_budget_policy_applied=config['policy_applied'],exact10000000_fact_training_rows_claimed=False,
         missing_group_policy='Missing truth groups incur100pct error; invalid predictions suppress the '

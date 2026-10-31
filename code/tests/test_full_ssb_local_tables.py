@@ -42,7 +42,8 @@ def test_wrong_scope_or_incomplete_science_cannot_become_local_figure(change):
 def test_distinct_10m_policy_requires_all_five_actual_training_counts():
     from full_ssb_local_ci_tables import configuration
     config=configuration()
-    report=fixture();report.update(stage=config['stage'],scope=config['scope'])
+    report=fixture();report.update(stage=config['stage'],scope=config['scope'],
+        evaluation_variant=config['evaluation_variant'],group_order_adapter_sha256=config['group_order_adapter_sha256'])
     for t in report['training_tables']:t['actual_training_rows']=config['training_rows'][t['table']]
     validate_formal_report(report,9996946,config)
     with pytest.raises(ValueError):validate_formal_report(report,9996946)
