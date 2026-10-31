@@ -13,6 +13,9 @@
 `fullpaper_sampling_manifest.json`绑定三个文件及其已验收本地来源，公开文件与对应来源逐字节相同。
 没有公开原始表、模型或运行环境，也不把两种LOCAL配置当作作者Table1原配置。
 
+`results/fullpaper_ssb_local_continuation_*`为已接纳SSB接续事务的3张最终数据表、2张图及来源哈希记录。
+范围是LOCAL SF500/1M每表模型，保留2059组及1713项作者真值差异；独立10M训练阶段另行验收。
+
 完整阶段单独放在`full/`，与上述首阶段结果隔离：
 
 - `full/completion_status.json`：从既有凭据重建的覆盖状态；整篇论文未完成时明确标记`INCOMPLETE_FULL_PAPER`。

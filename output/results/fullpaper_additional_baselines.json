@@ -1,6 +1,6 @@
 {
   "schema": "deepdb_additional_baselines_snapshot_v1",
-  "updated_at_utc": "2026-10-31T04:44:32.086890+00:00",
+  "updated_at_utc": "2026-10-31T05:12:41.023434+00:00",
   "full_paper_reproduction_complete": false,
   "scalar": {
     "status": "PASS_VERIFIED_LOCAL_SCALAR_ORACLE_DERIVED_TABLES",
@@ -374,8 +374,25 @@
     "external_command_wall_seconds": 854.304259,
     "external_wall_includes_full_parent_pre_post_verification": true,
     "inference_only_latency_claimed": false,
-    "derived_tables_export_started": false,
-    "ci10m_golden_status": "CANDIDATE_METADATA_RUNNING_FORMAL_TRAINING_NOT_STARTED"
+    "derived_tables_export_started": true,
+    "ci10m_golden_status": "REVIEWED_GOLDEN_SUPERVISOR_RUNNING_NOT_ACCEPTED_FORMAL_TRAINING_NOT_STARTED",
+    "derived_tables_status": "PASS_VERIFIED_LOCAL_SSB_DERIVED_TABLES",
+    "derived_tables_manifest": {
+      "path": "output/full/figures/aqp_ssb_local_continuation_82803cb6f9608f78/manifest.json",
+      "bytes": 10823,
+      "sha256": "bdcf3ad03a200d0c9cbf881428871c7f48586eccccf14f2490afdd1a07b36cf2"
+    },
+    "public_files_manifest": {
+      "path": "output/results/fullpaper_ssb_local_continuation_sources.json",
+      "bytes": 3726,
+      "sha256": "4fac27f51d5b49593ec336c109640329ad6a88f2b503935f2ce1206dd39920d2"
+    },
+    "derived_csv_rows": {
+      "query_summary": 13,
+      "all_groups": 2059,
+      "training_tables": 5
+    },
+    "two_pngs_visually_checked": true
   },
   "sampling": {
     "status": "PASS_TWO_LOCAL_METHODS_COMPLETE70_EACH_AND_INDEPENDENT_EXPORT",

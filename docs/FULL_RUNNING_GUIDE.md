@@ -142,7 +142,9 @@ v2的`ram_retry_02`已经整体通过，新计划位于`output/full/ssb/local_sf
 它复用正向26次调用并新增逆向13次模型载入/26次调用，2059个点及4118个区间端点完全一致。
 运行前后完整来源核验、独立子进程控制和最终发布均为PASS；原1M模型、旧正向结果及历史失败状态保持不变。
 结果为`output/full/results/ssb_local_sf500_canonical_aqp_ci.json`，SHA为`f37833fdc2b249e22632f5fa3e0ea98499c748487a43fcd42b0d692768fbeac8`。
-图表尚未导出；10M/table科学黄金验证正在生成候选计划，实际黄金和正式10M训练未执行。
+3张派生表及2张图已通过独立只读验收和图像检查，来源为`output/full/figures/aqp_ssb_local_continuation_82803cb6f9608f78/`。
+公开副本和哈希来源记录见`output/results/fullpaper_ssb_local_continuation_*`。
+10M/table科学小黄金等价验证事务正在运行，尚未最终验收；正式10M训练未执行。
 CI v7及LOCAL Verdict v6仅更新两个source pins，科学、黄金及资源策略不变，
 不代表实际黄金、训练或数据库执行已通过。旧canonical runner及旧计划保持历史失败状态。
 详见[FULL_SSB_LOCAL_CONTINUATION.md](FULL_SSB_LOCAL_CONTINUATION.md)。
