@@ -192,15 +192,16 @@ def validate_collection(p,r,root):
                 and all(cols.get(c) in {20,21,23} for c in s['projection']),'Invalid current integral PK/schema identity')
         strip=lambda x:{k:v for k,v in x.items() if k!='seconds'}
         require(strip(r['before'][t])==strip(r['after'][t]),'Before/after full query projection changed')
-    ops=r['common_operations'];require(type(ops) is list and len(ops)==16,'Common preparation/control roundtrip set incomplete')
+    ops=r['common_operations'];require(type(ops) is list and len(ops)==17,'Common preparation/control roundtrip set incomplete')
     expected=['SET LOCAL lock_timeout = 5000','LOCK TABLE '+', '.join('public."'+t+'"' for t in p['contract']['tables'])+' IN SHARE MODE NOWAIT',
-              'SET LOCAL search_path = pg_catalog, public',"SET LOCAL work_mem = '16MB'","SET LOCAL temp_file_limit = '1GB'",'SET LOCAL statement_timeout = 120000',
+              'SET LOCAL search_path = pg_catalog, public',"SET LOCAL work_mem = '16MB'","SET LOCAL temp_file_limit = '1GB'",'SET LOCAL statement_timeout = 600000',
               'SET LOCAL max_parallel_workers_per_gather = 0',"SET LOCAL application_name = 'deepdb_local_job70_srs'"]
     require([o['sql'] for o in ops[:8]]==expected and ops[8]['sql']==core.IDENTITY_SQL,'No six-table locks before first SELECT/exact identity query')
     require(ops[8]['response']==[d[k] for k in ('database','server_version_num','address','port','data_directory','backend_pid','read_only','isolation','postmaster_start')],
             'Historical identity SQL result differs from backend receipt')
     require([o['sql'] for o in ops[9:15]]==[core.population_sql(t) for t in p['contract']['tables']]
-            and ops[15]['sql']=='SET LOCAL statement_timeout = 120000','Unconditional live metadata/preparation SQL set changed')
+            and ops[15]['sql']=='SET LOCAL statement_timeout = 5000'
+            and ops[16]['sql']=='SET LOCAL statement_timeout = 600000','Unconditional live metadata/preparation/online SQL set changed')
     for i,t in enumerate(p['contract']['tables']):
         m=r['metadata'][t];require(ops[9+i]['response']==[m['rows'],m['distinct_ids'],m['min_id'],m['max_id']],'Metadata SQL receipt differs')
     for op in ops:
@@ -239,7 +240,7 @@ def validate_bundle(directory,root=ROOT,prepublication=False):
                 positive_truth_zero_q_error='INFINITY',incomplete_queries_must_not_be_silently_excluded=True,
                 collection=artifact(directory/'collection.json',root),predictions=artifact(directory/'predictions.json',root),
                 source_boundary=p['source_boundary'],current_database_values_reverified_by_offline_audit=False,
-                common_sql_roundtrips=64,common_sql_roundtrips_breakdown=dict(recorded_setup_identity_metadata_reset=16,schema_checks=36,streaming_copy=12),
+                common_sql_roundtrips=65,common_sql_roundtrips_breakdown=dict(recorded_setup_identity_metadata_reset=17,schema_checks=36,streaming_copy=12),
                 online_query_sql_roundtrips=sum(q['sql_roundtrips'] for q in pred),
                 all_online_query_wall_seconds=sum(q['wall_seconds'] for q in pred),common_preparation_timings=r['timings'])
     if not prepublication:

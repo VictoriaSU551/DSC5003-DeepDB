@@ -58,12 +58,13 @@ def bundle():
             snapshot[t]=dict(schema=dict(table=t,oid=1,relkind='r',relfilenode=1,inherits=False,columns=[[x,23] for x in columns],primary_key=['id'],valid_primary_key=True),
                              projection=columns,binary_copy=dict(bytes=100,sha256='a'*64),seconds=0.)
         setup=['SET LOCAL lock_timeout = 5000','LOCK TABLE '+', '.join('public."'+t+'"' for t in p['contract']['tables'])+' IN SHARE MODE NOWAIT',
-               'SET LOCAL search_path = pg_catalog, public',"SET LOCAL work_mem = '16MB'","SET LOCAL temp_file_limit = '1GB'",'SET LOCAL statement_timeout = 120000',
+               'SET LOCAL search_path = pg_catalog, public',"SET LOCAL work_mem = '16MB'","SET LOCAL temp_file_limit = '1GB'",'SET LOCAL statement_timeout = 600000',
                'SET LOCAL max_parallel_workers_per_gather = 0',"SET LOCAL application_name = 'deepdb_local_job70_srs'",m.core.IDENTITY_SQL]
         ops=[dict(sql=x,parameters=None,response=None,seconds=0.) for x in setup]
         for t in p['contract']['tables']:
             s=metadata[t];ops.append(dict(sql=m.core.population_sql(t),parameters=None,response=[s['rows'],s['distinct_ids'],s['min_id'],s['max_id']],seconds=0.))
-        ops.append(dict(sql='SET LOCAL statement_timeout = 120000',parameters=None,response=None,seconds=0.))
+        ops.append(dict(sql='SET LOCAL statement_timeout = 5000',parameters=None,response=None,seconds=0.))
+        ops.append(dict(sql='SET LOCAL statement_timeout = 600000',parameters=None,response=None,seconds=0.))
         resources=dict(available_memory_bytes=6*m.core.GIB,process_rss_bytes=1024,free_disk_bytes=20*m.core.GIB)
         r=dict(binding=p['binding'],scope=dict(m.core.SCOPE),source_boundary=p['source_boundary'],client_pid=pid,
             database_identity=dict(database='deepdb_job',server_version_num='110005',address='127.0.0.1',port=55432,
@@ -104,7 +105,19 @@ def test_full70_public_offline_audit_launch_db_and_writes_forbidden(bundle,monke
     assert result['status']=='PASS_READ_ONLY_LOCAL_JOB70_SRS' and result['verification']['queries']==70
     assert len(result['predictions']['queries'])==70 and result['verification']['raw_zero_queries']>0
     assert result['verification']['complete_finite_70_query_summary_allowed'] is False
+    assert result['verification']['common_sql_roundtrips']==65
+    assert result['verification']['common_sql_roundtrips_breakdown']==dict(recorded_setup_identity_metadata_reset=17,schema_checks=36,streaming_copy=12)
     assert {str(p):m.core.digest(p) for p in root.rglob('*') if p.is_file()}==before
+
+
+@pytest.mark.parametrize('damage',['cidr_address','legacy_inet_text','old_preparation_timeout','old_reset_timeout','old64_missing_online_limit'])
+def test_historical_identity_audit_rejects_cidr_and_legacy_inet_sql(bundle,damage):
+    m,run,root,d=bundle;r=copy.deepcopy(m.read(d/'collection.json'))
+    if damage=='cidr_address':r['database_identity']['address']='127.0.0.1/32'
+    elif damage=='legacy_inet_text':r['common_operations'][8]['sql']=m.core.IDENTITY_SQL.replace('host(inet_server_addr())','inet_server_addr()::text')
+    elif damage=='old64_missing_online_limit':del r['common_operations'][15]
+    else:r['common_operations'][5 if damage=='old_preparation_timeout' else 16]['sql']='SET LOCAL statement_timeout = 120000'
+    with pytest.raises(ValueError,match='identity|first SELECT|SQL set|roundtrip set'):m.validate_collection(m.read(d/'plan.json'),r,root)
 
 
 @pytest.mark.parametrize('mutation,match',[

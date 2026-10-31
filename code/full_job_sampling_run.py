@@ -169,7 +169,7 @@ def collect(plan,directory,root=ROOT):
             execute('SET LOCAL lock_timeout = 5000')
             execute('LOCK TABLE '+', '.join('public."'+t+'"' for t in contract['tables'])+' IN SHARE MODE NOWAIT')
             for sql in ("SET LOCAL search_path = pg_catalog, public","SET LOCAL work_mem = '16MB'","SET LOCAL temp_file_limit = '1GB'",
-                        'SET LOCAL statement_timeout = 120000','SET LOCAL max_parallel_workers_per_gather = 0',
+                        'SET LOCAL statement_timeout = '+str(core.POLICY['preparation_statement_timeout_ms']),'SET LOCAL max_parallel_workers_per_gather = 0',
                         "SET LOCAL application_name = 'deepdb_local_job70_srs'"):
                 execute(sql)
             r=execute(core.IDENTITY_SQL,fetch='one')
@@ -194,13 +194,14 @@ def collect(plan,directory,root=ROOT):
                         and row[2]<=row[3] and row[0]<=row[3]-row[2]+1,'Live unique non-NULL ID/count/min/max gate failed')
                 metadata[t]=dict(rows=row[0],distinct_ids=row[1],min_id=row[2],max_id=row[3])
             timings['live_population_metadata_seconds']=time.perf_counter()-tick
+            execute('SET LOCAL statement_timeout = 5000')
             tick=time.perf_counter()
             for q in contract['queries']:
                 monitor.check();leaf=run_query(q,metadata,contract,cursor,monitor,plan['binding'])
                 path=directory/'queries'/('query_%02d.json'%q['query_no']);atomic(path,leaf)
                 atomic(path.with_suffix('.seal.json'),dict(binding=plan['binding'],query_no=q['query_no'],artifact=artifact(path,root)))
             timings['all_online_queries_and_leaf_checkpoint_seconds']=time.perf_counter()-tick
-            execute('SET LOCAL statement_timeout = 120000')
+            execute('SET LOCAL statement_timeout = '+str(core.POLICY['preparation_statement_timeout_ms']))
             tick=time.perf_counter();snapshot(after);timings['after_projection_seconds']=time.perf_counter()-tick
             strip=lambda d:{t:{k:v for k,v in item.items() if k!='seconds'} for t,item in d.items()}
             require(strip(before)==strip(after),'Before/after query-projection physical identity mismatch')

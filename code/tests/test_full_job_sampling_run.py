@@ -172,16 +172,20 @@ def test_last_fraction_construction_cannot_publish_late_point(monkeypatch):
     assert r['status']=='QUERY_WALL_BUDGET' and r['sample_cardinality'] is None and r['raw_prediction'] is None
 
 
-def test_collect_readonly_locks_precede_select_and_twelve_full_projection_passes(tmp_path,monkeypatch):
+@pytest.mark.parametrize('force_cidr',[False,True])
+def test_collect_readonly_locks_precede_select_and_twelve_full_projection_passes(tmp_path,monkeypatch,force_cidr):
     m=module();contract=m.core.workload();events=[];copies=[]
     class Cursor:
         def __enter__(self):return self
         def __exit__(self,*a):pass
         def execute(self,sql,params=None):
             events.append(('sql',sql));self.sql=sql
+            if sql.startswith('SET LOCAL statement_timeout = '):self.timeout=int(sql.split(' = ')[1])
         def fetchone(self):
             if self.sql.startswith('SELECT current_database()'):
-                return ('deepdb_job','110005','127.0.0.1',55432,str(tmp_path/'data/postgresql/cluster'),17,'on','repeatable read','start')
+                assert self.sql==m.core.IDENTITY_SQL # driver must use the shared pinned SQL
+                address='127.0.0.1/32' if force_cidr or 'host(inet_server_addr())' not in self.sql else '127.0.0.1'
+                return ('deepdb_job','110005',address,55432,str(tmp_path/'data/postgresql/cluster'),17,'on','repeatable read','start')
             t=self.sql.split('FROM public."')[1].split('"')[0];n=m.core.EXPECTED_ROWS[t];return(n,n,1,n)
         def copy_expert(self,sql,sink):copies.append(sql);sink.write(sql.encode())
     class Connection:
@@ -206,10 +210,37 @@ def test_collect_readonly_locks_precede_select_and_twelve_full_projection_passes
         def schema_record(self,cursor,c,t):return dict(columns=[[x,23] for x in m.core.projection(c,t)])
         def copy_statement(self,c,t):return 'COPY '+t
     monkeypatch.setattr(m.core,'pinned_module',lambda name:Helper())
-    monkeypatch.setattr(m,'run_query',lambda q,*a,**k:dict(query_no=q['query_no']))
-    (tmp_path/'queries').mkdir();r=m.collect(dict(contract=contract,binding='b'*64,source_boundary='fixture'),tmp_path,tmp_path)
+    def initial_savepoint(q,metadata,contract,cursor,*args):
+        cursor.execute('SAVEPOINT sampling_query')
+        assert cursor.timeout==5000 # actual inherited limit at first query control SQL
+        cursor.execute('RELEASE SAVEPOINT sampling_query')
+        return dict(query_no=q['query_no'])
+    monkeypatch.setattr(m,'run_query',initial_savepoint)
+    (tmp_path/'queries').mkdir()
+    if force_cidr:
+        with pytest.raises(ValueError,match='Unexpected database/RR/read-only identity'):
+            m.collect(dict(contract=contract,binding='b'*64,source_boundary='fixture'),tmp_path,tmp_path)
+        assert copies==[] and list((tmp_path/'queries').iterdir())==[] and connection.rolled and connection.closed
+        return
+    r=m.collect(dict(contract=contract,binding='b'*64,source_boundary='fixture'),tmp_path,tmp_path)
     assert events[0]==('session',dict(isolation_level='REPEATABLE READ',readonly=True,autocommit=False))
     assert events[2][1].startswith('LOCK TABLE ') and 'IN SHARE MODE NOWAIT' in events[2][1]
     assert len(copies)==12 and len(r['metadata'])==6 and len(list((tmp_path/'queries').glob('*.json')))==140
     assert not any('FILTER' in e[1] for e in events if e[0]=='sql')
+    assert [e[1] for e in events if e[0]=='sql' and e[1].startswith('SET LOCAL statement_timeout')] == ['SET LOCAL statement_timeout = 600000','SET LOCAL statement_timeout = 5000','SET LOCAL statement_timeout = 600000']
+    assert m.core.POLICY['preparation_statement_timeout_ms']==600000
+    assert m.core.CONFIG['statement_timeout_ms']==5000 and m.core.CONFIG['max_query_seconds']==30.
     assert r['resource_monitor_stopped'] and r['owned_connection_rolled_back_and_closed'] and connection.rolled and connection.closed
+
+
+def test_identity_sql_and_reviewed_scalar_v4_pins_are_exact():
+    import ast
+    m=module()
+    assert 'host(inet_server_addr())' in m.core.IDENTITY_SQL and 'inet_server_addr()::text' not in m.core.IDENTITY_SQL
+    assert m.core.PINS['code/full_scalar_oracle_run.py']=='d5d31f3460d84942a2f22a0874f0c73bfcbbecb45a048a2ab78be76496ee9e26'
+    assert m.core.PINS['docs/FULL_SCALAR_ORACLE_PROTOCOL.md']=='1f02d7b591197f8cf4bd318199acb0173741887f149c4f5c80c02647058797fa'
+    nodes=ast.walk(ast.parse((ROOT/'code/full_job_sampling_run.py').read_text()))
+    shared=[n for n in nodes if isinstance(n,ast.Call) and isinstance(n.func,ast.Name) and n.func.id=='execute'
+            and n.args and isinstance(n.args[0],ast.Attribute) and isinstance(n.args[0].value,ast.Name)
+            and n.args[0].value.id=='core' and n.args[0].attr=='IDENTITY_SQL']
+    assert len(shared)==1

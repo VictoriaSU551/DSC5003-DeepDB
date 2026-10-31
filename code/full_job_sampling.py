@@ -16,12 +16,12 @@ ROOT=Path(__file__).resolve().parents[1]
 QUERY_FILE='code/benchmarks/job-light/sql/job_light_queries.sql'
 QUERY_SHA='e61da91710ce62d3669be70a8ded2499c6de1d759fcfac9a954b939465e76fdb'
 VARIANT='LOCAL_JOB70_SRS_WOR_N1000'
-IDENTITY_SQL="SELECT current_database(),current_setting('server_version_num'),inet_server_addr()::text,inet_server_port(),current_setting('data_directory'),pg_backend_pid(),current_setting('transaction_read_only'),current_setting('transaction_isolation'),pg_postmaster_start_time()::text"
+IDENTITY_SQL="SELECT current_database(),current_setting('server_version_num'),host(inet_server_addr()),inet_server_port(),current_setting('data_directory'),pg_backend_pid(),current_setting('transaction_read_only'),current_setting('transaction_isolation'),pg_postmaster_start_time()::text"
 EXPECTED_ROWS=dict(title=2528312,movie_info_idx=1380035,movie_info=14835720,cast_info=36244344,movie_keyword=4523930,movie_companies=2609129)
 PINS={'code/full_scalar_oracle.py':'a804301149e370eabf1055cdcb94d8157502032ab37a81e33a1b2396225964df',
-      'code/full_scalar_oracle_run.py':'513132368b6f2123896be2305b0d4377750ef03113b6dc1fef3bed2d1111f1e7',
+      'code/full_scalar_oracle_run.py':'d5d31f3460d84942a2f22a0874f0c73bfcbbecb45a048a2ab78be76496ee9e26',
       'code/full_scalar_oracle_audit.py':'15912c8e98a620553bc861e3b6dbe1821227f6cf8779bf1ab5eba6bb225f0307',
-      'docs/FULL_SCALAR_ORACLE_PROTOCOL.md':'0e8c032eb6b8883ebda0ebdb9a956b41c8ee79f933da22ffee890671573141cc'}
+      'docs/FULL_SCALAR_ORACLE_PROTOCOL.md':'1f02d7b591197f8cf4bd318199acb0173741887f149c4f5c80c02647058797fa'}
 CONFIG=dict(samples_per_table=1000,seed=1,batch_size=128,max_id_attempts_per_table=100000,max_sql_roundtrips=2000,max_query_seconds=30.,statement_timeout_ms=5000)
 SCOPE=dict(method=VARIANT,author_method_configuration_identified=False,author_sampling_reproduction_complete=False,
            full_paper_reproduction_complete=False,ibjs_implemented=False,truth_used_for_prediction=False,
@@ -36,7 +36,7 @@ INPUTS={'data/manifest.json':'ae6a5cef66340bae23325722f0f0d29ee616850851b99b6989
 GIB=1024**3
 POLICY=dict(startup_available_memory_bytes=5*GIB,running_available_memory_bytes=GIB,
             max_client_rss_bytes=512*1024**2,min_free_disk_bytes=8*GIB,work_mem_mb=16,
-            temp_file_limit_mb=1024,lock_timeout_ms=5000,preparation_statement_timeout_ms=120000,
+            temp_file_limit_mb=1024,lock_timeout_ms=5000,preparation_statement_timeout_ms=600000,
             max_parallel_workers_per_gather=0,max_snapshot_bytes_per_table=2*GIB,
             memory_poll_seconds=.1,max_total_seconds=5400)
 KERNEL32=Path('C:/Windows/System32/kernel32.dll')
