@@ -147,16 +147,19 @@ v2的`ram_retry_02`已经整体通过，新计划位于`output/full/ssb/local_sf
 10M/table训练入口的实际小黄金等价验证已经整体通过，结果为`output/full/results/ssb_local_ci10m_cap_golden.json`，
 SHA为`469fe011130f4b55e3f4e6603a622cd8286f65b0f35f2e10f0d02ef450b46ff1`。
 五表矩阵、结构、NumPy/Python随机状态一致；恢复只补拟合三个组件，前两个组件的四个checkpoint文件字节不变。
-这只是既有SF2/10K夹具的算法等价证据。正式10M训练正在生成候选计划，不能把小黄金记作正式CI模型。
-CI v7及LOCAL Verdict v6仅更新两个source pins，科学、黄金及资源策略不变，
-不代表实际黄金、训练或数据库执行已通过。旧canonical runner及旧计划保持历史失败状态。
+这只是既有SF2/10K夹具的算法等价证据，不能把小黄金记作正式CI模型。
+正式计划已封存于`output/full/ssb/local_sf500_ci10m/plans/312e67c9c57acb3738ce/plan.json`，
+ROOT在实测可用RAM9,026,080,768字节及独占科学运行窗口下启动正式事务；控制器仍会在实际worker启动前重新核验资源。
+启动要求至少7GiB可用RAM，运行期间原6GiB owned RSS/1GiB可用RAM等门限不变；模型及独立逆序尚未最终验收。
+CI v7的source pins迁移不改变科学、黄金及资源策略。LOCAL Verdict的Windows只读定义加载修正已经定点测试，尚未运行数据库实验。
+旧canonical runner及旧计划保持历史失败状态。
 详见[FULL_SSB_LOCAL_CONTINUATION.md](FULL_SSB_LOCAL_CONTINUATION.md)。
 本轮CI的独立逆序入口是`full_ssb_local_ci_group_replay.py`，当前固定SHA为
 `4b73cf6bed9bb001ec1bf289fadb6950bdd4f0c644e1837406eaef402b0a827c`；
 CI协议中v3段落的旧`97243fa7...`为其预热修正前的历史候选。新的worker先导入会设置NumPy种子的
 原推断模块，再由冻结通用重放器设置声明的74031种子；不会逐query重新播种。
 详见[FULL_SSB_GROUP_ORDER_DIAGNOSTIC.md](FULL_SSB_GROUP_ORDER_DIAGNOSTIC.md)。10M/table政策实验
-代码已审查，但真实黄金和正式训练尚未执行。它们不能提升作者母体失败状态。
+真实小黄金已整体通过，正式事务正在执行；独立10M逆序及最终验收仍待完成。它们不能提升作者母体失败状态。
 其采样使用发布schema的精确概率0.003333，再按64位整数cutoff实施；实际样本数和n/p归一化均保留。
 `full_ssb_native_v2_formal.py verify-final`仅是固定生成器的数值/物理输入门禁；模型桥还须独立绑定
 stream lifecycle/stderr、时间/峰值和外层FINAL_PASS后才接纳，不把作者13条真值相同称为全部原始行字节相同。

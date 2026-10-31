@@ -1,6 +1,6 @@
 {
   "schema": "deepdb_additional_baselines_snapshot_v1",
-  "updated_at_utc": "2026-10-31T05:40:38.566674+00:00",
+  "updated_at_utc": "2026-10-31T06:06:49.086136+00:00",
   "full_paper_reproduction_complete": false,
   "scalar": {
     "status": "PASS_VERIFIED_LOCAL_SCALAR_ORACLE_DERIVED_TABLES",
@@ -632,7 +632,7 @@
   "prior_fullpaper_snapshots_are_earlier_snapshots": true,
   "new_scientific_calls_during_this_export": 0,
   "ssb_ci10m": {
-    "status": "PASS_SMALL_GOLDEN_ONLY_FORMAL_NOT_EXECUTED",
+    "status": "FORMAL_CONTROLLER_RUNNING_NOT_ACCEPTED",
     "golden_publication": {
       "path": "output/full/results/ssb_local_ci10m_cap_golden.json",
       "bytes": 9772084,
@@ -658,7 +658,7 @@
     "preserved_prefix_checkpoint_files": 4,
     "cap10m_boundary_only_verified": true,
     "formal10m_training_executed": false,
-    "formal_candidate_status": "METADATA_RUNNING",
+    "formal_candidate_status": "ROOT_REVIEWED_AND_PLAN_SEALED",
     "planned_formal_cap_per_table": 10000000,
     "planned_actual_rows": {
       "lineorder": 9996946,
@@ -672,6 +672,15 @@
     "training_only_latency_claimed": false,
     "author_different_groups": 1713,
     "author_reproduction_complete": false,
-    "full_paper_reproduction_complete": false
+    "full_paper_reproduction_complete": false,
+    "formal_controller_command_started": true,
+    "formal_scientific_training_observed": false,
+    "formal_model_accepted": false,
+    "formal_plan": {
+      "path": "output/full/ssb/local_sf500_ci10m/plans/312e67c9c57acb3738ce/plan.json",
+      "bytes": 2157881,
+      "sha256": "4a5639267ac0dc88d873904a7f05d6f90decfe328cefa05bfb05b04a53e750bc"
+    },
+    "formal_plan_binding_sha256": "312e67c9c57acb3738cee86dd54d1aee1a5c79f2554ff849741919489a3ed8f8"
   }
 }
