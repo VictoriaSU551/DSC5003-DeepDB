@@ -159,7 +159,8 @@ def test_formal_routes_cannot_precede_an_actual_original_sum_and_avg_golden():
 def test_fresh_worker_evidence_requires_actual_private_executable_argv_and_threads(tmp_path):
     m=module();token='b'*32;sha='c'*64;plan=dict(kind='CATALOG',binding_sha256='a'*64,base_python={'path':'.runtime/python.exe'},population=m.population_spec('GOLDEN_200K'))
     expected=m.worker_identity(plan,tmp_path,sha,token)
-    assert expected['command']==list(map(str,m.worker_command(plan,tmp_path,sha,token)))
+    assert expected['script_argv']==list(map(str,m.worker_command(plan,tmp_path,sha,token)))[2:]
+    assert expected['interpreter_flags']=={'dont_write_bytecode':1}
     assert expected['environment']['PYTHONHASHSEED']=='74031' and expected['environment']['OMP_NUM_THREADS']=='1'
     assert expected['executable']==str(m.PRIVATE)
 
@@ -204,4 +205,35 @@ def test_original_quadrature_adapter_identity_uses_actual_points_and_frozen_fail
     expected=m.compatibility_record(-12.,14.,1.)
     assert expected['breakpoints']==6 and expected['source_failure_scope'].startswith('Previously verified original200K')
     assert expected['kind']=='Original scipy.quad points/limit only' and expected['source_failure']['sha256']=='a'*64
+
+
+def test_worker_observation_distinguishes_sys_argv_from_launch_flags(tmp_path,monkeypatch):
+    from types import SimpleNamespace
+    m=module();plan=dict(population={'seed':74031});token='a'*32;sha='b'*64
+    command=list(map(str,m.worker_command(plan,tmp_path,sha,token)))
+    assert command[1]=='-B'
+    monkeypatch.setattr(m.sys,'executable',command[0]);monkeypatch.setattr(m.sys,'argv',command[2:])
+    monkeypatch.setattr(m.sys,'flags',SimpleNamespace(dont_write_bytecode=1))
+    expected=m.worker_identity(plan,tmp_path,sha,token)
+    for key,value in expected['environment'].items():monkeypatch.setenv(key,value)
+    for key in expected['absent_environment']:monkeypatch.delenv(key,raising=False)
+    actual=m.observe_worker_identity(expected)
+    assert actual==expected
+    assert actual['script_argv']==command[2:]
+    assert actual['interpreter_flags']=={'dont_write_bytecode':1}
+    assert 'command' not in actual
+    monkeypatch.setattr(m.sys,'flags',SimpleNamespace(dont_write_bytecode=0))
+    assert m.observe_worker_identity(expected)!=expected
+
+
+def test_worker_observation_cannot_hide_changed_script_or_environment(tmp_path,monkeypatch):
+    from types import SimpleNamespace
+    m=module();expected=m.worker_identity(dict(population={'seed':74031}),tmp_path,'b'*64,'a'*32)
+    monkeypatch.setattr(m.sys,'executable',expected['executable']);monkeypatch.setattr(m.sys,'argv',expected['script_argv']+['--unexpected'])
+    monkeypatch.setattr(m.sys,'flags',SimpleNamespace(dont_write_bytecode=1))
+    for key,value in expected['environment'].items():monkeypatch.setenv(key,value)
+    for key in expected['absent_environment']:monkeypatch.delenv(key,raising=False)
+    assert m.observe_worker_identity(expected)!=expected
+    monkeypatch.setattr(m.sys,'argv',expected['script_argv']);monkeypatch.setenv('OMP_NUM_THREADS','2')
+    assert m.observe_worker_identity(expected)!=expected
 

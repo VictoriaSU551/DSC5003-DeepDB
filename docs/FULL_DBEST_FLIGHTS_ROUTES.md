@@ -58,3 +58,9 @@ Future ROOT-owned launch sequence (not executed by this candidate):
 ```
 
 `describe` is the default and does not open a scientific input or initialize an engine. Plan generation performs complete read-only source/runtime validation, so it is itself deferred to ROOT's approved resource window. The current freeze is a code-review candidate only, with zero new actual category passes, fits, native integrals, DB connections or regenerated data. `PASS_READONLY_ORIGINAL_DBEST_ROUTE_EVIDENCE_WITH_GAPS` certifies internally consistent evidence; fit failures, numerical-budget gaps, absent/NULL/invalid native results and missing truth groups remain separate explicit outcomes. It does not certify complete query coverage or paper performance.
+
+## V2 worker argument observation
+
+The v1 golden catalog run `gold_cat_v1` reached a complete200K category scan (2.2748135s), saved the fixed20K rows and unchanged before/after source proof, then failed its final worker identity check. Its TAINTED namespace and all seven original sources are retained in `audits/candidate_v1/source_snapshot/`; the original freeze is unchanged. It is not an accepted catalog or fit result.
+
+A fresh private-interpreter diagnostic confirmed that CPython removes `-B` from `sys.argv`; the native command line still contains the flag and the venv redirector's actual interpreter is the project base executable. V1 incorrectly compared script argv to an entire launch command containing `-B`. V2 keeps the controller's full launch command, while the worker records its actual `sys.argv`, `sys.executable` and `sys.flags.dont_write_bytecode` separately. It never reconstructs an observed full command. Any remaining mismatch writes both observations before stopping. Two new pure regressions preserve incorrect script/flag/environment rejection. New actual gates use a new source-bound plan and namespace; the failed v1 receipt is never promoted to PASS.

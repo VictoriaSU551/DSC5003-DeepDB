@@ -362,8 +362,18 @@ def worker_command(body,home,review_sha,token):
 def worker_identity(plan,home,review_sha,token):
     env={k:'1' for k in ('OMP_NUM_THREADS','OPENBLAS_NUM_THREADS','MKL_NUM_THREADS','NUMEXPR_NUM_THREADS','PYTHONDONTWRITEBYTECODE','PYTHONNOUSERSITE')}
     env.update(PYTHONHASHSEED=str(plan['population']['seed']),MPLBACKEND='Agg',MPLCONFIGDIR=str(Path(home)/'auxiliary/matplotlib'))
-    return dict(executable=str(PRIVATE),command=list(map(str,worker_command(plan,home,review_sha,token))),environment=env,
+    return dict(executable=str(PRIVATE),script_argv=list(map(str,worker_command(plan,home,review_sha,token)))[2:],
+        interpreter_flags=dict(dont_write_bytecode=1),environment=env,
         absent_environment=['PYTHONPATH','PYTHONHOME','PYTHONSTARTUP'])
+
+
+def observe_worker_identity(expected):
+    # sys.argv is script+arguments: CPython removes interpreter options such as
+    # -B. Record observable flags separately, never reconstruct a full command.
+    return dict(executable=str(Path(sys.executable)),script_argv=list(sys.argv),
+        interpreter_flags=dict(dont_write_bytecode=sys.flags.dont_write_bytecode),
+        environment={k:os.environ.get(k) for k in expected['environment']},
+        absent_environment=[k for k in expected['absent_environment'] if k not in os.environ])
 
 
 def validate_execution(home,plan,controller,worker,resource):
@@ -522,8 +532,9 @@ def worker(args):
         worker_peak_bytes=peak,original_prior_classes_reexecuted=False,new_original_api_calls=new_calls,new_fit_attempts=fit_attempts,
         new_query_evaluation_only_after_raw_predictions=True,selected_ids_sha256=population['row_ids_sha256'],backend=ORIGINAL_BACKEND if body['kind']=='ROUTES' else 'CATEGORY_MEMBERSHIP_ONLY')
     expected=worker_identity(body,home,args.review_sha256,args.token)
-    actual=dict(executable=str(Path(sys.executable)),command=[sys.executable]+sys.argv,environment={k:os.environ.get(k) for k in expected['environment']},
-        absent_environment=[k for k in expected['absent_environment'] if k not in os.environ])
+    actual=observe_worker_identity(expected)
+    if actual!=expected:
+        atomic(home/'failed_worker_identity.json',dict(observed=actual,expected=expected,process_id=os.getpid()))
     require(actual==expected,'Actual fresh worker executable, arguments or thread environment differs');result['identity']=actual
     atomic(home/'worker.json',result);return 0
 
