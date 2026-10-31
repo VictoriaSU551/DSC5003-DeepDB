@@ -108,3 +108,43 @@ def test_assembled_queries_and_evaluation_preserve_missing_extra_and_zero_truth_
     assert q['missing_nonzero_penalty_count']==1 and q['zero_truth_groups']==1
     malformed=copy.deepcopy(truth);malformed['queries'][-1]['sql']=malformed['queries'][0]['sql']
     with pytest.raises(ValueError):m.evaluate(queries,malformed)
+
+
+def identity_truth(m,population_rows=None):
+    return dict(population_rows=m.N if population_rows is None else population_rows,complete=True,
+        queries=[dict(query_no=i,query_name=m.QUERY_NAMES[i],sql=m.SQLS[i],groups=[]) for i in range(12)])
+
+
+def test_exact_bound_query3_single_space_truth_is_evaluable_without_changing_sqls_or_math():
+    m=module();truth=identity_truth(m)
+    queries=[dict(query_no=s['query_no'],name=s['name'],scope=s['scope'],groups=[]) for s in m.route_specs()]
+    queries[1]['groups']=[dict(key=['UA'],estimate=7.)]
+    truth['queries'][7]['groups']=[dict(key=['UA'],numerator=4,denominator=1)]
+    original=m.evaluate(queries,truth)
+    assert original[1]['scope']==m.VARIANT and original[1]['groups'][0]['relative_error']==.75
+    actual_sql="SELECT unique_carrier, COUNT(*) FROM flights WHERE origin_state_abr='LA' AND dest_state_abr='CA' GROUP BY unique_carrier;"
+    truth['queries'][3]['sql']=actual_sql
+    assert m.evaluate(queries,truth)==original
+    assert m.validate_truth_identity(truth,m.N)==[dict(query_no=3,query_name='F2.2',actual_sql=actual_sql,
+        expected_sql=m.SQLS[3],alias='SOURCE_BOUND_QUERY3_SINGLE_SPACE')]
+    assert 'AND  dest' in m.SQLS[3]
+    assert m.validate_truth_identity(identity_truth(m),m.N)==[]
+    assert m.validate_truth_identity(identity_truth(m,200000),200000)==[]
+
+
+@pytest.mark.parametrize('mutation',[
+    lambda t:t['queries'][3].update(sql=t['queries'][3]['sql'].replace("dest_state_abr='CA'","dest_state_abr='HI'")),
+    lambda t:t['queries'][3].update(sql=t['queries'][3]['sql'].replace("'LA'","'LA '")),
+    lambda t:t['queries'][3].update(sql=t['queries'][3]['sql'].replace('AND  dest','AND   dest')),
+    lambda t:t['queries'][7].update(sql=t['queries'][7]['sql'].replace('AND origin','AND  origin')),
+    lambda t:t['queries'][3].update(query_no=4),
+    lambda t:t['queries'][0].update(query_no=False),
+    lambda t:t['queries'][3].update(query_name='F2.3'),
+    lambda t:t.update(complete=False),
+    lambda t:t.update(population_rows=200000),
+    lambda t:t['queries'].pop(),
+    lambda t:t['queries'].append(copy.deepcopy(t['queries'][3])),
+])
+def test_truth_alias_does_not_normalize_other_sql_or_relax_complete12_identity(mutation):
+    m=module();truth=identity_truth(m);mutation(truth)
+    with pytest.raises(ValueError):m.validate_truth_identity(truth,m.N)

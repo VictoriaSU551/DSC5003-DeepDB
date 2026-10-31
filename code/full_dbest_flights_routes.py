@@ -27,6 +27,7 @@ SQLS=(
  "SELECT unique_carrier, COUNT(*) FROM flights WHERE air_time>1000 AND dep_delay>1500 GROUP BY unique_carrier;",
  "SELECT year_date, SUM(arr_delay*dep_delay) FROM flights WHERE origin_state_abr = 'CA' AND dest_state_abr = 'HI' GROUP BY year_date;",
  "SELECT dest_state_abr, SUM(taxi_out)-SUM(taxi_in) FROM flights WHERE unique_carrier = 'UA' AND origin = 'ATL' GROUP BY dest_state_abr;")
+QUERY3_TRUTH_SQL_SINGLE_SPACE="SELECT unique_carrier, COUNT(*) FROM flights WHERE origin_state_abr='LA' AND dest_state_abr='CA' GROUP BY unique_carrier;"
 VARIANT='QUERY_AWARE_EXACT_YEAR_PREFILTER_VARIANT'
 
 
@@ -233,10 +234,26 @@ def assemble_queries(jobs,results):
     return queries
 
 
+def validate_truth_identity(truth,population_rows=N):
+    """Validate exact source SQLs; only the sealed1B query3 literal has an alias."""
+    message='Complete exact original12 truth identities required only after prediction'
+    require(type(population_rows) is int and population_rows in (N,200000) and type(truth) is dict and
+        truth.get('complete') is True and type(truth.get('population_rows')) is int and truth['population_rows']==population_rows and
+        type(truth.get('queries')) is list and len(truth['queries'])==12,message)
+    aliases=[]
+    for i,query in enumerate(truth['queries']):
+        require(type(query) is dict and type(query.get('query_no')) is int and query['query_no']==i and
+            query.get('query_name')==QUERY_NAMES[i],message)
+        actual=query.get('sql')
+        if actual==SQLS[i]:continue
+        require(i==3 and population_rows==N and actual==QUERY3_TRUTH_SQL_SINGLE_SPACE,message)
+        aliases.append(dict(query_no=3,query_name=QUERY_NAMES[3],actual_sql=actual,expected_sql=SQLS[3],
+            alias='SOURCE_BOUND_QUERY3_SINGLE_SPACE'))
+    return aliases
+
+
 def evaluate(queries,truth,population_rows=N):
-    require(population_rows in (N,200000) and truth.get('complete') is True and truth.get('population_rows')==population_rows and len(truth['queries'])==12 and
-        [(q['query_no'],q['query_name'],q['sql']) for q in truth['queries']]==list(zip(range(12),QUERY_NAMES,SQLS)),
-        'Complete exact original12 truth identities required only after prediction')
+    validate_truth_identity(truth,population_rows)
     require([q['query_no'] for q in queries]==[6,7,10,11],'Exactly four new routed queries required')
     output=[]
     for query in queries:
