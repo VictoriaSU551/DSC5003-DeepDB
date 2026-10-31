@@ -61,8 +61,8 @@ powershell -ExecutionPolicy Bypass -File setup-mscn.ps1
 .venv/Scripts/python.exe -B code/full_ssb_native_replay.py verify
 .venv/Scripts/python.exe -B code/full_ssb_native_tables.py
 
-# 新continuation完整事务接纳后才可执行；当前尚无最终PASS
-# 历史replay及canonical ROOT均失败，不能当作成功父阶段
+# 新continuation事务已通过；旧replay/canonical ROOT失败状态保留
+# 以下两种只读入口按需要择一，每个入口都包含一次完整父证据核验
 .venv/Scripts/python.exe -B code/full_ssb_local_continuation_run.py verify
 .venv/Scripts/python.exe -B code/full_ssb_local_continuation_tables.py
 
@@ -129,7 +129,7 @@ v1/v2、原模型和原published真值均保留为历史证据。只有完整v3�
 另行封存的LOCAL决定与完整21766项来源审计允许本地生成母体实验。当前五个1M/table模型和13条
 查询已经实际执行，无查询错误，三阶段封存通过；旧独立重放9c因S4.3置信区间差异失败并保留TAINTED。
 GROUP BY配对排序新变体的全部13条查询通过双hash/正逆序诊断，点与区间一致；
-正式canonical评估和独立验收尚未完成，不能运行依赖旧重放PASS的10M或LOCAL Verdict入口。
+旧canonical评估失败；后续10M和LOCAL Verdict使用下述已经通过的continuation父契约。
 2026-10-31首次canonical监督事务因Windows Job名称前缀不兼容，在任何模型调用前失败；旧计划和TAINTED保留。
 v2只修正两个名称字符串，正逆两个方向的真实base→venv进程门禁均通过，门禁不调用模型或数据库。
 第二次事务正向26次调用及2059组验收通过；逆向在科学调用前因存储监控过期停止，旧ROOT保持TAINTED。
@@ -138,7 +138,11 @@ v2只修正两个名称字符串，正逆两个方向的真实base→venv进程�
 `e3135eea0469eb00df42ea8c27370d6af445356bb4c136f2c71ee2e11ebf41be`。
 首个接续事务在完整来源核对后因RAM不足5GiB停于0worker/0模型调用，旧f263命名空间保持TAINTED。
 v2用显式`--attempt-id`将新尝试绑定到独立计划和目录，目录认领前先检查5GiB，worker前也保留原门禁。
-v2独立审查及实际零科学调用进程门禁通过，新候选使用`ram_retry_02`，尚未执行逆向科学调用。
+v2的`ram_retry_02`已经整体通过，新计划位于`output/full/ssb/local_sf500_continuation/plans/87392d7dedf465279272/plan.json`。
+它复用正向26次调用并新增逆向13次模型载入/26次调用，2059个点及4118个区间端点完全一致。
+运行前后完整来源核验、独立子进程控制和最终发布均为PASS；原1M模型、旧正向结果及历史失败状态保持不变。
+结果为`output/full/results/ssb_local_sf500_canonical_aqp_ci.json`，SHA为`f37833fdc2b249e22632f5fa3e0ea98499c748487a43fcd42b0d692768fbeac8`。
+图表尚未导出；10M/table科学黄金验证正在生成候选计划，实际黄金和正式10M训练未执行。
 CI v7及LOCAL Verdict v6仅更新两个source pins，科学、黄金及资源策略不变，
 不代表实际黄金、训练或数据库执行已通过。旧canonical runner及旧计划保持历史失败状态。
 详见[FULL_SSB_LOCAL_CONTINUATION.md](FULL_SSB_LOCAL_CONTINUATION.md)。

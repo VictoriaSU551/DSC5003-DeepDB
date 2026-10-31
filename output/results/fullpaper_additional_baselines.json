@@ -1,6 +1,6 @@
 {
   "schema": "deepdb_additional_baselines_snapshot_v1",
-  "updated_at_utc": "2026-10-31T04:18:20.641114+00:00",
+  "updated_at_utc": "2026-10-31T04:44:32.086890+00:00",
   "full_paper_reproduction_complete": false,
   "scalar": {
     "status": "PASS_VERIFIED_LOCAL_SCALAR_ORACLE_DERIVED_TABLES",
@@ -327,18 +327,55 @@
     }
   },
   "canonical": {
-    "status": "FORWARD_ACCEPTED_NEW_REVERSE_NOT_ACCEPTED_FIRST_CONTINUATION_RESOURCE_GATE_FAILED",
+    "status": "PASS_LOCAL_SSB_SF500_CANONICAL_CONTINUATION_AQP_CI",
+    "published_result": {
+      "path": "output/full/results/ssb_local_sf500_canonical_aqp_ci.json",
+      "bytes": 11205419,
+      "sha256": "f37833fdc2b249e22632f5fa3e0ea98499c748487a43fcd42b0d692768fbeac8"
+    },
     "forward_queries": 13,
     "forward_actual_calls": 26,
     "forward_groups": 2059,
-    "new_continuation_actual_scientific_calls": 0,
-    "continuation_no_science_job_gate": "V2_PASS_1_TEST",
+    "adopted_forward": true,
+    "forward_reexecuted": false,
+    "new_continuation_actual_scientific_calls": 26,
+    "new_reverse_model_loads": 13,
+    "new_reverse_queries": 13,
+    "point_values_compared": 2059,
+    "interval_endpoints_compared": 4118,
+    "max_absolute_difference": 0.0,
+    "coverage": {
+      "truth_groups_total": 2059,
+      "model_groups_total": 2059,
+      "missing_model_groups_total": 0,
+      "extra_model_groups_total": 0,
+      "nonfinite_point_groups": 0,
+      "nonfinite_original_ci_groups": 0,
+      "missing_or_nonfinite_model_interval_groups": 0,
+      "zero_truth_groups": 0,
+      "reference_ci_eligible_truth_groups": 1253,
+      "reference_ci_excluded_truth_groups": 806,
+      "reference_ci_status_counts_all_union": {
+        "ELIGIBLE": 1253,
+        "EXCLUDED_SAMPLE_COUNT_LT_10": 806
+      }
+    },
+    "attempt_id": "ram_retry_02",
+    "root_status": "PASS",
     "author_different_groups": 1713,
     "author_reproduction_complete": false,
-    "failed_continuation_worker_started": false,
-    "new_attempt_id": "ram_retry_02",
-    "new_attempt_status": "CANDIDATE_METADATA_COMPLETE_REQUIRES_ROOT_REVIEW_NOT_SEALED",
-    "operational_attempts_v2_commit": "ada3e6e"
+    "full_paper_reproduction_complete": false,
+    "old_failed_root_states_changed": false,
+    "earlier_continuation_attempt": {
+      "status": "TAINTED_BEFORE_WORKER_RAM_GATE",
+      "worker_started": false,
+      "scientific_calls": 0
+    },
+    "external_command_wall_seconds": 854.304259,
+    "external_wall_includes_full_parent_pre_post_verification": true,
+    "inference_only_latency_claimed": false,
+    "derived_tables_export_started": false,
+    "ci10m_golden_status": "CANDIDATE_METADATA_RUNNING_FORMAL_TRAINING_NOT_STARTED"
   },
   "sampling": {
     "status": "PASS_TWO_LOCAL_METHODS_COMPLETE70_EACH_AND_INDEPENDENT_EXPORT",
