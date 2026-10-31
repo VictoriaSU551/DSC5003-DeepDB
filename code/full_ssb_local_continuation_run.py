@@ -26,21 +26,22 @@ SELF='code/full_ssb_local_continuation_run.py'
 JOB_PREFIX='Local\\DeepDB_SSB_NATIVE_CONTINUATION_'
 LOGS=('stdout.log','stderr.log','monitor.json','bootstrap.json','worker_start.json')
 POLICY=dict(ops.OPERATIONAL_POLICY,minimum_worker_available_memory_bytes=4*2**30)
-PLAN_FIELDS=set('schema status executable scope execution_protocol codes parent old_plan old_plan_seal forward accepted_forward_artifacts retained_failure_provenance worker_roles prepared_directory worker_environment environment_contract hash_seed random_seed thread_limits additional_reserve_bytes author_different_groups author_reproduction_complete full_paper_reproduction_complete historical_reverse_accepted worker_artifacts operational_policy root_reviewed_candidate_sha256'.split())
+PLAN_FIELDS=set('schema attempt_id status executable scope execution_protocol codes parent old_plan old_plan_seal forward accepted_forward_artifacts retained_failure_provenance worker_roles prepared_directory worker_environment environment_contract hash_seed random_seed thread_limits additional_reserve_bytes author_different_groups author_reproduction_complete full_paper_reproduction_complete historical_reverse_accepted worker_artifacts operational_policy root_reviewed_candidate_sha256'.split())
 
 
 def candidate_part(plan):
     p=dict(plan);p.pop('root_reviewed_candidate_sha256');p.update(status='CANDIDATE_REQUIRES_ROOT_REVIEW',executable=False);return p
 
 
-def build_candidate(old_plan_path,old_plan_sha256,reviewed_codes_sha256):
+def build_candidate(old_plan_path,old_plan_sha256,reviewed_codes_sha256,attempt_id='initial'):
+    model.validate_attempt_id(attempt_id)
     require(value_hash(model.code_snapshot())==reviewed_codes_sha256,'reviewed continuation two-source code set required')
-    p=model.candidate_from_parent(old_plan_path,old_plan_sha256,model.collect_parent());p['operational_policy']=POLICY
+    p=model.candidate_from_parent(old_plan_path,old_plan_sha256,model.collect_parent(),attempt_id);p['operational_policy']=POLICY
     return p
 
 
-def seal_plan(old_plan_path,old_plan_sha256,reviewed_codes_sha256,root_reviewed_candidate_sha256):
-    p=build_candidate(old_plan_path,old_plan_sha256,reviewed_codes_sha256)
+def seal_plan(old_plan_path,old_plan_sha256,reviewed_codes_sha256,root_reviewed_candidate_sha256,attempt_id='initial'):
+    p=build_candidate(old_plan_path,old_plan_sha256,reviewed_codes_sha256,attempt_id)
     require(value_hash(p)==root_reviewed_candidate_sha256,'explicit ROOT-reviewed current candidate required')
     p=dict(p,status='ROOT_REVIEWED_CONTINUATION_PLAN',executable=True,root_reviewed_candidate_sha256=root_reviewed_candidate_sha256)
     path=ROOT/model.OUTPUT/'plans'/value_hash(p)[:20]/'plan.json'
@@ -53,10 +54,11 @@ def read_plan(path,expected_sha,root=ROOT):
     root=Path(root).resolve();path=Path(path).resolve();require(digest(path)==expected_sha,'continuation plan physical SHA differs')
     p=read(path);require(path==root/model.OUTPUT/'plans'/value_hash(p)[:20]/'plan.json' and read(path.with_suffix('.seal.json'))==dict(sha256=expected_sha),'continuation plan path/seal differs')
     c=candidate_part(p)
-    require(set(p)==PLAN_FIELDS and p['schema']=='local_ssb_canonical_continuation_plan_v1'
+    require(set(p)==PLAN_FIELDS and p['schema']=='local_ssb_canonical_continuation_plan_v2'
         and p['additional_reserve_bytes']==model.old.RESERVE_BYTES and p['environment_contract']==model.ENVIRONMENT_CONTRACT
         and set(p['worker_roles'])=={'model','moments','truth'} and all(type(p[k]) is list and p[k] and len(p[k])==len({d['path'] for d in p[k]}) for k in ('worker_artifacts','accepted_forward_artifacts','retained_failure_provenance')),
         'exact continuation schema/consumed-role/required-set contract required')
+    model.validate_attempt_id(p['attempt_id'])
     require(value_hash(c)==p['root_reviewed_candidate_sha256'] and p['status']=='ROOT_REVIEWED_CONTINUATION_PLAN' and p['executable'] is True
         and p['scope']==model.SCOPE and p['execution_protocol']==model.PROTOCOL and p['operational_policy']==POLICY
         and p['codes']==model.code_snapshot() and p['hash_seed']==173 and p['random_seed']==74031 and p['thread_limits']=={n:'1' for n in model.THREADS}
@@ -108,6 +110,12 @@ def verify_child(plan):
 def validate_root_resources(probe,reserve=0):
     require(all(type(probe[k]) is int and probe[k]>=0 for k in ('available_memory_bytes','free_disk_bytes','existing_ssb_bytes')),'integer physical ROOT resource bytes required')
     base.check_resources(probe['free_disk_bytes'],probe['available_memory_bytes'],probe['existing_ssb_bytes'],additional_bytes=reserve)
+    return probe
+
+
+def validate_launch_resources(probe):
+    validate_root_resources(probe,model.old.RESERVE_BYTES)
+    require(probe['available_memory_bytes']>=POLICY['minimum_launch_available_memory_bytes'],'at least5GiB launch admission required')
     return probe
 
 
@@ -268,16 +276,17 @@ def run_supervised(path,sha,memory_approved=False):
 def _run_supervised(path,sha):
     plan=read_plan(path,sha);run=model.run_directory(plan);accepted=None
     def fresh():
-        p=model.collect_parent();current=model.candidate_from_parent(ROOT/plan['old_plan']['path'],plan['old_plan']['sha256'],p);current['operational_policy']=POLICY
+        p=model.collect_parent();current=model.candidate_from_parent(ROOT/plan['old_plan']['path'],plan['old_plan']['sha256'],p,plan['attempt_id']);current['operational_policy']=POLICY
         require(current==candidate_part(plan),'fresh ROOT complete parent/forward/consumed closure differs');return p
     def produce():
         nonlocal accepted
         fresh();_run_child(plan);accepted=fresh()
         probe=complete_resources();validate_root_resources(probe)
-        return model.report_body(plan,path,accepted,probe)
-    def validate(r):require(accepted is not None and r==model.report_body(plan,path,accepted,r['root_final_resources']),'fresh post-F required for report acceptance')
+        return model.report_body(plan,path,accepted,probe,admission)
+    def validate(r):require(accepted is not None and r==model.report_body(plan,path,accepted,r['root_final_resources'],r['root_admission_resources']),'fresh post-F required for report acceptance')
     with base.controller_lock(ROOT/model.OUTPUT/'controller.lock'):
         require(not run.exists(),'continuation namespace already used; verify separately, never repair/reexecute')
+        admission=complete_resources();validate_launch_resources(admission)  # Before claiming ROOT or performing any F.
         try:
             r=base.formal_transaction(run/'root_control',root_binding(plan),produce,validate,kind='CONTINUATION_ROOT')
             model.publish(r,accepted);return dict(status=r['status'],published_result=artifact(ROOT/model.RESULT))
@@ -293,6 +302,7 @@ def main(argv=None):
     for name in ('candidate-plan','seal-plan'):
         p=sub.add_parser(name)
         for arg in ('old-plan-path','old-plan-sha256','reviewed-codes-sha256'):p.add_argument('--'+arg,required=True)
+        p.add_argument('--attempt-id',default='initial')
         if name=='seal-plan':p.add_argument('--root-reviewed-candidate-sha256',required=True)
     p=sub.add_parser('supervise');p.add_argument('--plan-path',required=True);p.add_argument('--plan-file-sha256',required=True);p.add_argument('--root-memory-approved',action='store_true')
     sub.add_parser('verify')
@@ -301,8 +311,8 @@ def main(argv=None):
         for arg in ('plan-path','plan-file-sha256','start-token','job-name'):p.add_argument('--'+arg,required=True)
         if name=='_worker':p.add_argument('--bootstrap-pid',type=int,required=True)
     a=parser.parse_args(argv)
-    if a.command=='candidate-plan':r=build_candidate(a.old_plan_path,a.old_plan_sha256,a.reviewed_codes_sha256)
-    elif a.command=='seal-plan':r=seal_plan(a.old_plan_path,a.old_plan_sha256,a.reviewed_codes_sha256,a.root_reviewed_candidate_sha256)
+    if a.command=='candidate-plan':r=build_candidate(a.old_plan_path,a.old_plan_sha256,a.reviewed_codes_sha256,a.attempt_id)
+    elif a.command=='seal-plan':r=seal_plan(a.old_plan_path,a.old_plan_sha256,a.reviewed_codes_sha256,a.root_reviewed_candidate_sha256,a.attempt_id)
     elif a.command=='supervise':r=run_supervised(a.plan_path,a.plan_file_sha256,a.root_memory_approved)
     elif a.command=='verify':r=model.verify_canonical()
     elif a.command=='_bootstrap':r=bootstrap_entry(a)

@@ -18,8 +18,8 @@ PARENT_RESULT_SHA='da358d52a0005bb28cd606c8e539099bdf242b72d4f6e663db6c0a3f84e15
 MISMATCH_SHA='740e525bf5a092f6f28cb1dfc2d3e0226afc206246106fb9ced216faf79aec6e'
 PROVIDER_FILES=('code/full_ssb_local_continuation.py','code/full_ssb_local_continuation_run.py','code/full_ssb_group_order.py')
 PINS={
-    PROVIDER_FILES[0]:'7a1bf30793e0484482bda3548c9d65dc3c3732af286287e62a2a054fd5e15563',
-    PROVIDER_FILES[1]:'763c9c46ce34fa0b4b0e59fbeea4f43d081945b8d6e20b91dde0b91eb937c7a0',
+    PROVIDER_FILES[0]:'151b29aac633aa85902578ccb115de749a31be74d8f525b1e62d5d99257dd6d1',
+    PROVIDER_FILES[1]:'e3135eea0469eb00df42ea8c27370d6af445356bb4c136f2c71ee2e11ebf41be',
     PROVIDER_FILES[2]:ADAPTER_SHA,
     'code/full_ssb_local_tables.py':'be1738ebb9b6e1947684a35b7af403226e6dc043244ff26c12b1f1cc2522ae63',
     'code/full_ssb_tables.py':'c1957f5a5709c76086a88d7e828fd018b83db0a7a4ed7c2e85369d5fbce79a14',

@@ -9,6 +9,7 @@ import importlib
 import os
 from pathlib import Path
 import random
+import re
 import full_ssb_local_canonical as old
 import full_ssb_local_canonical_run as prior_run
 
@@ -138,13 +139,20 @@ def verify_worker_inputs(plan):
     return forward
 
 
-def candidate_from_parent(old_path,old_sha,parent):
+def validate_attempt_id(attempt_id):
+    require(type(attempt_id) is str and re.fullmatch('[A-Za-z0-9][A-Za-z0-9_-]{0,31}',attempt_id) is not None,
+        'attempt_id must be 1..32 ASCII letters/digits/underscore/hyphen, starting with a letter or digit')
+    return attempt_id
+
+
+def candidate_from_parent(old_path,old_sha,parent,attempt_id='initial'):
+    validate_attempt_id(attempt_id)
     old_path=Path(old_path).resolve();p=prior_run.read_plan(old_path,old_sha)
     forward,accepted,provenance=accept_forward(p,parent)
     env=inference_environment(p['dependencies']['environment']);require(worker_environment()==env,'accepted actual inference environment changed')
     report=parent['report'];home=Path(report['directory'])
     roles=dict(model=artifact(parent['model_path']),moments=artifact(home/'sample_moments_native/moments.json'),truth=artifact(home/'core_truth_checkpoint.json'))
-    candidate=dict(schema='local_ssb_canonical_continuation_plan_v1',status='CANDIDATE_REQUIRES_ROOT_REVIEW',executable=False,
+    candidate=dict(schema='local_ssb_canonical_continuation_plan_v2',attempt_id=attempt_id,status='CANDIDATE_REQUIRES_ROOT_REVIEW',executable=False,
         scope=SCOPE,execution_protocol=PROTOCOL,codes=code_snapshot(),parent=old.parent_snapshot(parent),old_plan=artifact(old_path),old_plan_seal=artifact(old_path.with_suffix('.seal.json')),
         forward=artifact(old.run_directory(p)/'forward/verification.json'),accepted_forward_artifacts=accepted,retained_failure_provenance=provenance,
         worker_roles=roles,prepared_directory=report['prepared_directory'],worker_environment=env,
@@ -226,11 +234,12 @@ def verify_reverse(plan):
     return r,records+[artifact(home/p) for p in ('verification.json','seal.json','science_control/receipt.json','science_control/lifecycle.json')]
 
 
-def report_body(plan,path,parent,root_final_resources):
+def report_body(plan,path,parent,root_final_resources,root_admission_resources):
     import full_ssb_local_continuation_run as runner
     runner.validate_root_resources(root_final_resources)
+    runner.validate_launch_resources(root_admission_resources)
     forward=read(ROOT/plan['forward']['path']);reverse,_=verify_reverse(plan);prior=parent['report'];run=run_directory(plan)
-    return dict(status=PASS,stage='LOCAL_SSB_SF500_CANONICAL_CONTINUATION_1M_AQP_CI',scope=SCOPE,execution_protocol=PROTOCOL,
+    return dict(status=PASS,attempt_id=validate_attempt_id(plan['attempt_id']),stage='LOCAL_SSB_SF500_CANONICAL_CONTINUATION_1M_AQP_CI',scope=SCOPE,execution_protocol=PROTOCOL,
         variant='CANONICAL_PAIRED_DECODED_GROUP_ORDER',evaluation_variant='CANONICAL_DECODED_GROUP_PROTOTYPE_V1',group_order_adapter_sha256=old.ADAPTER_SHA,
         directory=str(run),plan=plan,plan_path=Path(path).relative_to(ROOT).as_posix(),plan_file_sha256=digest(path),plan_binding_sha256=value_hash(plan),
         parent=old.parent_snapshot(parent),parent_formal=parent['published_result'],original_mismatch=parent['original_mismatch'],
@@ -242,13 +251,14 @@ def report_body(plan,path,parent,root_final_resources):
         phase_model_loads=dict(FORWARD=1,REVERSE=13),phase_evaluator_calls=dict(FORWARD=26,REVERSE=26),reverse_comparisons=reverse['comparisons'],coverage=forward['coverage'],
         group_order_adapter=artifact(ROOT/old.ADAPTER),author_different_groups=1713,author_reproduction_complete=False,full_paper_reproduction_complete=False,
         author_population_row_count_and_13_truths_match=False,author_full_row_byte_identity_proven=False,historical_reverse_accepted=False,historical_result_changed=False,
-        adopted_forward=True,forward_reexecuted=False,preparation_executed=False,training_executed=False,moments_executed=False,root_final_resources=root_final_resources)
+        adopted_forward=True,forward_reexecuted=False,preparation_executed=False,training_executed=False,moments_executed=False,
+        root_final_resources=root_final_resources,root_admission_resources=root_admission_resources)
 
 
 def complete_artifacts(plan,r,parent):
     import full_ssb_local_continuation_run as runner
-    path=ROOT/r['plan_path'];require(runner.read_plan(path,r['plan_file_sha256'])==plan and r==report_body(plan,path,parent,r['root_final_resources']),'continuation complete report/parent differs')
-    candidate=candidate_from_parent(ROOT/plan['old_plan']['path'],plan['old_plan']['sha256'],parent);candidate['operational_policy']=runner.POLICY
+    path=ROOT/r['plan_path'];require(runner.read_plan(path,r['plan_file_sha256'])==plan and r==report_body(plan,path,parent,r['root_final_resources'],r['root_admission_resources']),'continuation complete report/parent differs')
+    candidate=candidate_from_parent(ROOT/plan['old_plan']['path'],plan['old_plan']['sha256'],parent,plan['attempt_id']);candidate['operational_policy']=runner.POLICY
     require(candidate==runner.candidate_part(plan),'current original forward/input closure differs')
     records={d['path']:d for d in parent['artifacts']+plan['accepted_forward_artifacts']+plan['retained_failure_provenance']+plan['worker_artifacts']}
     _,reverse=verify_reverse(plan)
@@ -294,7 +304,7 @@ def publish(r,parent):
 
 def _verify_complete(parent):
     r=read(ROOT/RESULT);records=verify_publication(r,parent);run=Path(r['directory'])
-    return dict(status=API_PASS,scope=SCOPE,execution_protocol=PROTOCOL,variant=r['variant'],evaluation_variant=r['evaluation_variant'],group_order_adapter_sha256=old.ADAPTER_SHA,
+    return dict(status=API_PASS,scope=SCOPE,execution_protocol=PROTOCOL,attempt_id=r['attempt_id'],variant=r['variant'],evaluation_variant=r['evaluation_variant'],group_order_adapter_sha256=old.ADAPTER_SHA,
         report=r,parent_snapshot=dict(parent,proof_method='DIRECT_FROZEN_PREVIOUS_VERIFY_LOCAL_FORMAL'),published_result=artifact(ROOT/RESULT),verification=artifact(run/'verification.json'),
         verification_seal=artifact(run/'verification_seal.json'),plan=artifact(ROOT/r['plan_path']),formal_receipt=artifact(run/'root_control/receipt.json'),formal_lifecycle=artifact(run/'root_control/lifecycle.json'),
         artifacts=records,dependencies=r['plan'],model_path=r['model_path'],model_sha256=r['model_sha256'],sample_rows=source.SAMPLE_ROWS,population_rows=source.N,

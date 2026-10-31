@@ -29,3 +29,38 @@ Remove-Item Env:DEEPDB_CONTINUATION_NO_SCIENCE_GATE
 ```
 
 Only ROOT subsequently creates/reviews/seals a fresh candidate and launches it in an exclusive resource window. The CLI requires the exact old plan path/SHA, reviewed two-source code-set SHA, explicit reviewed candidate SHA and a separate `--root-memory-approved` on `supervise`. Default `verify` never launches or repairs anything. No source needs a hard-false latch change to enable a specifically approved plan. Final delivery may explicitly retire historical raw-generation/failed intermediate audit dependencies; this module does not delete them or pretend the historical full F will remain runnable after such retirement.
+
+## Operational attempts v2
+
+The reviewed plan schema is now `local_ssb_canonical_continuation_plan_v2`.
+Candidate and sealed-plan identity include `attempt_id`: 1..32 ASCII letters,
+digits, underscores or hyphens, beginning with a letter or digit. Both
+`candidate-plan` and `seal-plan` accept `--attempt-id`, defaulting to `initial`
+for caller compatibility. Missing fields, invalid identifiers, the old v1
+schema and extra plan fields are rejected even if the altered plan is resealed.
+Changing the identifier changes the reviewed plan and run namespace, without
+changing model inputs, forward acceptance, inference parameters, or scientific
+formulas. Every ROOT pre/post reconstruction and public artifact reconstruction
+uses that same plan identifier. It also appears in the accepted report and
+public API. ROOT must independently create, review and seal each new attempt;
+there is no automatic retry or continuation of an existing TAINTED directory.
+
+ROOT checks current complete storage/resources followed by fresh fast RAM/disk
+readings before claiming a new run namespace or performing its first F. The
+5GiB launch requirement and 512MiB storage reserve apply at this early boundary.
+Insufficient admission leaves the run namespace absent and performs no F or
+worker launch. Successful reports retain these `root_admission_resources` and
+read-only acceptance revalidates their admission rules. The original late
+pre-worker gate remains mandatory because RAM may fall during the parent F;
+4GiB worker admission, 6GiB owned RSS, 1GiB live available RAM, 8GiB free disk,
+16GiB combined SSB storage, 90s scanner staleness and 48h wall limits are unchanged.
+
+The earlier failed continuation run `f263d386196bf2c1fd8e` remains TAINTED. Its
+failure was the late 5GiB launch gate, before any worker or reverse model calls.
+This version neither repairs that namespace nor reexecutes the already accepted
+old FORWARD. Five owned files (two modules, their two tests and this protocol)
+change; the earlier canonical providers, original F, original science and
+accepted FORWARD sources are frozen. Downstream consumers need the new exact
+two-source pins before using a new reviewed attempt. The v2 implementation
+evidence is 97 pure/mock tests passing and one opt-in real Job test skipped;
+there were zero actual F, model calls, database operations or plans created.

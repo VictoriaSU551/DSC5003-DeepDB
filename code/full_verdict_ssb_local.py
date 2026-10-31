@@ -38,8 +38,8 @@ PARENT_PINS={
  'code/full_ssb_native_v2_formal.py':'52de0f43faf554a761f8dacca3cee5e9d919113402743aacf1a211ddcd882b40',
  'code/full_ssb_local_canonical.py':'9c041ffc8ca40386ad9e3582fd81cb1f0e76fd3db1a337cb97bb686a521ff6b6',
  'code/full_ssb_local_canonical_run.py':'8d561253786e8acd68e03c3b89fce46c2655f04cdd0c4b34492b369a6d757636',
- 'code/full_ssb_local_continuation.py':'7a1bf30793e0484482bda3548c9d65dc3c3732af286287e62a2a054fd5e15563',
- 'code/full_ssb_local_continuation_run.py':'763c9c46ce34fa0b4b0e59fbeea4f43d081945b8d6e20b91dde0b91eb937c7a0',
+ 'code/full_ssb_local_continuation.py':'151b29aac633aa85902578ccb115de749a31be74d8f525b1e62d5d99257dd6d1',
+ 'code/full_ssb_local_continuation_run.py':'e3135eea0469eb00df42ea8c27370d6af445356bb4c136f2c71ee2e11ebf41be',
  'code/full_ssb_group_order.py':'48220a0474a838c8dc9a7cf3fef0e8a84459a05e3fa8e15405307acae430ae5c'}
 SOURCES=['code/full_verdict_ssb_local.py','code/full_verdict_ssb_local_ops.py','code/full_verdict_ssb_local_run.py',
  'code/full_verdict_ssb_local_bridge.java','code/tests/test_full_verdict_ssb_local.py','code/tests/test_full_verdict_ssb_local_ops.py',

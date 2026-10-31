@@ -42,6 +42,44 @@ def test_absent_reviewed_plan_never_launches_anything(tmp_path,monkeypatch):
     with pytest.raises(ValueError):m.run_supervised(tmp_path/'missing','x',False)
 
 
+def test_early_launch_admission_failure_cannot_claim_namespace_or_call_F(tmp_path,monkeypatch):
+    m=module();monkeypatch.setattr(m,'ROOT',tmp_path);monkeypatch.setattr(m.model,'ROOT',tmp_path)
+    plan=dict(attempt_id='ram_retry_02',parent={},forward={});run=m.model.run_directory(plan)
+    monkeypatch.setattr(m,'read_plan',lambda *a:plan)
+    monkeypatch.setattr(m.base,'controller_lock',lambda *a:contextlib.nullcontext())
+    monkeypatch.setattr(m,'complete_resources',lambda:dict(available_memory_bytes=9*2**29,free_disk_bytes=20*2**30,existing_ssb_bytes=2*2**30))
+    monkeypatch.setattr(m.model,'collect_parent',lambda:pytest.fail('early admission must precede F'))
+    monkeypatch.setattr(m.base,'formal_transaction',lambda *a,**k:pytest.fail('early admission must precede namespace claim'))
+    monkeypatch.setattr(m,'_run_child',lambda *a:pytest.fail('no owned process'))
+    with pytest.raises(ValueError,match='5GiB'):m._run_supervised(tmp_path/'plan.json','sha')
+    assert not run.exists()
+
+
+def test_invalid_attempt_cannot_trigger_candidate_parent_F(monkeypatch):
+    m=module();monkeypatch.setattr(m.model,'collect_parent',lambda:pytest.fail('invalid attempt reached F'))
+    monkeypatch.setattr(m.model,'code_snapshot',lambda:pytest.fail('invalid attempt reached source audit'))
+    with pytest.raises(ValueError,match='attempt'):m.build_candidate('old','sha','codes','../retry')
+
+
+def test_late_preworker_launch_gate_still_refuses_RAM_that_fell_after_F(tmp_path,monkeypatch):
+    m=module();monkeypatch.setattr(m.model,'ROOT',tmp_path)
+    monkeypatch.setattr(m,'child_binding',lambda *a:{})
+    monkeypatch.setattr(m,'complete_resources',lambda:dict(available_memory_bytes=9*2**29,free_disk_bytes=20*2**30,existing_ssb_bytes=2*2**30))
+    monkeypatch.setattr(m.base,'formal_transaction',lambda home,binding,produce,validate,**kw:produce())
+    monkeypatch.setattr(m,'run_owned',lambda *a:pytest.fail('late gate must precede owned launch'))
+    with pytest.raises(ValueError,match='5GiB'):m._run_child({'attempt_id':'ram_retry_02'})
+
+
+@pytest.mark.parametrize('attempt_id',['initial','ram_retry_02'])
+def test_cli_forwards_explicit_or_default_attempt_without_parent_access(monkeypatch,attempt_id):
+    m=module();calls=[]
+    monkeypatch.setattr(m,'build_candidate',lambda *args,**kw:calls.append((args,kw)) or {'fixture':True})
+    args=['candidate-plan','--old-plan-path','old','--old-plan-sha256','sha','--reviewed-codes-sha256','codes']
+    if attempt_id!='initial':args+=['--attempt-id',attempt_id]
+    assert m.main(args)==0
+    assert calls==[(('old','sha','codes',attempt_id),{})]
+
+
 def test_stale_exception_is_preserved_even_when_owned_cleanup_times_out(tmp_path,monkeypatch):
     m=module();monkeypatch.setattr(m,'ROOT',tmp_path);exe=tmp_path/'base.exe';exe.write_text('tiny');events=[]
     class Process:
@@ -137,7 +175,7 @@ def test_final_root_resource_receipt_is_exact_and_budget_checked(change):
 @pytest.mark.parametrize('failure',[None,'post_F','publication'])
 def test_root_boundary_has_two_fresh_Fs_one_reverse_and_no_repair(tmp_path,monkeypatch,failure):
     m=module();monkeypatch.setattr(m,'ROOT',tmp_path);monkeypatch.setattr(m.model,'ROOT',tmp_path);events=[]
-    c=dict(status='CANDIDATE_REQUIRES_ROOT_REVIEW',executable=False,scope=m.model.SCOPE,execution_protocol=m.model.PROTOCOL,old_plan=dict(path='old.json',sha256='x'),parent={},forward={},operational_policy=m.POLICY)
+    c=dict(status='CANDIDATE_REQUIRES_ROOT_REVIEW',executable=False,attempt_id='ram_retry_02',scope=m.model.SCOPE,execution_protocol=m.model.PROTOCOL,old_plan=dict(path='old.json',sha256='x'),parent={},forward={},operational_policy=m.POLICY)
     p=dict(c,status='ROOT_REVIEWED_CONTINUATION_PLAN',executable=True,root_reviewed_candidate_sha256='review')
     monkeypatch.setattr(m,'read_plan',lambda *a:p)
     def parent():
@@ -145,12 +183,15 @@ def test_root_boundary_has_two_fresh_Fs_one_reverse_and_no_repair(tmp_path,monke
         if failure=='post_F' and events.count('F')==2:raise RuntimeError('post F failed')
         return {'fresh':True}
     monkeypatch.setattr(m.model,'collect_parent',parent)
-    monkeypatch.setattr(m.model,'candidate_from_parent',lambda *a:{k:v for k,v in c.items() if k!='operational_policy'})
+    def rebuild(*a):
+        assert a[-1]=='ram_retry_02'
+        return {k:v for k,v in c.items() if k!='operational_policy'}
+    monkeypatch.setattr(m.model,'candidate_from_parent',rebuild)
     monkeypatch.setattr(m,'_run_child',lambda *a:events.append('REVERSE_ONLY'))
     probe=dict(available_memory_bytes=6*2**30,free_disk_bytes=20*2**30,existing_ssb_bytes=2*2**30)
     monkeypatch.setattr(m.ops,'operational_resources',lambda:probe)
     monkeypatch.setattr(m.ops,'fast_resources',lambda:{k:probe[k] for k in ('available_memory_bytes','free_disk_bytes')})
-    monkeypatch.setattr(m.model,'report_body',lambda p,path,parent,resources:dict(status=m.model.PASS,root_final_resources=resources))
+    monkeypatch.setattr(m.model,'report_body',lambda p,path,parent,resources,admission:dict(status=m.model.PASS,root_final_resources=resources,root_admission_resources=admission))
     def publish(*a):
         events.append('PUBLICATION')
         if failure=='publication':raise RuntimeError('publication failed')
@@ -175,21 +216,28 @@ def test_complete_resource_probe_refreshes_fast_memory_after_storage_walk(monkey
     assert p['storage_scan_age_seconds']==0 and p['storage_walk_seconds']>=0
 
 
-@pytest.mark.parametrize('damage',[None,'schema','reserve','contract','empty_closure','roles','extra'])
+@pytest.mark.parametrize('damage',[None,'schema','v1_schema','reserve','contract','empty_closure','roles','extra','missing_attempt','empty_attempt','bad_attempt','non_ascii_attempt','long_attempt','bool_attempt'])
 def test_reviewed_plan_rejects_changed_execution_contract_even_when_resealed(tmp_path,monkeypatch,damage):
     m=module();codes={m.SELF:'x',m.model.FILES[0]:'y'};monkeypatch.setattr(m.model,'code_snapshot',lambda:codes)
-    c=dict(schema='local_ssb_canonical_continuation_plan_v1',status='CANDIDATE_REQUIRES_ROOT_REVIEW',executable=False,scope=m.model.SCOPE,execution_protocol=m.model.PROTOCOL,
+    c=dict(schema='local_ssb_canonical_continuation_plan_v2',attempt_id='ram_retry_02',status='CANDIDATE_REQUIRES_ROOT_REVIEW',executable=False,scope=m.model.SCOPE,execution_protocol=m.model.PROTOCOL,
         codes=codes,parent={},old_plan={},old_plan_seal={},forward={},accepted_forward_artifacts=[{'path':'forward'}],retained_failure_provenance=[{'path':'history'}],
         worker_roles={n:{'path':n} for n in ('model','moments','truth')},prepared_directory='prepared',worker_environment={},
         environment_contract='ONLY_CURRENT_MODEL_FORWARD_QUERIES_MOMENTS_TRUTH_ALGORITHM_PARSER_RUNTIME;ROOT_FULL_FORMAL_PRE_POST',
         hash_seed=173,random_seed=74031,thread_limits={n:'1' for n in m.model.THREADS},additional_reserve_bytes=512*2**20,
         author_different_groups=1713,author_reproduction_complete=False,full_paper_reproduction_complete=False,historical_reverse_accepted=False,worker_artifacts=[{'path':'model'}],operational_policy=m.POLICY)
     if damage=='schema':c['schema']='old'
+    if damage=='v1_schema':c['schema']='local_ssb_canonical_continuation_plan_v1'
     if damage=='reserve':c['additional_reserve_bytes']=0
     if damage=='contract':c['environment_contract']='FAKE_FULL_F'
     if damage=='empty_closure':c['worker_artifacts']=[]
     if damage=='roles':c['worker_roles'].pop('truth')
     if damage=='extra':c['skip_parent_F']=True
+    if damage=='missing_attempt':c.pop('attempt_id')
+    if damage=='empty_attempt':c['attempt_id']=''
+    if damage=='bad_attempt':c['attempt_id']='../retry'
+    if damage=='non_ascii_attempt':c['attempt_id']='\u00e9'
+    if damage=='long_attempt':c['attempt_id']='a'*33
+    if damage=='bool_attempt':c['attempt_id']=True
     p=dict(c,status='ROOT_REVIEWED_CONTINUATION_PLAN',executable=True,root_reviewed_candidate_sha256=m.value_hash(c))
     path=tmp_path/m.model.OUTPUT/'plans'/m.value_hash(p)[:20]/'plan.json';m.atomic(path,p);m.atomic(path.with_suffix('.seal.json'),dict(sha256=m.digest(path)))
     if damage is None:assert m.read_plan(path,m.digest(path),tmp_path)==p

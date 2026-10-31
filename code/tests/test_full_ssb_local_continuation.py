@@ -14,6 +14,68 @@ def module():
     return importlib.import_module('full_ssb_local_continuation')
 
 
+def candidate_fixture(tmp_path,monkeypatch):
+    m=module();monkeypatch.setattr(m,'ROOT',tmp_path)
+    env={'actual_inference':'unchanged'};forward={'queries':'unchanged'}
+    parent=dict(report=dict(directory=str(tmp_path/'parent'),prepared_directory='prepared'),model_path='model.pkl')
+    monkeypatch.setattr(m.prior_run,'read_plan',lambda *a:dict(dependencies={'environment':env}))
+    monkeypatch.setattr(m,'accept_forward',lambda *a:(forward,[{'path':'accepted-forward'}],[{'path':'old-failure'}]))
+    monkeypatch.setattr(m,'worker_environment',lambda:env)
+    monkeypatch.setattr(m.old,'parent_snapshot',lambda p:{'original_formal':'unchanged'})
+    monkeypatch.setattr(m.old,'run_directory',lambda p:tmp_path/'old')
+    monkeypatch.setattr(m,'artifact',lambda p:dict(path=str(p),bytes=1,sha256='a'*64))
+    monkeypatch.setattr(m,'code_snapshot',lambda:{'two_sources':'fixture'})
+    monkeypatch.setattr(m,'consumer_records',lambda *a:[{'path':'consumed-unchanged'}])
+    return m,parent
+
+
+def test_reviewed_attempts_change_namespace_without_changing_scientific_inputs(tmp_path,monkeypatch):
+    m,parent=candidate_fixture(tmp_path,monkeypatch)
+    a=m.candidate_from_parent(tmp_path/'old-plan.json','sha',parent,attempt_id='initial')
+    b=m.candidate_from_parent(tmp_path/'old-plan.json','sha',parent,attempt_id='ram_retry_02')
+    assert a['schema']==b['schema']=='local_ssb_canonical_continuation_plan_v2'
+    assert a['attempt_id']=='initial' and b['attempt_id']=='ram_retry_02'
+    review=lambda c:dict(c,status='ROOT_REVIEWED_CONTINUATION_PLAN',executable=True,root_reviewed_candidate_sha256=m.value_hash(c))
+    assert m.run_directory(review(a))!=m.run_directory(review(b))
+    assert {k:v for k,v in a.items() if k!='attempt_id'}=={k:v for k,v in b.items() if k!='attempt_id'}
+
+
+@pytest.mark.parametrize('bad',['','../retry','retry/a','with space','retry.1','\u00e9','a'*33,None,True,1])
+def test_invalid_attempt_is_rejected_before_prior_plan_or_scientific_source_access(tmp_path,monkeypatch,bad):
+    m=module();monkeypatch.setattr(m.prior_run,'read_plan',lambda *a:pytest.fail('invalid attempt reached input audit'))
+    with pytest.raises(ValueError,match='attempt'):
+        m.candidate_from_parent(tmp_path/'old-plan.json','sha',{},attempt_id=bad)
+
+
+def test_public_complete_result_retains_operational_attempt_without_second_parent_F(tmp_path,monkeypatch):
+    m=module();monkeypatch.setattr(m,'ROOT',tmp_path);run=tmp_path/'run'
+    d=lambda p:dict(path=str(p),bytes=1,sha256='a'*64)
+    r=dict(directory=str(run),attempt_id='ram_retry_02',variant='variant',evaluation_variant='evaluation',
+        plan={'attempt_id':'ram_retry_02'},plan_path='plan.json',model_path='model',model_sha256='c'*64,
+        queries=[],evaluation_binding={},original_mismatch=d('mismatch'),forward=d('forward'),reverse=d('reverse'))
+    monkeypatch.setattr(m,'read',lambda p:r);monkeypatch.setattr(m,'artifact',d)
+    monkeypatch.setattr(m,'verify_publication',lambda report,parent:[])
+    monkeypatch.setattr(m,'collect_parent',lambda:pytest.fail('private reconstruction cannot add an F'))
+    p={'published_result':d('original')}
+    checked=m._verify_complete(p)
+    assert checked['attempt_id']==r['attempt_id']==checked['dependencies']['attempt_id']
+
+
+def test_public_artifact_reconstruction_rebuilds_the_same_reviewed_attempt(tmp_path,monkeypatch):
+    m=module();runner=importlib.import_module('full_ssb_local_continuation_run')
+    monkeypatch.setattr(m,'ROOT',tmp_path);calls=[]
+    plan=dict(attempt_id='ram_retry_02',old_plan=dict(path='old.json',sha256='oldsha'))
+    r=dict(plan_path='plan.json',plan_file_sha256='plansha',root_final_resources={},root_admission_resources={})
+    monkeypatch.setattr(runner,'read_plan',lambda *a:plan)
+    monkeypatch.setattr(m,'report_body',lambda *a:r)
+    class Rebuilt(Exception):pass
+    def rebuild(path,sha,parent,attempt_id='initial'):
+        calls.append(attempt_id);raise Rebuilt('stop after real reconstruction dispatch')
+    monkeypatch.setattr(m,'candidate_from_parent',rebuild)
+    with pytest.raises(Rebuilt):m.complete_artifacts(plan,r,{'original_parent':'fixture'})
+    assert calls==['ram_retry_02']
+
+
 def query(i):
     return dict(query_no=i,query_name='Q'+str(i),sql='SQL'+str(i),groups=[dict(key=[i],prediction=10,model_interval=[8,12])],
         nonfinite_original_intervals=[],original_query_evaluator_calls=2,model_loads=1)

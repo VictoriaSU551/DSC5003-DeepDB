@@ -140,8 +140,8 @@ def canonical_fixture(tmp_path,monkeypatch):
     accepted['artifacts']=parent['artifacts']+[accepted[k] for k in
         ('published_result','verification','verification_seal','plan','formal_receipt','formal_lifecycle','forward','reverse')]
     accepted['artifacts'] += [d(p,sha) for p,sha in {
-        'code/full_ssb_local_continuation.py':'7a1bf30793e0484482bda3548c9d65dc3c3732af286287e62a2a054fd5e15563',
-        'code/full_ssb_local_continuation_run.py':'763c9c46ce34fa0b4b0e59fbeea4f43d081945b8d6e20b91dde0b91eb937c7a0',
+        'code/full_ssb_local_continuation.py':'151b29aac633aa85902578ccb115de749a31be74d8f525b1e62d5d99257dd6d1',
+        'code/full_ssb_local_continuation_run.py':'e3135eea0469eb00df42ea8c27370d6af445356bb4c136f2c71ee2e11ebf41be',
         'code/full_ssb_group_order.py':status.GROUP_ADAPTER_SHA}.items()]
     calls=[]
     def verify():calls.append('fresh');return accepted
