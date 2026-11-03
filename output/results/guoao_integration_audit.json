@@ -1,0 +1,245 @@
+{
+  "schema": "guoao_contribution_integration_audit_v1",
+  "status": "PASS_OFFLINE_RESULTS_AND_PACKAGE_INTEGRATION",
+  "review_date": "2026-11-03",
+  "review_timezone": "Asia/Shanghai",
+  "source_branch": "contribution/guoao-experiment-results",
+  "source_head": "0ad9c15b7ab1498ee41d69e20329d81437ef1477",
+  "source_commits": [
+    "58313be",
+    "0ad9c15b7ab1498ee41d69e20329d81437ef1477"
+  ],
+  "source_commit_author": "breck1016",
+  "integration_target": "main",
+  "training_runs_in_contribution": 13,
+  "evaluation_settings": 14,
+  "distinct_queries": 70,
+  "predictions_checked": 980,
+  "truth_values_matching_official": 70,
+  "truth_audit_recorded_original_sql_successes": 69,
+  "truth_audit_equivalent_sql_ids": [
+    59
+  ],
+  "truth_audit_cross_check_ids": [
+    0,
+    14,
+    34,
+    57
+  ],
+  "rdc_1m_query_wins_by_seed": [
+    42,
+    44,
+    42
+  ],
+  "figure_topics": 8,
+  "figure_language_variants": 2,
+  "model_inventory_entries": 13,
+  "model_inventory_total_bytes": 119308280,
+  "model_binaries_in_package": false,
+  "package_public_files_checked": 35,
+  "selected_log_segments_checked": 37,
+  "source_snapshot_members_checked": 9,
+  "original_contribution_files_unchanged": [
+    {
+      "path": "output/results/guoao_experiments/DELIVERY_MAP.md",
+      "bytes": 5074,
+      "sha256": "607559d034c93501b78204a60e92c2a36ce91bed008cda00da53d95ebefa309a"
+    },
+    {
+      "path": "output/results/guoao_experiments/README.md",
+      "bytes": 10610,
+      "sha256": "df0fdf4f0470d18f27be4f15cd744979473f8957f8c11c58a02f54724fe35fe8"
+    },
+    {
+      "path": "output/results/guoao_experiments/evidence/data_manifest.json",
+      "bytes": 1502,
+      "sha256": "ae6a5cef66340bae23325722f0f0d29ee616850851b99b6989ab1d5b6a6f3e13"
+    },
+    {
+      "path": "output/results/guoao_experiments/evidence/logs/database.log.gz",
+      "bytes": 9026,
+      "sha256": "a0e1f23a8789bdca2ad6b5efc7a82e70f8bd144ef67d27c7b63694bb64afa872"
+    },
+    {
+      "path": "output/results/guoao_experiments/evidence/logs/evaluation.log.gz",
+      "bytes": 62046,
+      "sha256": "e8f7f0f9903da93fcb776a7cc0b4a1dcfd2361cc1ca565a948839ae6308cd047"
+    },
+    {
+      "path": "output/results/guoao_experiments/evidence/logs/training.log.gz",
+      "bytes": 668589,
+      "sha256": "7dda736004863ce0b3c829739eea5affd815572203c6a08617739fa3f28f92fa"
+    },
+    {
+      "path": "output/results/guoao_experiments/evidence/model_inventory.json",
+      "bytes": 13968,
+      "sha256": "a7d666293b38f24b3730ad0f80d11525911f25c15cf411842059ffa909c0cd91"
+    },
+    {
+      "path": "output/results/guoao_experiments/evidence/protocol_audit.json",
+      "bytes": 9605,
+      "sha256": "42b56efb37b5861c0951280e0114474a11ca20c9fa4eee34b626a60a423f9bee"
+    },
+    {
+      "path": "output/results/guoao_experiments/evidence/run_records.json",
+      "bytes": 112215,
+      "sha256": "b4bb0576070fc3a831150496c417c43be693172785640699c7b04875cb725b0a"
+    },
+    {
+      "path": "output/results/guoao_experiments/evidence/source_manifest.json",
+      "bytes": 50772,
+      "sha256": "01c48523a96db06e06cf667df56b1255d0bf0ff444b3ff6312f17e86522c12ee"
+    },
+    {
+      "path": "output/results/guoao_experiments/evidence/source_snapshots.zip",
+      "bytes": 33562,
+      "sha256": "ba74fc17b49ba64eacbf4c05a4d4d1a6477ff0ff87b6e85240380d3fd995faf7"
+    },
+    {
+      "path": "output/results/guoao_experiments/evidence/verification_records.json",
+      "bytes": 60284,
+      "sha256": "ab3503c808762c8e02259784ea73467cba80e3f6f701eb43d4f8f8009d44b99e"
+    },
+    {
+      "path": "output/results/guoao_experiments/figures/en/01_sample_size.png",
+      "bytes": 141760,
+      "sha256": "c13f66c38f3140ba413773cf914890aabffd1a32ef42691c3e73b70a962ffd7b"
+    },
+    {
+      "path": "output/results/guoao_experiments/figures/en/02_seed_sensitivity.png",
+      "bytes": 170677,
+      "sha256": "2eec11bb3b4e91903a1ce5db2a52dac9f71eedb00d928b4e03545f5228c9f5da"
+    },
+    {
+      "path": "output/results/guoao_experiments/figures/en/03_postgresql_summary.png",
+      "bytes": 115628,
+      "sha256": "811b960080bb770c19b9f925075268ed6192d966fee5daa10484b088fa879cea"
+    },
+    {
+      "path": "output/results/guoao_experiments/figures/en/04_postgresql_per_query.png",
+      "bytes": 114087,
+      "sha256": "4bb79b896a18a9585a9ef0fe75f2cae9def78421b4935759a2ea04f05bd33d12"
+    },
+    {
+      "path": "output/results/guoao_experiments/figures/en/05_truth_audit.png",
+      "bytes": 79416,
+      "sha256": "4bde08593e8bed82413a517324e8ebb0155229e29d329200c062ca9346dd9d41"
+    },
+    {
+      "path": "output/results/guoao_experiments/figures/en/06_rdc_sample_size.png",
+      "bytes": 105779,
+      "sha256": "3c44cf144c3fbc84b9f9000fb2fec93a7df479fa8ba4aa3c953851fd75f9c952"
+    },
+    {
+      "path": "output/results/guoao_experiments/figures/en/07_rdc_cases.png",
+      "bytes": 52288,
+      "sha256": "b48671bf2b6a238a793b2cec1e84d65f3a4514e0c18049f1e50da39685a63940"
+    },
+    {
+      "path": "output/results/guoao_experiments/figures/en/08_rdc_seed_stability.png",
+      "bytes": 115466,
+      "sha256": "36ee426a58a5ef63b52f0f1fc6d2f3f7175d344657947ec2f36ed5873757fb04"
+    },
+    {
+      "path": "output/results/guoao_experiments/figures/zh/01_sample_size.png",
+      "bytes": 155220,
+      "sha256": "0cae9d827454817fc09db6d30285f2ce42c2c3b490188e2bf32512617300ded3"
+    },
+    {
+      "path": "output/results/guoao_experiments/figures/zh/02_seed_sensitivity.png",
+      "bytes": 160153,
+      "sha256": "bdccd4e56335ec609a05ee07aa947b16c1979bae9059f8641bad35e6077cfd45"
+    },
+    {
+      "path": "output/results/guoao_experiments/figures/zh/03_postgresql_summary.png",
+      "bytes": 112332,
+      "sha256": "4fc905f07b4af6a8fde390dc58f10c8226fcdf557eee420f298e92c378834b33"
+    },
+    {
+      "path": "output/results/guoao_experiments/figures/zh/04_postgresql_per_query.png",
+      "bytes": 115432,
+      "sha256": "fc144fdda1b040a5121c597d4387e27a1106dde2d1e7d0f0eb7439242c820ad7"
+    },
+    {
+      "path": "output/results/guoao_experiments/figures/zh/05_truth_audit.png",
+      "bytes": 80909,
+      "sha256": "19bbb7c3296c1c03842a23a6788606c179f9535e991da3448366ad709cee1f91"
+    },
+    {
+      "path": "output/results/guoao_experiments/figures/zh/06_rdc_sample_size.png",
+      "bytes": 101755,
+      "sha256": "39fba3ef11c846d9df628352f960541cf1ebdeb7c4a529f091879e6337b2f10c"
+    },
+    {
+      "path": "output/results/guoao_experiments/figures/zh/07_rdc_cases.png",
+      "bytes": 51232,
+      "sha256": "0b426e8f0e69befe3fc600f9327901163357bb56dc5473982eb2892171b79b27"
+    },
+    {
+      "path": "output/results/guoao_experiments/figures/zh/08_rdc_seed_stability.png",
+      "bytes": 113430,
+      "sha256": "69fd64057e69b62bef55aecb4298edfafee85b01d40b9d755e74b83a24a1fb78"
+    },
+    {
+      "path": "output/results/guoao_experiments/metrics.csv",
+      "bytes": 3752,
+      "sha256": "8c0424605352ce98bf351edbabbd11a05ecd898c166f5285e18c727f35ef3c2e"
+    },
+    {
+      "path": "output/results/guoao_experiments/predictions.csv",
+      "bytes": 22849,
+      "sha256": "801aadbc2fe45acc942a09723d4daf9e820f1b14773b3628f05e9af0f387709f"
+    },
+    {
+      "path": "output/results/guoao_experiments/report_en.md",
+      "bytes": 5447,
+      "sha256": "a725e306273d6e54d33a7846607a079a10453df21514495e0cc190729138b313"
+    },
+    {
+      "path": "output/results/guoao_experiments/report_zh.md",
+      "bytes": 4956,
+      "sha256": "7deb766adf19cdd7ee825185bb0c2dd78a19f67fe6ac6d9fd54a688838d595cf"
+    },
+    {
+      "path": "output/results/guoao_experiments/settings.json",
+      "bytes": 3396,
+      "sha256": "7cd01648680f6ccc56c6a6e10bbf5218ecfad08a446c6dc792c1ce0729809f82"
+    },
+    {
+      "path": "output/results/guoao_experiments/truth_audit.csv",
+      "bytes": 2323,
+      "sha256": "33d9995379973a24807a072bb45f27ed10898e6be884a1761dea952f0f5f03e3"
+    },
+    {
+      "path": "output/results/guoao_experiments/verify_evidence.py",
+      "bytes": 1648,
+      "sha256": "d96d048ca3822947e8bc774858fadd9f2bfd122bbcd1e75d32ac1a6622550b65"
+    },
+    {
+      "path": "output/results/guoao_experiments/verify_results.py",
+      "bytes": 4064,
+      "sha256": "ee27cc82e8101e308c2d1326b8c865fa7d01b5da284a8c0ecc4e180d4a22f8b4"
+    }
+  ],
+  "checks": [
+    {
+      "command": "python -B output/results/guoao_experiments/verify_results.py --repo-root .",
+      "status": "PASS"
+    },
+    {
+      "command": "python -B output/results/guoao_experiments/verify_evidence.py",
+      "status": "PASS"
+    }
+  ],
+  "new_training_executed": false,
+  "new_database_queries_executed": false,
+  "contributor_models_loaded": false,
+  "full_paper_reproduction_complete": false,
+  "scope": "Saved-result arithmetic, official workload alignment and package integrity; contributor database executions are historical evidence, not rerun here. Original contribution bytes and commits retained.",
+  "line_endings_policy": "output/results/guoao_experiments/** -text preserves original literal bytes and package hashes across checkouts",
+  "visual_reviewed_figures": [
+    "figures/zh/08_rdc_seed_stability.png",
+    "figures/zh/03_postgresql_summary.png"
+  ],
+  "original_contribution_package_modified": false
+}

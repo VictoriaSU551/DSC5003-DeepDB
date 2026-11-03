@@ -1,0 +1,1196 @@
+{
+  "recorded_at": "2026-10-28T07:25:44.525063+00:00",
+  "redaction_policy": "Only machine paths, local username and credential values replaced; no numerical outcomes or log lines removed. UTF-8 decoding uses replacement for existing invalid bytes.",
+  "source_files": [
+    {
+      "path": "DeepDB/data/manifest.json",
+      "bytes": 1502,
+      "sha256": "ae6a5cef66340bae23325722f0f0d29ee616850851b99b6989ab1d5b6a6f3e13",
+      "purpose": "record"
+    },
+    {
+      "path": "DeepDB/output/logs/evaluate_10000.log",
+      "bytes": 36663,
+      "sha256": "d922257c2a650423c0e727a0ccf411175fafc52f01e78e7de50997123a14cc9e",
+      "purpose": "log"
+    },
+    {
+      "path": "DeepDB/output/logs/evaluate_100000.log",
+      "bytes": 36708,
+      "sha256": "044961faffdf9b70a9017d64b9cf59e3cc9681d84b51448f0786e072e61daf13",
+      "purpose": "log"
+    },
+    {
+      "path": "DeepDB/output/logs/evaluate_1000000.log",
+      "bytes": 36681,
+      "sha256": "282e24bb1fc0405a18b62dae9bfd482f046642d46ec8aa8e8e60965503329fd8",
+      "purpose": "log"
+    },
+    {
+      "path": "DeepDB/output/logs/train_10000.log",
+      "bytes": 1083249,
+      "sha256": "5b915ccd6929fd050dbdbc7b04efdbc65cfb5af061a65052734b6ffa77fc9106",
+      "purpose": "log"
+    },
+    {
+      "path": "DeepDB/output/logs/train_100000.log",
+      "bytes": 928072,
+      "sha256": "af47a4d306ffb64997d936c460e3f04e7c9131a7586ef1719d502f860ccffa65",
+      "purpose": "log"
+    },
+    {
+      "path": "DeepDB/output/logs/train_1000000.log",
+      "bytes": 1244682,
+      "sha256": "d67066cfab6aeea122817648ddc8cb47f60e8d81b9433d5e6512c1b03e4660bf",
+      "purpose": "log"
+    },
+    {
+      "path": "DeepDB/output/postgresql_baseline_20261015/comparison_verification.json",
+      "bytes": 21705,
+      "sha256": "31e925e1e2e63825be697d11a592b970d5b499cfa65fe336d5be817b4790895e",
+      "purpose": "record"
+    },
+    {
+      "path": "DeepDB/output/postgresql_baseline_20261015/initdb.log",
+      "bytes": 922,
+      "sha256": "32be28a3ad63e4e17069a8da250e9957fd77ceb0088d6e967d0921feb6debce8",
+      "purpose": "log"
+    },
+    {
+      "path": "DeepDB/output/postgresql_baseline_20261015/progress.log",
+      "bytes": 3034,
+      "sha256": "757bddaa830414c25187c5af8fa3580cb4514b67be91bb30943ee98f109b47d6",
+      "purpose": "log"
+    },
+    {
+      "path": "DeepDB/output/postgresql_baseline_20261015/regression_tests.log",
+      "bytes": 100,
+      "sha256": "2db84432f91370f9108d442d071667570e51ecf1d3d917e1c9a5fcb4e803e075",
+      "purpose": "log"
+    },
+    {
+      "path": "DeepDB/output/postgresql_baseline_20261015/run.json",
+      "bytes": 6545,
+      "sha256": "458649375c573c53fe866c2b365ce3ca1931e7396082d57413c88713324a5952",
+      "purpose": "record"
+    },
+    {
+      "path": "DeepDB/output/rdc_experiment_20261027/logs/evaluate_rdc.log",
+      "bytes": 38078,
+      "sha256": "e5cc3be81ff6eaa307a64b7ff293d7806f22502f3d3ce333e8d85f56b68a2db7",
+      "purpose": "log"
+    },
+    {
+      "path": "DeepDB/output/rdc_experiment_20261027/logs/prepare.log",
+      "bytes": 1267,
+      "sha256": "7caaea456d8f154ae54c0440353511c7f748791dfc7ea788d0fd9aab8033eb50",
+      "purpose": "log"
+    },
+    {
+      "path": "DeepDB/output/rdc_experiment_20261027/logs/train.log",
+      "bytes": 1230757,
+      "sha256": "bde850b3b56f177b0ca1015516f63e45c781fc61f963a505503643054e54f351",
+      "purpose": "log"
+    },
+    {
+      "path": "DeepDB/output/rdc_experiment_20261027/run.json",
+      "bytes": 2368,
+      "sha256": "b5151c46425734f1e38b6e02288964863cc5c7b5d0874a7d3e65370fe1ad48b5",
+      "purpose": "record"
+    },
+    {
+      "path": "DeepDB/output/rdc_experiment_20261027/training_join_counts.jsonl",
+      "bytes": 3382,
+      "sha256": "5277ee341bb9db71a0a955bb23ae8dac8fdfe13e6b4a92ea31d453102ee1669e",
+      "purpose": "training_join_counts"
+    },
+    {
+      "path": "DeepDB/output/rdc_experiment_20261027/verification.json",
+      "bytes": 3547,
+      "sha256": "ac09037603b104fc9aa8069dc5c16d5fe528c5984469e5e7a864508a894bfbaf",
+      "purpose": "record"
+    },
+    {
+      "path": "DeepDB/output/rdc_experiment_20261027_1000000/logs/evaluate_rdc.log",
+      "bytes": 38193,
+      "sha256": "f03581f58f8234640e0f1c66f7141b2c0029ccc2889c953f3d771399ee8db144",
+      "purpose": "log"
+    },
+    {
+      "path": "DeepDB/output/rdc_experiment_20261027_1000000/logs/prepare.log",
+      "bytes": 80,
+      "sha256": "8a77f81cb95ae97b8ae970107b6288e6d1107d98ad2f7fdd9084ce8c29d36ea2",
+      "purpose": "log"
+    },
+    {
+      "path": "DeepDB/output/rdc_experiment_20261027_1000000/logs/train.log",
+      "bytes": 1756614,
+      "sha256": "485d6534a9bc0b7ae24b3b7eeab6f9521c879d87d81ac17dd8fecd28a8e65789",
+      "purpose": "log"
+    },
+    {
+      "path": "DeepDB/output/rdc_experiment_20261027_1000000/run.json",
+      "bytes": 2377,
+      "sha256": "0aa3ea7ceb187e7f907dc49bb2d4c044d3edd744ed41a47a868bbe3989427673",
+      "purpose": "record"
+    },
+    {
+      "path": "DeepDB/output/rdc_experiment_20261027_1000000/sampling_reuse.json",
+      "bytes": 813,
+      "sha256": "80c7fc33c252a413abe2cc28dd0568049bbcad844425f313065ff903b97c735b",
+      "purpose": "record"
+    },
+    {
+      "path": "DeepDB/output/rdc_experiment_20261027_1000000/training_join_counts.jsonl",
+      "bytes": 3378,
+      "sha256": "b6f866381ae81ccd294ce3b12651f1326bd4ed0e7ecae0931f6f8c79c8e36266",
+      "purpose": "training_join_counts"
+    },
+    {
+      "path": "DeepDB/output/rdc_experiment_20261027_1000000/verification.json",
+      "bytes": 3556,
+      "sha256": "f9e963b92476d63259a317f81a105b245d3eb7a8a937864b186d36c199fd519d",
+      "purpose": "record"
+    },
+    {
+      "path": "DeepDB/output/rdc_seed_experiments/seed_2/samples_1000000/logs/evaluate_rdc.log",
+      "bytes": 38268,
+      "sha256": "ac53eccc4722fa72daa5f3d91c1991fdc4522a6733e3c28f4e63ca4e2c403a80",
+      "purpose": "log"
+    },
+    {
+      "path": "DeepDB/output/rdc_seed_experiments/seed_2/samples_1000000/logs/prepare.log",
+      "bytes": 80,
+      "sha256": "8a77f81cb95ae97b8ae970107b6288e6d1107d98ad2f7fdd9084ce8c29d36ea2",
+      "purpose": "log"
+    },
+    {
+      "path": "DeepDB/output/rdc_seed_experiments/seed_2/samples_1000000/logs/train.log",
+      "bytes": 1446590,
+      "sha256": "724c139565135773a707e444b18ce159762ffa91746f8142ef6541e68ab584a9",
+      "purpose": "log"
+    },
+    {
+      "path": "DeepDB/output/rdc_seed_experiments/seed_2/samples_1000000/run.json",
+      "bytes": 2792,
+      "sha256": "2ec1a219be48a7d3fba3397b11166f50076890c81c585d6623d6d587068980d4",
+      "purpose": "record"
+    },
+    {
+      "path": "DeepDB/output/rdc_seed_experiments/seed_2/samples_1000000/sampling_reuse.json",
+      "bytes": 813,
+      "sha256": "80c7fc33c252a413abe2cc28dd0568049bbcad844425f313065ff903b97c735b",
+      "purpose": "record"
+    },
+    {
+      "path": "DeepDB/output/rdc_seed_experiments/seed_2/samples_1000000/training_join_counts.jsonl",
+      "bytes": 3047,
+      "sha256": "0e7d3257b3019ca46fb1fdf1257345fb0625e74c333fe3a14bd7710ec3d0f579",
+      "purpose": "training_join_counts"
+    },
+    {
+      "path": "DeepDB/output/rdc_seed_experiments/seed_2/samples_1000000/verification.json",
+      "bytes": 3626,
+      "sha256": "1c8505a36c33446dfd0c44adb0d5a96c76ee3f5fa6c50a25a84bef8583f97ee7",
+      "purpose": "record"
+    },
+    {
+      "path": "DeepDB/output/rdc_seed_experiments/seed_3/samples_1000000/logs/evaluate_rdc.log",
+      "bytes": 38277,
+      "sha256": "40d9ff1dea197f81735ca467e3cd63a35545de1ba731ef1d303bd02f6c28e090",
+      "purpose": "log"
+    },
+    {
+      "path": "DeepDB/output/rdc_seed_experiments/seed_3/samples_1000000/logs/prepare.log",
+      "bytes": 80,
+      "sha256": "8a77f81cb95ae97b8ae970107b6288e6d1107d98ad2f7fdd9084ce8c29d36ea2",
+      "purpose": "log"
+    },
+    {
+      "path": "DeepDB/output/rdc_seed_experiments/seed_3/samples_1000000/logs/train.log",
+      "bytes": 1435421,
+      "sha256": "32eb390719c2d7306a6dce62282cea26e7b2c6a148ff3b912e913541ed3ced6c",
+      "purpose": "log"
+    },
+    {
+      "path": "DeepDB/output/rdc_seed_experiments/seed_3/samples_1000000/run.json",
+      "bytes": 2800,
+      "sha256": "4d747823fd4fc13ca60da5ab066231a5f1f5ff23b1397f61609c546101dcf44b",
+      "purpose": "record"
+    },
+    {
+      "path": "DeepDB/output/rdc_seed_experiments/seed_3/samples_1000000/sampling_reuse.json",
+      "bytes": 813,
+      "sha256": "80c7fc33c252a413abe2cc28dd0568049bbcad844425f313065ff903b97c735b",
+      "purpose": "record"
+    },
+    {
+      "path": "DeepDB/output/rdc_seed_experiments/seed_3/samples_1000000/training_join_counts.jsonl",
+      "bytes": 3270,
+      "sha256": "6a1c584dc26f59368655fc38a11af781b0c2956eec2ee4c56edbc0ed556c60a8",
+      "purpose": "training_join_counts"
+    },
+    {
+      "path": "DeepDB/output/rdc_seed_experiments/seed_3/samples_1000000/verification.json",
+      "bytes": 3695,
+      "sha256": "070dc9e5ffa6c2081d49b180b9a27aa9e846a01bca09f2ef5ca6265bfed1f6c4",
+      "purpose": "record"
+    },
+    {
+      "path": "DeepDB/output/results/run_10000.json",
+      "bytes": 2614,
+      "sha256": "66afca8d4da9e97aa0c57bdcd62f69c66477ca9ec685955fcaa8f6e631d66af0",
+      "purpose": "record"
+    },
+    {
+      "path": "DeepDB/output/results/run_100000.json",
+      "bytes": 2124,
+      "sha256": "de2667935313674244c4033e4d5a41ac5adece37ae516c455509a177eb2fca73",
+      "purpose": "record"
+    },
+    {
+      "path": "DeepDB/output/results/run_1000000.json",
+      "bytes": 2136,
+      "sha256": "4ff7253619c889ce659f8e6d031eeba77a99affbd04fb465922536d67bf89b52",
+      "purpose": "record"
+    },
+    {
+      "path": "DeepDB/output/results/source_verification.json",
+      "bytes": 356,
+      "sha256": "ee6c204d7c2aa5b60527a23c244532e0a0bdf9c05c6cb0ea10af2e31dcc15693",
+      "purpose": "record"
+    },
+    {
+      "path": "DeepDB/output/results/verification_10000.json",
+      "bytes": 709,
+      "sha256": "7163c199bb2f8879e23a864fd73846261e74b213b44ff36fd53b95c9014b231b",
+      "purpose": "record"
+    },
+    {
+      "path": "DeepDB/output/results/verification_100000.json",
+      "bytes": 706,
+      "sha256": "d918a0cb829553650e509a5ad1db32c99ae2e0ee119462aaf48632675c1d104c",
+      "purpose": "record"
+    },
+    {
+      "path": "DeepDB/output/results/verification_1000000.json",
+      "bytes": 709,
+      "sha256": "b325b76d6c5fde69efc2aff8783f56e11c1b63e0f67bef0e000c52170e20d05e",
+      "purpose": "record"
+    },
+    {
+      "path": "DeepDB/output/seed_experiments/seed_2/samples_10000/logs/evaluate.log",
+      "bytes": 36796,
+      "sha256": "64b9eecea042203a5aede41bd0e81b57e0efefce1589c91f3d5079e961473f23",
+      "purpose": "log"
+    },
+    {
+      "path": "DeepDB/output/seed_experiments/seed_2/samples_10000/logs/train.log",
+      "bytes": 1097150,
+      "sha256": "df82ef5e1226d77a7fd1aea4787ace4ef7ec15072e4707ce8ee1fa54b0ebcf6a",
+      "purpose": "log"
+    },
+    {
+      "path": "DeepDB/output/seed_experiments/seed_2/samples_10000/results/verification_10000.json",
+      "bytes": 710,
+      "sha256": "10fae3a47ba1cc7fc4766db6a63d0e84e18de7b3e3db2d03da600e836c53eddc",
+      "purpose": "record"
+    },
+    {
+      "path": "DeepDB/output/seed_experiments/seed_2/samples_10000/run.json",
+      "bytes": 4663,
+      "sha256": "1902eb83707496f40623187409ddadd8d9bfda29b1ab84c98dedceb44834e77b",
+      "purpose": "record"
+    },
+    {
+      "path": "DeepDB/output/seed_experiments/seed_2/samples_100000/logs/evaluate.log",
+      "bytes": 36765,
+      "sha256": "e13dd38762b722e8f700eed60d271923530a9e17e718248908028b1137a4a8b1",
+      "purpose": "log"
+    },
+    {
+      "path": "DeepDB/output/seed_experiments/seed_2/samples_100000/logs/train.log",
+      "bytes": 996016,
+      "sha256": "cb11f02f46a01486f7672958b9bede955cfc6d1366b14dc1f64ca3b6c5928e52",
+      "purpose": "log"
+    },
+    {
+      "path": "DeepDB/output/seed_experiments/seed_2/samples_100000/results/verification_100000.json",
+      "bytes": 705,
+      "sha256": "aeaa45f8cb6da929ac71ca6e29966c4262ba12f52b3c62509ab7f3a5ec8689bd",
+      "purpose": "record"
+    },
+    {
+      "path": "DeepDB/output/seed_experiments/seed_2/samples_100000/run.json",
+      "bytes": 4680,
+      "sha256": "8b1fae7bc221dcb94294626fd65b6abd2f695908a17d83fa8066cff266a65399",
+      "purpose": "record"
+    },
+    {
+      "path": "DeepDB/output/seed_experiments/seed_2/samples_1000000/logs/evaluate.log",
+      "bytes": 36787,
+      "sha256": "182d9a78fee2780ca40be006592da43a92daebd59987def605075fed0f4169ce",
+      "purpose": "log"
+    },
+    {
+      "path": "DeepDB/output/seed_experiments/seed_2/samples_1000000/logs/train.log",
+      "bytes": 1179224,
+      "sha256": "91b023a710e3fbe05401d3d49e60fd9ba5633d173c2c8f0ef3a797f1f49b86f7",
+      "purpose": "log"
+    },
+    {
+      "path": "DeepDB/output/seed_experiments/seed_2/samples_1000000/results/verification_1000000.json",
+      "bytes": 693,
+      "sha256": "67f9e84e00d4fca0eb8f1b9043e6b90ee28ee3e0bcfca0fdfc9b9dd310217d22",
+      "purpose": "record"
+    },
+    {
+      "path": "DeepDB/output/seed_experiments/seed_2/samples_1000000/run.json",
+      "bytes": 4687,
+      "sha256": "b3ee87705bd3cc1b003e1787be47fdc9c93633beef6ad82cbd7a7a6ddbae3004",
+      "purpose": "record"
+    },
+    {
+      "path": "DeepDB/output/seed_experiments/seed_3/samples_10000/logs/evaluate.log",
+      "bytes": 36788,
+      "sha256": "79a25e52d8c212889ab627c5175d0cfe9ff71c26184a887a734bf1478369218c",
+      "purpose": "log"
+    },
+    {
+      "path": "DeepDB/output/seed_experiments/seed_3/samples_10000/logs/train.log",
+      "bytes": 1008476,
+      "sha256": "4d4d148c046d90a1ca58c09e6c8e934005cb996603c34a084e91970f4ba05dbf",
+      "purpose": "log"
+    },
+    {
+      "path": "DeepDB/output/seed_experiments/seed_3/samples_10000/results/verification_10000.json",
+      "bytes": 705,
+      "sha256": "fc907bedca373844d73772f08e28cf75b05136df6a95018ab3c15727c62de831",
+      "purpose": "record"
+    },
+    {
+      "path": "DeepDB/output/seed_experiments/seed_3/samples_10000/run.json",
+      "bytes": 4665,
+      "sha256": "2da29cb7b4970116f3b52d148624a4f5e2082d769ab4181722736d2513bf0da8",
+      "purpose": "record"
+    },
+    {
+      "path": "DeepDB/output/seed_experiments/seed_3/samples_100000/logs/evaluate.log",
+      "bytes": 36750,
+      "sha256": "67f53266e4d9958320565dfe47446286d10c5369f60578ed2fdb9bdba4273b32",
+      "purpose": "log"
+    },
+    {
+      "path": "DeepDB/output/seed_experiments/seed_3/samples_100000/logs/train.log",
+      "bytes": 947733,
+      "sha256": "d0b1298c5cfa65336d83a3eeac980c9ac37a77f0dd6c8de9dadbbb427c8ca16f",
+      "purpose": "log"
+    },
+    {
+      "path": "DeepDB/output/seed_experiments/seed_3/samples_100000/results/verification_100000.json",
+      "bytes": 694,
+      "sha256": "adc5b6b45489fc4c5077048246cfffea51a677222e9c2f85af77bd63241d4cb1",
+      "purpose": "record"
+    },
+    {
+      "path": "DeepDB/output/seed_experiments/seed_3/samples_100000/run.json",
+      "bytes": 4670,
+      "sha256": "59ebea1bb69feed572603adc6a0d8570b876d256ac020a88ac5e926054b02cea",
+      "purpose": "record"
+    },
+    {
+      "path": "DeepDB/output/seed_experiments/seed_3/samples_1000000/logs/evaluate.log",
+      "bytes": 36780,
+      "sha256": "35d743864e51f434903878ef6c4946c10bc0486c76b8ad522ccc9ea67daa6853",
+      "purpose": "log"
+    },
+    {
+      "path": "DeepDB/output/seed_experiments/seed_3/samples_1000000/logs/train.log",
+      "bytes": 1141997,
+      "sha256": "a25b2ceeeb1f317c22e01ed40a70492e254c3ceef2bd0404a81c5435f6bbf250",
+      "purpose": "log"
+    },
+    {
+      "path": "DeepDB/output/seed_experiments/seed_3/samples_1000000/results/verification_1000000.json",
+      "bytes": 694,
+      "sha256": "4af92eba7451fc68867a5fabfc0e96686b2a7584d817a49cf6baa9538625cb77",
+      "purpose": "record"
+    },
+    {
+      "path": "DeepDB/output/seed_experiments/seed_3/samples_1000000/run.json",
+      "bytes": 4674,
+      "sha256": "5172c490f3f7483352c02d566d90c32c7a22175b46f615101b2a5ef8fe9cf66c",
+      "purpose": "record"
+    },
+    {
+      "path": "DeepDB/output/truth_audit_20261027/attempts.jsonl",
+      "bytes": 34659,
+      "sha256": "a2abacd3da2ef0c758e19e5c0350ae640cc5cd2e23b976b5316082c8b47c6c13",
+      "purpose": "log"
+    },
+    {
+      "path": "DeepDB/output/truth_audit_20261027/error.log",
+      "bytes": 259,
+      "sha256": "f3928531dc89b4c4bc7067d0b947962a4c3ca78968f35121005fe5ea454b585e",
+      "purpose": "log"
+    },
+    {
+      "path": "DeepDB/output/truth_audit_20261027/factorized_cross_checks.json",
+      "bytes": 3886,
+      "sha256": "16044d200ee3c625baa341f2e2446ff1ff6012520de4f73be85140972d5f6a6f",
+      "purpose": "record"
+    },
+    {
+      "path": "DeepDB/output/truth_audit_20261027/progress.log",
+      "bytes": 19895,
+      "sha256": "0212b47f838d3eb258ef45f80e006107a65f3226f1c9baf0bb7ac517c9f2f8f2",
+      "purpose": "log"
+    },
+    {
+      "path": "DeepDB/output/truth_audit_20261027/regression_tests.log",
+      "bytes": 100,
+      "sha256": "22af0bf4cac01c302405ca34a69fdcb8350790b13cca5f00a73d99f53272bb2d",
+      "purpose": "log"
+    },
+    {
+      "path": "DeepDB/output/truth_audit_20261027/run.json",
+      "bytes": 5788,
+      "sha256": "1f1fdd4a0e0ab1a271c170f27ae516787d172173885f5a95a708937fd7866568",
+      "purpose": "record"
+    },
+    {
+      "path": "DeepDB/output/truth_audit_20261027/verification.json",
+      "bytes": 1648,
+      "sha256": "9af7f635d1596be48f6beeafebecf7ffd26f9ead935ae5d9ccb247fafa382f4b",
+      "purpose": "record"
+    },
+    {
+      "path": "学习记录/环境版本清单.json",
+      "bytes": 1218,
+      "sha256": "ff53e4bed7ca0404e6a92c01eb9b3f8299c58c5266d899e3d1e330329d12f32e",
+      "purpose": "record"
+    },
+    {
+      "path": "学习记录/预处理检查结果.json",
+      "bytes": 2146,
+      "sha256": "9626c00f9f6bf81b27de202ee412751ed4e3f37521aaf3950315e3714bb6df19",
+      "purpose": "record"
+    }
+  ],
+  "log_members": [
+    {
+      "run_id": "relationship_10000_s1",
+      "stage": "train",
+      "source_path": "DeepDB/output/logs/train_10000.log",
+      "source_bytes": 1083249,
+      "source_sha256": "5b915ccd6929fd050dbdbc7b04efdbc65cfb5af061a65052734b6ffa77fc9106",
+      "public_text_bytes": 948688,
+      "public_text_sha256": "c61480f23e71a60692b5f277641e92ec212b04cacd06b20e8aa6d68f343ec078",
+      "header": "===== relationship_10000_s1 | train | DeepDB/output/logs/train_10000.log =====",
+      "bundle": "evidence/logs/training.log.gz",
+      "lines": 10719,
+      "content_truncated": false
+    },
+    {
+      "run_id": "relationship_10000_s1",
+      "stage": "evaluate",
+      "source_path": "DeepDB/output/logs/evaluate_10000.log",
+      "source_bytes": 36663,
+      "source_sha256": "d922257c2a650423c0e727a0ccf411175fafc52f01e78e7de50997123a14cc9e",
+      "public_text_bytes": 36569,
+      "public_text_sha256": "ba0781df1124e6a4a408c151894ddfd2e443aaa5a61e798e2d312d4f7f6cb43b",
+      "header": "===== relationship_10000_s1 | evaluate | DeepDB/output/logs/evaluate_10000.log =====",
+      "bundle": "evidence/logs/evaluation.log.gz",
+      "lines": 365,
+      "content_truncated": false
+    },
+    {
+      "run_id": "relationship_100000_s1",
+      "stage": "train",
+      "source_path": "DeepDB/output/logs/train_100000.log",
+      "source_bytes": 928072,
+      "source_sha256": "af47a4d306ffb64997d936c460e3f04e7c9131a7586ef1719d502f860ccffa65",
+      "public_text_bytes": 825471,
+      "public_text_sha256": "468cc3708a15005da225a6fc0aba5c2a5f1dd458ad1d553ca78a4642d775a534",
+      "header": "===== relationship_100000_s1 | train | DeepDB/output/logs/train_100000.log =====",
+      "bundle": "evidence/logs/training.log.gz",
+      "lines": 9232,
+      "content_truncated": false
+    },
+    {
+      "run_id": "relationship_100000_s1",
+      "stage": "evaluate",
+      "source_path": "DeepDB/output/logs/evaluate_100000.log",
+      "source_bytes": 36708,
+      "source_sha256": "044961faffdf9b70a9017d64b9cf59e3cc9681d84b51448f0786e072e61daf13",
+      "public_text_bytes": 36614,
+      "public_text_sha256": "704a7ed95d1add066f19321ac8d2b0eeebdc579a9aadac008bd182294b6d8522",
+      "header": "===== relationship_100000_s1 | evaluate | DeepDB/output/logs/evaluate_100000.log =====",
+      "bundle": "evidence/logs/evaluation.log.gz",
+      "lines": 365,
+      "content_truncated": false
+    },
+    {
+      "run_id": "relationship_1000000_s1",
+      "stage": "train",
+      "source_path": "DeepDB/output/logs/train_1000000.log",
+      "source_bytes": 1244682,
+      "source_sha256": "d67066cfab6aeea122817648ddc8cb47f60e8d81b9433d5e6512c1b03e4660bf",
+      "public_text_bytes": 1077832,
+      "public_text_sha256": "d52aa88cee8d9f058bf7380aeba806d693290b6e18cd294629b833af75651eb9",
+      "header": "===== relationship_1000000_s1 | train | DeepDB/output/logs/train_1000000.log =====",
+      "bundle": "evidence/logs/training.log.gz",
+      "lines": 12130,
+      "content_truncated": false
+    },
+    {
+      "run_id": "relationship_1000000_s1",
+      "stage": "evaluate",
+      "source_path": "DeepDB/output/logs/evaluate_1000000.log",
+      "source_bytes": 36681,
+      "source_sha256": "282e24bb1fc0405a18b62dae9bfd482f046642d46ec8aa8e8e60965503329fd8",
+      "public_text_bytes": 36587,
+      "public_text_sha256": "43a0eec029722ab7b50429db2d5cd525ea1800c6e7c6aeef658a279c0f11af8f",
+      "header": "===== relationship_1000000_s1 | evaluate | DeepDB/output/logs/evaluate_1000000.log =====",
+      "bundle": "evidence/logs/evaluation.log.gz",
+      "lines": 365,
+      "content_truncated": false
+    },
+    {
+      "run_id": "relationship_10000_s2",
+      "stage": "train",
+      "source_path": "DeepDB/output/seed_experiments/seed_2/samples_10000/logs/train.log",
+      "source_bytes": 1097150,
+      "source_sha256": "df82ef5e1226d77a7fd1aea4787ace4ef7ec15072e4707ce8ee1fa54b0ebcf6a",
+      "public_text_bytes": 969028,
+      "public_text_sha256": "a879560e16141475c35a19d952def948672650e8152be22072fb7939f8dda642",
+      "header": "===== relationship_10000_s2 | train | DeepDB/output/seed_experiments/seed_2/samples_10000/logs/train.log =====",
+      "bundle": "evidence/logs/training.log.gz",
+      "lines": 10915,
+      "content_truncated": false
+    },
+    {
+      "run_id": "relationship_10000_s2",
+      "stage": "evaluate",
+      "source_path": "DeepDB/output/seed_experiments/seed_2/samples_10000/logs/evaluate.log",
+      "source_bytes": 36796,
+      "source_sha256": "64b9eecea042203a5aede41bd0e81b57e0efefce1589c91f3d5079e961473f23",
+      "public_text_bytes": 36702,
+      "public_text_sha256": "7a93daa6c5209f9d8e25e24c96db1d9e725ca49997c66749d0ca67d42cd6e250",
+      "header": "===== relationship_10000_s2 | evaluate | DeepDB/output/seed_experiments/seed_2/samples_10000/logs/evaluate.log =====",
+      "bundle": "evidence/logs/evaluation.log.gz",
+      "lines": 365,
+      "content_truncated": false
+    },
+    {
+      "run_id": "relationship_100000_s2",
+      "stage": "train",
+      "source_path": "DeepDB/output/seed_experiments/seed_2/samples_100000/logs/train.log",
+      "source_bytes": 996016,
+      "source_sha256": "cb11f02f46a01486f7672958b9bede955cfc6d1366b14dc1f64ca3b6c5928e52",
+      "public_text_bytes": 879879,
+      "public_text_sha256": "7b4539cbcc547fd0dc14fd98562681ad5532b8fcbda6bacf27def479b8cb28a6",
+      "header": "===== relationship_100000_s2 | train | DeepDB/output/seed_experiments/seed_2/samples_100000/logs/train.log =====",
+      "bundle": "evidence/logs/training.log.gz",
+      "lines": 9868,
+      "content_truncated": false
+    },
+    {
+      "run_id": "relationship_100000_s2",
+      "stage": "evaluate",
+      "source_path": "DeepDB/output/seed_experiments/seed_2/samples_100000/logs/evaluate.log",
+      "source_bytes": 36765,
+      "source_sha256": "e13dd38762b722e8f700eed60d271923530a9e17e718248908028b1137a4a8b1",
+      "public_text_bytes": 36671,
+      "public_text_sha256": "8856980d3352753e0d8facb6e726d06feec63051ab3415fd43f9f7f080d2f7af",
+      "header": "===== relationship_100000_s2 | evaluate | DeepDB/output/seed_experiments/seed_2/samples_100000/logs/evaluate.log =====",
+      "bundle": "evidence/logs/evaluation.log.gz",
+      "lines": 365,
+      "content_truncated": false
+    },
+    {
+      "run_id": "relationship_1000000_s2",
+      "stage": "train",
+      "source_path": "DeepDB/output/seed_experiments/seed_2/samples_1000000/logs/train.log",
+      "source_bytes": 1179224,
+      "source_sha256": "91b023a710e3fbe05401d3d49e60fd9ba5633d173c2c8f0ef3a797f1f49b86f7",
+      "public_text_bytes": 1016980,
+      "public_text_sha256": "e56631681c523e792abbbc1db43fa8f842cd25cd9a2986fb110969d74d9f2cf1",
+      "header": "===== relationship_1000000_s2 | train | DeepDB/output/seed_experiments/seed_2/samples_1000000/logs/train.log =====",
+      "bundle": "evidence/logs/training.log.gz",
+      "lines": 11467,
+      "content_truncated": false
+    },
+    {
+      "run_id": "relationship_1000000_s2",
+      "stage": "evaluate",
+      "source_path": "DeepDB/output/seed_experiments/seed_2/samples_1000000/logs/evaluate.log",
+      "source_bytes": 36787,
+      "source_sha256": "182d9a78fee2780ca40be006592da43a92daebd59987def605075fed0f4169ce",
+      "public_text_bytes": 36693,
+      "public_text_sha256": "8165e4f84f964d027a4807c3818c0024cf99e23ae6bdf943fc2d566da822d60c",
+      "header": "===== relationship_1000000_s2 | evaluate | DeepDB/output/seed_experiments/seed_2/samples_1000000/logs/evaluate.log =====",
+      "bundle": "evidence/logs/evaluation.log.gz",
+      "lines": 365,
+      "content_truncated": false
+    },
+    {
+      "run_id": "relationship_10000_s3",
+      "stage": "train",
+      "source_path": "DeepDB/output/seed_experiments/seed_3/samples_10000/logs/train.log",
+      "source_bytes": 1008476,
+      "source_sha256": "4d4d148c046d90a1ca58c09e6c8e934005cb996603c34a084e91970f4ba05dbf",
+      "public_text_bytes": 892433,
+      "public_text_sha256": "391a140c75154e80ab4b2a5bb78ea96a0549a21580180914e351152de44e479a",
+      "header": "===== relationship_10000_s3 | train | DeepDB/output/seed_experiments/seed_3/samples_10000/logs/train.log =====",
+      "bundle": "evidence/logs/training.log.gz",
+      "lines": 10044,
+      "content_truncated": false
+    },
+    {
+      "run_id": "relationship_10000_s3",
+      "stage": "evaluate",
+      "source_path": "DeepDB/output/seed_experiments/seed_3/samples_10000/logs/evaluate.log",
+      "source_bytes": 36788,
+      "source_sha256": "79a25e52d8c212889ab627c5175d0cfe9ff71c26184a887a734bf1478369218c",
+      "public_text_bytes": 36694,
+      "public_text_sha256": "2c0fce9a25d7385e5d3c59d2dc5fdd50743f959dc1357e255146d611e5e81d35",
+      "header": "===== relationship_10000_s3 | evaluate | DeepDB/output/seed_experiments/seed_3/samples_10000/logs/evaluate.log =====",
+      "bundle": "evidence/logs/evaluation.log.gz",
+      "lines": 365,
+      "content_truncated": false
+    },
+    {
+      "run_id": "relationship_100000_s3",
+      "stage": "train",
+      "source_path": "DeepDB/output/seed_experiments/seed_3/samples_100000/logs/train.log",
+      "source_bytes": 947733,
+      "source_sha256": "d0b1298c5cfa65336d83a3eeac980c9ac37a77f0dd6c8de9dadbbb427c8ca16f",
+      "public_text_bytes": 841325,
+      "public_text_sha256": "3cd399d6bced05e3435ef2283f3b47993c91c562a6bdd4bea3b10f7b8f95ddcd",
+      "header": "===== relationship_100000_s3 | train | DeepDB/output/seed_experiments/seed_3/samples_100000/logs/train.log =====",
+      "bundle": "evidence/logs/training.log.gz",
+      "lines": 9421,
+      "content_truncated": false
+    },
+    {
+      "run_id": "relationship_100000_s3",
+      "stage": "evaluate",
+      "source_path": "DeepDB/output/seed_experiments/seed_3/samples_100000/logs/evaluate.log",
+      "source_bytes": 36750,
+      "source_sha256": "67f53266e4d9958320565dfe47446286d10c5369f60578ed2fdb9bdba4273b32",
+      "public_text_bytes": 36656,
+      "public_text_sha256": "1fc4c8cec9e38d10d3ceba017ec2a41a3affbd73d42a5a009a1801366c0d8578",
+      "header": "===== relationship_100000_s3 | evaluate | DeepDB/output/seed_experiments/seed_3/samples_100000/logs/evaluate.log =====",
+      "bundle": "evidence/logs/evaluation.log.gz",
+      "lines": 365,
+      "content_truncated": false
+    },
+    {
+      "run_id": "relationship_1000000_s3",
+      "stage": "train",
+      "source_path": "DeepDB/output/seed_experiments/seed_3/samples_1000000/logs/train.log",
+      "source_bytes": 1141997,
+      "source_sha256": "a25b2ceeeb1f317c22e01ed40a70492e254c3ceef2bd0404a81c5435f6bbf250",
+      "public_text_bytes": 986004,
+      "public_text_sha256": "f12afcadbcda9e691745fa0e9eeb74c11ac674a8997333095e9505fefaace6b9",
+      "header": "===== relationship_1000000_s3 | train | DeepDB/output/seed_experiments/seed_3/samples_1000000/logs/train.log =====",
+      "bundle": "evidence/logs/training.log.gz",
+      "lines": 11104,
+      "content_truncated": false
+    },
+    {
+      "run_id": "relationship_1000000_s3",
+      "stage": "evaluate",
+      "source_path": "DeepDB/output/seed_experiments/seed_3/samples_1000000/logs/evaluate.log",
+      "source_bytes": 36780,
+      "source_sha256": "35d743864e51f434903878ef6c4946c10bc0486c76b8ad522ccc9ea67daa6853",
+      "public_text_bytes": 36686,
+      "public_text_sha256": "92ea69e1364337c3e45ad5c1ca198e9a8474c81b5e8d9714750afa2c60e7570a",
+      "header": "===== relationship_1000000_s3 | evaluate | DeepDB/output/seed_experiments/seed_3/samples_1000000/logs/evaluate.log =====",
+      "bundle": "evidence/logs/evaluation.log.gz",
+      "lines": 365,
+      "content_truncated": false
+    },
+    {
+      "run_id": "rdc_100000_s1",
+      "stage": "train",
+      "source_path": "DeepDB/output/rdc_experiment_20261027/logs/train.log",
+      "source_bytes": 1230757,
+      "source_sha256": "bde850b3b56f177b0ca1015516f63e45c781fc61f963a505503643054e54f351",
+      "public_text_bytes": 1118906,
+      "public_text_sha256": "dbbb53283cdb513f8a386cbe65b21f638c3c703bccb3248d1d772ae70f5d7a3a",
+      "header": "===== rdc_100000_s1 | train | DeepDB/output/rdc_experiment_20261027/logs/train.log =====",
+      "bundle": "evidence/logs/training.log.gz",
+      "lines": 12541,
+      "content_truncated": false
+    },
+    {
+      "run_id": "rdc_100000_s1",
+      "stage": "evaluate_rdc",
+      "source_path": "DeepDB/output/rdc_experiment_20261027/logs/evaluate_rdc.log",
+      "source_bytes": 38078,
+      "source_sha256": "e5cc3be81ff6eaa307a64b7ff293d7806f22502f3d3ce333e8d85f56b68a2db7",
+      "public_text_bytes": 37698,
+      "public_text_sha256": "9ad877fbeaa29bd6646ae14f79ef70558bc49bd62fc4fb1063877e9389e5edfa",
+      "header": "===== rdc_100000_s1 | evaluate_rdc | DeepDB/output/rdc_experiment_20261027/logs/evaluate_rdc.log =====",
+      "bundle": "evidence/logs/evaluation.log.gz",
+      "lines": 368,
+      "content_truncated": false
+    },
+    {
+      "run_id": "rdc_100000_s1",
+      "stage": "prepare",
+      "source_path": "DeepDB/output/rdc_experiment_20261027/logs/prepare.log",
+      "source_bytes": 1267,
+      "source_sha256": "7caaea456d8f154ae54c0440353511c7f748791dfc7ea788d0fd9aab8033eb50",
+      "public_text_bytes": 1082,
+      "public_text_sha256": "a9139ee9b814f13010cbf5d0afc029022931ace21585f5ea03243b0dea885e32",
+      "header": "===== rdc_100000_s1 | prepare | DeepDB/output/rdc_experiment_20261027/logs/prepare.log =====",
+      "bundle": "evidence/logs/training.log.gz",
+      "lines": 11,
+      "content_truncated": false
+    },
+    {
+      "run_id": "rdc_1000000_s1",
+      "stage": "train",
+      "source_path": "DeepDB/output/rdc_experiment_20261027_1000000/logs/train.log",
+      "source_bytes": 1756614,
+      "source_sha256": "485d6534a9bc0b7ae24b3b7eeab6f9521c879d87d81ac17dd8fecd28a8e65789",
+      "public_text_bytes": 1565611,
+      "public_text_sha256": "09ee79f4d3f7ed04f1ed60881a37c9090cdbff0ef82c4b3438fd7c0ba9915d96",
+      "header": "===== rdc_1000000_s1 | train | DeepDB/output/rdc_experiment_20261027_1000000/logs/train.log =====",
+      "bundle": "evidence/logs/training.log.gz",
+      "lines": 17652,
+      "content_truncated": false
+    },
+    {
+      "run_id": "rdc_1000000_s1",
+      "stage": "evaluate_rdc",
+      "source_path": "DeepDB/output/rdc_experiment_20261027_1000000/logs/evaluate_rdc.log",
+      "source_bytes": 38193,
+      "source_sha256": "f03581f58f8234640e0f1c66f7141b2c0029ccc2889c953f3d771399ee8db144",
+      "public_text_bytes": 37813,
+      "public_text_sha256": "456ac2c82e4fb7a6607a085146c11bfd7e75cd79d63a0a2568b4d8311b3721e3",
+      "header": "===== rdc_1000000_s1 | evaluate_rdc | DeepDB/output/rdc_experiment_20261027_1000000/logs/evaluate_rdc.log =====",
+      "bundle": "evidence/logs/evaluation.log.gz",
+      "lines": 368,
+      "content_truncated": false
+    },
+    {
+      "run_id": "rdc_1000000_s1",
+      "stage": "prepare",
+      "source_path": "DeepDB/output/rdc_experiment_20261027_1000000/logs/prepare.log",
+      "source_bytes": 80,
+      "source_sha256": "8a77f81cb95ae97b8ae970107b6288e6d1107d98ad2f7fdd9084ce8c29d36ea2",
+      "public_text_bytes": 80,
+      "public_text_sha256": "8a77f81cb95ae97b8ae970107b6288e6d1107d98ad2f7fdd9084ce8c29d36ea2",
+      "header": "===== rdc_1000000_s1 | prepare | DeepDB/output/rdc_experiment_20261027_1000000/logs/prepare.log =====",
+      "bundle": "evidence/logs/training.log.gz",
+      "lines": 1,
+      "content_truncated": false
+    },
+    {
+      "run_id": "rdc_1000000_s2",
+      "stage": "train",
+      "source_path": "DeepDB/output/rdc_seed_experiments/seed_2/samples_1000000/logs/train.log",
+      "source_bytes": 1446590,
+      "source_sha256": "724c139565135773a707e444b18ce159762ffa91746f8142ef6541e68ab584a9",
+      "public_text_bytes": 1293463,
+      "public_text_sha256": "c2f98e20d91f101fd29cb2cd5fff4270a4cbd080da3033f3ee833041c2db124e",
+      "header": "===== rdc_1000000_s2 | train | DeepDB/output/rdc_seed_experiments/seed_2/samples_1000000/logs/train.log =====",
+      "bundle": "evidence/logs/training.log.gz",
+      "lines": 14562,
+      "content_truncated": false
+    },
+    {
+      "run_id": "rdc_1000000_s2",
+      "stage": "evaluate_rdc",
+      "source_path": "DeepDB/output/rdc_seed_experiments/seed_2/samples_1000000/logs/evaluate_rdc.log",
+      "source_bytes": 38268,
+      "source_sha256": "ac53eccc4722fa72daa5f3d91c1991fdc4522a6733e3c28f4e63ca4e2c403a80",
+      "public_text_bytes": 37888,
+      "public_text_sha256": "4f933209e1e8164c2323d3f21e81d025c49e27efe076157dc2b3858034f4844f",
+      "header": "===== rdc_1000000_s2 | evaluate_rdc | DeepDB/output/rdc_seed_experiments/seed_2/samples_1000000/logs/evaluate_rdc.log =====",
+      "bundle": "evidence/logs/evaluation.log.gz",
+      "lines": 368,
+      "content_truncated": false
+    },
+    {
+      "run_id": "rdc_1000000_s2",
+      "stage": "prepare",
+      "source_path": "DeepDB/output/rdc_seed_experiments/seed_2/samples_1000000/logs/prepare.log",
+      "source_bytes": 80,
+      "source_sha256": "8a77f81cb95ae97b8ae970107b6288e6d1107d98ad2f7fdd9084ce8c29d36ea2",
+      "public_text_bytes": 80,
+      "public_text_sha256": "8a77f81cb95ae97b8ae970107b6288e6d1107d98ad2f7fdd9084ce8c29d36ea2",
+      "header": "===== rdc_1000000_s2 | prepare | DeepDB/output/rdc_seed_experiments/seed_2/samples_1000000/logs/prepare.log =====",
+      "bundle": "evidence/logs/training.log.gz",
+      "lines": 1,
+      "content_truncated": false
+    },
+    {
+      "run_id": "rdc_1000000_s3",
+      "stage": "train",
+      "source_path": "DeepDB/output/rdc_seed_experiments/seed_3/samples_1000000/logs/train.log",
+      "source_bytes": 1435421,
+      "source_sha256": "32eb390719c2d7306a6dce62282cea26e7b2c6a148ff3b912e913541ed3ced6c",
+      "public_text_bytes": 1285728,
+      "public_text_sha256": "46995926ef59b02b2448e7a30326f97a6585094ccf1d573b7b4607a561abc95f",
+      "header": "===== rdc_1000000_s3 | train | DeepDB/output/rdc_seed_experiments/seed_3/samples_1000000/logs/train.log =====",
+      "bundle": "evidence/logs/training.log.gz",
+      "lines": 14464,
+      "content_truncated": false
+    },
+    {
+      "run_id": "rdc_1000000_s3",
+      "stage": "evaluate_rdc",
+      "source_path": "DeepDB/output/rdc_seed_experiments/seed_3/samples_1000000/logs/evaluate_rdc.log",
+      "source_bytes": 38277,
+      "source_sha256": "40d9ff1dea197f81735ca467e3cd63a35545de1ba731ef1d303bd02f6c28e090",
+      "public_text_bytes": 37897,
+      "public_text_sha256": "9444c8962ad759b566d10aceb5ba9550efb7032547437b3faa14cb1744fd284b",
+      "header": "===== rdc_1000000_s3 | evaluate_rdc | DeepDB/output/rdc_seed_experiments/seed_3/samples_1000000/logs/evaluate_rdc.log =====",
+      "bundle": "evidence/logs/evaluation.log.gz",
+      "lines": 368,
+      "content_truncated": false
+    },
+    {
+      "run_id": "rdc_1000000_s3",
+      "stage": "prepare",
+      "source_path": "DeepDB/output/rdc_seed_experiments/seed_3/samples_1000000/logs/prepare.log",
+      "source_bytes": 80,
+      "source_sha256": "8a77f81cb95ae97b8ae970107b6288e6d1107d98ad2f7fdd9084ce8c29d36ea2",
+      "public_text_bytes": 80,
+      "public_text_sha256": "8a77f81cb95ae97b8ae970107b6288e6d1107d98ad2f7fdd9084ce8c29d36ea2",
+      "header": "===== rdc_1000000_s3 | prepare | DeepDB/output/rdc_seed_experiments/seed_3/samples_1000000/logs/prepare.log =====",
+      "bundle": "evidence/logs/training.log.gz",
+      "lines": 1,
+      "content_truncated": false
+    },
+    {
+      "run_id": "postgresql",
+      "stage": "progress.log",
+      "source_path": "DeepDB/output/postgresql_baseline_20261015/progress.log",
+      "source_bytes": 3034,
+      "source_sha256": "757bddaa830414c25187c5af8fa3580cb4514b67be91bb30943ee98f109b47d6",
+      "public_text_bytes": 3034,
+      "public_text_sha256": "757bddaa830414c25187c5af8fa3580cb4514b67be91bb30943ee98f109b47d6",
+      "header": "===== postgresql | progress.log | DeepDB/output/postgresql_baseline_20261015/progress.log =====",
+      "bundle": "evidence/logs/database.log.gz",
+      "lines": 47,
+      "content_truncated": false
+    },
+    {
+      "run_id": "postgresql",
+      "stage": "initdb.log",
+      "source_path": "DeepDB/output/postgresql_baseline_20261015/initdb.log",
+      "source_bytes": 922,
+      "source_sha256": "32be28a3ad63e4e17069a8da250e9957fd77ceb0088d6e967d0921feb6debce8",
+      "public_text_bytes": 908,
+      "public_text_sha256": "b884cb6e94d965a2c30e5f1166816658c4e474fc2210b1546e2805f4d8257581",
+      "header": "===== postgresql | initdb.log | DeepDB/output/postgresql_baseline_20261015/initdb.log =====",
+      "bundle": "evidence/logs/database.log.gz",
+      "lines": 23,
+      "content_truncated": false
+    },
+    {
+      "run_id": "postgresql",
+      "stage": "regression_tests.log",
+      "source_path": "DeepDB/output/postgresql_baseline_20261015/regression_tests.log",
+      "source_bytes": 100,
+      "source_sha256": "2db84432f91370f9108d442d071667570e51ecf1d3d917e1c9a5fcb4e803e075",
+      "public_text_bytes": 100,
+      "public_text_sha256": "2db84432f91370f9108d442d071667570e51ecf1d3d917e1c9a5fcb4e803e075",
+      "header": "===== postgresql | regression_tests.log | DeepDB/output/postgresql_baseline_20261015/regression_tests.log =====",
+      "bundle": "evidence/logs/database.log.gz",
+      "lines": 2,
+      "content_truncated": false
+    },
+    {
+      "run_id": "truth_audit",
+      "stage": "progress.log",
+      "source_path": "DeepDB/output/truth_audit_20261027/progress.log",
+      "source_bytes": 19895,
+      "source_sha256": "0212b47f838d3eb258ef45f80e006107a65f3226f1c9baf0bb7ac517c9f2f8f2",
+      "public_text_bytes": 19895,
+      "public_text_sha256": "0212b47f838d3eb258ef45f80e006107a65f3226f1c9baf0bb7ac517c9f2f8f2",
+      "header": "===== truth_audit | progress.log | DeepDB/output/truth_audit_20261027/progress.log =====",
+      "bundle": "evidence/logs/database.log.gz",
+      "lines": 198,
+      "content_truncated": false
+    },
+    {
+      "run_id": "truth_audit",
+      "stage": "attempts.jsonl",
+      "source_path": "DeepDB/output/truth_audit_20261027/attempts.jsonl",
+      "source_bytes": 34659,
+      "source_sha256": "a2abacd3da2ef0c758e19e5c0350ae640cc5cd2e23b976b5316082c8b47c6c13",
+      "public_text_bytes": 34659,
+      "public_text_sha256": "a2abacd3da2ef0c758e19e5c0350ae640cc5cd2e23b976b5316082c8b47c6c13",
+      "header": "===== truth_audit | attempts.jsonl | DeepDB/output/truth_audit_20261027/attempts.jsonl =====",
+      "bundle": "evidence/logs/database.log.gz",
+      "lines": 76,
+      "content_truncated": false
+    },
+    {
+      "run_id": "truth_audit",
+      "stage": "error.log",
+      "source_path": "DeepDB/output/truth_audit_20261027/error.log",
+      "source_bytes": 259,
+      "source_sha256": "f3928531dc89b4c4bc7067d0b947962a4c3ca78968f35121005fe5ea454b585e",
+      "public_text_bytes": 225,
+      "public_text_sha256": "40de13fb663266c49453018d71be7e3942866eebae283f29284ca2c81b3b2368",
+      "header": "===== truth_audit | error.log | DeepDB/output/truth_audit_20261027/error.log =====",
+      "bundle": "evidence/logs/database.log.gz",
+      "lines": 4,
+      "content_truncated": false
+    },
+    {
+      "run_id": "truth_audit",
+      "stage": "regression_tests.log",
+      "source_path": "DeepDB/output/truth_audit_20261027/regression_tests.log",
+      "source_bytes": 100,
+      "source_sha256": "22af0bf4cac01c302405ca34a69fdcb8350790b13cca5f00a73d99f53272bb2d",
+      "public_text_bytes": 100,
+      "public_text_sha256": "22af0bf4cac01c302405ca34a69fdcb8350790b13cca5f00a73d99f53272bb2d",
+      "header": "===== truth_audit | regression_tests.log | DeepDB/output/truth_audit_20261027/regression_tests.log =====",
+      "bundle": "evidence/logs/database.log.gz",
+      "lines": 2,
+      "content_truncated": false
+    }
+  ],
+  "source_snapshot_members": [
+    {
+      "path": "DeepDB/code/maqp.py",
+      "source_sha256": "3bc0e84a3883ea20689f6397b595b73a314799bf19dd127f2cdcb61963f26548",
+      "public_sha256": "3bc0e84a3883ea20689f6397b595b73a314799bf19dd127f2cdcb61963f26548",
+      "bytes": 14461
+    },
+    {
+      "path": "DeepDB/code/repeat_seeds.py",
+      "source_sha256": "7c4542e90dae0d47d0b7e8812d5d2bf6267a234675734d2b864eb8ffc16144a4",
+      "public_sha256": "7c4542e90dae0d47d0b7e8812d5d2bf6267a234675734d2b864eb8ffc16144a4",
+      "bytes": 4541
+    },
+    {
+      "path": "DeepDB/code/joblight_exact_count.py",
+      "source_sha256": "f35cdbf63fae427f0feb013b19d41af9b2072b75fe53cf1b11b527d1fee65d7d",
+      "public_sha256": "f35cdbf63fae427f0feb013b19d41af9b2072b75fe53cf1b11b527d1fee65d7d",
+      "bytes": 2963
+    },
+    {
+      "path": "DeepDB/code/recompute_joblight_truth.py",
+      "source_sha256": "d4b6e45be75ce05691c375218666ed472fc7df153f577c25e76d00e9eb0645ac",
+      "public_sha256": "59c64a4863d047cf0d9138176623c6525f4aa4c47590a9ff67b5ed6bed40f9ed",
+      "bytes": 23184
+    },
+    {
+      "path": "DeepDB/code/postgres_baseline.py",
+      "source_sha256": "04d4e8041e156513c79ee67a629fa6d492813ba801fb303fe8347981f7cd89b2",
+      "public_sha256": "04d4e8041e156513c79ee67a629fa6d492813ba801fb303fe8347981f7cd89b2",
+      "bytes": 13069
+    },
+    {
+      "path": "DeepDB/code/verify_results.py",
+      "source_sha256": "c49800c43c55b88fa1897c3a6a3063c038afd0e430d18b35903556225914cb8d",
+      "public_sha256": "c49800c43c55b88fa1897c3a6a3063c038afd0e430d18b35903556225914cb8d",
+      "bytes": 4123
+    },
+    {
+      "path": "tools/run_rdc_visible.py",
+      "source_sha256": "f0fd4c903ee1eb5c26610b54a97519cf4e8464d91bd7844699e9dc04aaba5963",
+      "public_sha256": "f0fd4c903ee1eb5c26610b54a97519cf4e8464d91bd7844699e9dc04aaba5963",
+      "bytes": 23720
+    },
+    {
+      "path": "DeepDB/code/LICENSE",
+      "source_sha256": "fd56c419f12408bd308540fe2c9caa79d0a680d6393cc083b42d13e8904755d2",
+      "public_sha256": "fd56c419f12408bd308540fe2c9caa79d0a680d6393cc083b42d13e8904755d2",
+      "bytes": 1097
+    },
+    {
+      "path": "DeepDB/docs/UPSTREAM.md",
+      "source_sha256": "6fbf43947d9d5516f11d45dc4a6b9c6d182806a91e837ea33cb387948063c03c",
+      "public_sha256": "6fbf43947d9d5516f11d45dc4a6b9c6d182806a91e837ea33cb387948063c03c",
+      "bytes": 2208
+    }
+  ],
+  "public_files": [
+    {
+      "path": "DELIVERY_MAP.md",
+      "bytes": 5074,
+      "sha256": "607559d034c93501b78204a60e92c2a36ce91bed008cda00da53d95ebefa309a"
+    },
+    {
+      "path": "evidence/data_manifest.json",
+      "bytes": 1502,
+      "sha256": "ae6a5cef66340bae23325722f0f0d29ee616850851b99b6989ab1d5b6a6f3e13"
+    },
+    {
+      "path": "evidence/logs/database.log.gz",
+      "bytes": 9026,
+      "sha256": "a0e1f23a8789bdca2ad6b5efc7a82e70f8bd144ef67d27c7b63694bb64afa872"
+    },
+    {
+      "path": "evidence/logs/evaluation.log.gz",
+      "bytes": 62046,
+      "sha256": "e8f7f0f9903da93fcb776a7cc0b4a1dcfd2361cc1ca565a948839ae6308cd047"
+    },
+    {
+      "path": "evidence/logs/training.log.gz",
+      "bytes": 668589,
+      "sha256": "7dda736004863ce0b3c829739eea5affd815572203c6a08617739fa3f28f92fa"
+    },
+    {
+      "path": "evidence/model_inventory.json",
+      "bytes": 13968,
+      "sha256": "a7d666293b38f24b3730ad0f80d11525911f25c15cf411842059ffa909c0cd91"
+    },
+    {
+      "path": "evidence/protocol_audit.json",
+      "bytes": 9605,
+      "sha256": "42b56efb37b5861c0951280e0114474a11ca20c9fa4eee34b626a60a423f9bee"
+    },
+    {
+      "path": "evidence/run_records.json",
+      "bytes": 112215,
+      "sha256": "b4bb0576070fc3a831150496c417c43be693172785640699c7b04875cb725b0a"
+    },
+    {
+      "path": "evidence/source_snapshots.zip",
+      "bytes": 33562,
+      "sha256": "ba74fc17b49ba64eacbf4c05a4d4d1a6477ff0ff87b6e85240380d3fd995faf7"
+    },
+    {
+      "path": "evidence/verification_records.json",
+      "bytes": 60284,
+      "sha256": "ab3503c808762c8e02259784ea73467cba80e3f6f701eb43d4f8f8009d44b99e"
+    },
+    {
+      "path": "figures/en/01_sample_size.png",
+      "bytes": 141760,
+      "sha256": "c13f66c38f3140ba413773cf914890aabffd1a32ef42691c3e73b70a962ffd7b"
+    },
+    {
+      "path": "figures/en/02_seed_sensitivity.png",
+      "bytes": 170677,
+      "sha256": "2eec11bb3b4e91903a1ce5db2a52dac9f71eedb00d928b4e03545f5228c9f5da"
+    },
+    {
+      "path": "figures/en/03_postgresql_summary.png",
+      "bytes": 115628,
+      "sha256": "811b960080bb770c19b9f925075268ed6192d966fee5daa10484b088fa879cea"
+    },
+    {
+      "path": "figures/en/04_postgresql_per_query.png",
+      "bytes": 114087,
+      "sha256": "4bb79b896a18a9585a9ef0fe75f2cae9def78421b4935759a2ea04f05bd33d12"
+    },
+    {
+      "path": "figures/en/05_truth_audit.png",
+      "bytes": 79416,
+      "sha256": "4bde08593e8bed82413a517324e8ebb0155229e29d329200c062ca9346dd9d41"
+    },
+    {
+      "path": "figures/en/06_rdc_sample_size.png",
+      "bytes": 105779,
+      "sha256": "3c44cf144c3fbc84b9f9000fb2fec93a7df479fa8ba4aa3c953851fd75f9c952"
+    },
+    {
+      "path": "figures/en/07_rdc_cases.png",
+      "bytes": 52288,
+      "sha256": "b48671bf2b6a238a793b2cec1e84d65f3a4514e0c18049f1e50da39685a63940"
+    },
+    {
+      "path": "figures/en/08_rdc_seed_stability.png",
+      "bytes": 115466,
+      "sha256": "36ee426a58a5ef63b52f0f1fc6d2f3f7175d344657947ec2f36ed5873757fb04"
+    },
+    {
+      "path": "figures/zh/01_sample_size.png",
+      "bytes": 155220,
+      "sha256": "0cae9d827454817fc09db6d30285f2ce42c2c3b490188e2bf32512617300ded3"
+    },
+    {
+      "path": "figures/zh/02_seed_sensitivity.png",
+      "bytes": 160153,
+      "sha256": "bdccd4e56335ec609a05ee07aa947b16c1979bae9059f8641bad35e6077cfd45"
+    },
+    {
+      "path": "figures/zh/03_postgresql_summary.png",
+      "bytes": 112332,
+      "sha256": "4fc905f07b4af6a8fde390dc58f10c8226fcdf557eee420f298e92c378834b33"
+    },
+    {
+      "path": "figures/zh/04_postgresql_per_query.png",
+      "bytes": 115432,
+      "sha256": "fc144fdda1b040a5121c597d4387e27a1106dde2d1e7d0f0eb7439242c820ad7"
+    },
+    {
+      "path": "figures/zh/05_truth_audit.png",
+      "bytes": 80909,
+      "sha256": "19bbb7c3296c1c03842a23a6788606c179f9535e991da3448366ad709cee1f91"
+    },
+    {
+      "path": "figures/zh/06_rdc_sample_size.png",
+      "bytes": 101755,
+      "sha256": "39fba3ef11c846d9df628352f960541cf1ebdeb7c4a529f091879e6337b2f10c"
+    },
+    {
+      "path": "figures/zh/07_rdc_cases.png",
+      "bytes": 51232,
+      "sha256": "0b426e8f0e69befe3fc600f9327901163357bb56dc5473982eb2892171b79b27"
+    },
+    {
+      "path": "figures/zh/08_rdc_seed_stability.png",
+      "bytes": 113430,
+      "sha256": "69fd64057e69b62bef55aecb4298edfafee85b01d40b9d755e74b83a24a1fb78"
+    },
+    {
+      "path": "metrics.csv",
+      "bytes": 3752,
+      "sha256": "8c0424605352ce98bf351edbabbd11a05ecd898c166f5285e18c727f35ef3c2e"
+    },
+    {
+      "path": "predictions.csv",
+      "bytes": 22849,
+      "sha256": "801aadbc2fe45acc942a09723d4daf9e820f1b14773b3628f05e9af0f387709f"
+    },
+    {
+      "path": "README.md",
+      "bytes": 10610,
+      "sha256": "df0fdf4f0470d18f27be4f15cd744979473f8957f8c11c58a02f54724fe35fe8"
+    },
+    {
+      "path": "report_en.md",
+      "bytes": 5447,
+      "sha256": "a725e306273d6e54d33a7846607a079a10453df21514495e0cc190729138b313"
+    },
+    {
+      "path": "report_zh.md",
+      "bytes": 4956,
+      "sha256": "7deb766adf19cdd7ee825185bb0c2dd78a19f67fe6ac6d9fd54a688838d595cf"
+    },
+    {
+      "path": "settings.json",
+      "bytes": 3396,
+      "sha256": "7cd01648680f6ccc56c6a6e10bbf5218ecfad08a446c6dc792c1ce0729809f82"
+    },
+    {
+      "path": "truth_audit.csv",
+      "bytes": 2323,
+      "sha256": "33d9995379973a24807a072bb45f27ed10898e6be884a1761dea952f0f5f03e3"
+    },
+    {
+      "path": "verify_evidence.py",
+      "bytes": 1648,
+      "sha256": "d96d048ca3822947e8bc774858fadd9f2bfd122bbcd1e75d32ac1a6622550b65"
+    },
+    {
+      "path": "verify_results.py",
+      "bytes": 4064,
+      "sha256": "ee27cc82e8101e308c2d1326b8c865fa7d01b5da284a8c0ecc4e180d4a22f8b4"
+    }
+  ]
+}

@@ -9,3 +9,11 @@
 
 仓库所有者可在 GitHub **Settings → Collaborators** 邀请组员。
 公开访问不等于拥有直接推送权限；尚未指定组员，因此没有发送邀请。
+
+## 已同步实验的维护
+
+- `main` 已收录 guoao 的 JOB-light 交付包；[结果与核验边界](docs/TEAM_EXPERIMENTS.md)是小组整理入口，贡献提交及署名保留。
+- 修改文档或结果索引后，执行 `python -B output/results/guoao_experiments/verify_results.py --repo-root .` 和 `python -B output/results/guoao_experiments/verify_evidence.py`。改动算法仍执行上面的训练/重评要求。
+- 原交付包的文件哈希受 `evidence/source_manifest.json` 约束；新实验使用新编号和独立结果目录，勿覆盖原预测、日志、图或来源证据。
+- 模型清单不是模型本体。复训交接需要另外提供匹配指纹的本地模型、数据/HDF、环境和数据库配置；历史源码ZIP保持取证用途，不直接覆盖当前算法文件。
+- 不把14组设置写成14套不同查询，不把8类中英文图写成16个实验，不把离线指标核验写成重新训练或重新运行数据库。

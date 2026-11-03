@@ -1,0 +1,429 @@
+{
+  "training_runs": 13,
+  "total_model_bytes": 119308280,
+  "model_binaries_uploaded": false,
+  "models": [
+    {
+      "run_id": "relationship_10000_s1",
+      "path_in_project_checkout": "output/models/ensemble_relationships_imdb-light_10000.pkl",
+      "bytes": 2508486,
+      "sha256": "d558364bc9ba4538d66d86bff6a2b430e77b14be60ee1b2cd02f6bb1f262f3cb",
+      "spns": 5,
+      "binary_in_github": false,
+      "availability": "Retained locally; separate artifact handoff required to load this exact model."
+    },
+    {
+      "run_id": "relationship_100000_s1",
+      "path_in_project_checkout": "output/models/ensemble_relationships_imdb-light_100000.pkl",
+      "bytes": 4658922,
+      "sha256": "1bbc07340e38af01f86553d8692cd4911a0452281521b853df96733513607912",
+      "spns": 5,
+      "binary_in_github": false,
+      "availability": "Retained locally; separate artifact handoff required to load this exact model."
+    },
+    {
+      "run_id": "relationship_1000000_s1",
+      "path_in_project_checkout": "output/models/ensemble_relationships_imdb-light_1000000.pkl",
+      "bytes": 11182980,
+      "sha256": "9cf0e1f9c709837575824bd5cfac73b7550322b48919d06fe9f104699c40d7b2",
+      "spns": 5,
+      "binary_in_github": false,
+      "availability": "Retained locally; separate artifact handoff required to load this exact model."
+    },
+    {
+      "run_id": "relationship_10000_s2",
+      "path_in_project_checkout": "output/seed_experiments/seed_2/samples_10000/models/ensemble_relationships_imdb-light_10000.pkl",
+      "bytes": 2505524,
+      "sha256": "a8d30cfc23e58bbe6e26e6973bc015069b5030d0acd6a55130723fd22921d3cd",
+      "spns": 5,
+      "binary_in_github": false,
+      "availability": "Retained locally; separate artifact handoff required to load this exact model."
+    },
+    {
+      "run_id": "relationship_100000_s2",
+      "path_in_project_checkout": "output/seed_experiments/seed_2/samples_100000/models/ensemble_relationships_imdb-light_100000.pkl",
+      "bytes": 5052197,
+      "sha256": "89d0ff54c598cf71bc55a98b38ed20df1ca978b356e805b41cf2dede71f150c2",
+      "spns": 5,
+      "binary_in_github": false,
+      "availability": "Retained locally; separate artifact handoff required to load this exact model."
+    },
+    {
+      "run_id": "relationship_1000000_s2",
+      "path_in_project_checkout": "output/seed_experiments/seed_2/samples_1000000/models/ensemble_relationships_imdb-light_1000000.pkl",
+      "bytes": 11726793,
+      "sha256": "8ead06e7b92bcb48a17ac40f9354bb4883a8734a4fab4f1a9241952f993dfd3b",
+      "spns": 5,
+      "binary_in_github": false,
+      "availability": "Retained locally; separate artifact handoff required to load this exact model."
+    },
+    {
+      "run_id": "relationship_10000_s3",
+      "path_in_project_checkout": "output/seed_experiments/seed_3/samples_10000/models/ensemble_relationships_imdb-light_10000.pkl",
+      "bytes": 2445457,
+      "sha256": "527f2e2edd751f0b3cfc20ef07b611c736cb14cbc9396011eeafbd007bf72d43",
+      "spns": 5,
+      "binary_in_github": false,
+      "availability": "Retained locally; separate artifact handoff required to load this exact model."
+    },
+    {
+      "run_id": "relationship_100000_s3",
+      "path_in_project_checkout": "output/seed_experiments/seed_3/samples_100000/models/ensemble_relationships_imdb-light_100000.pkl",
+      "bytes": 4907102,
+      "sha256": "6d18876f7a1ef9253762c05e33f028a79341f099c1d86812c817fbcff255f116",
+      "spns": 5,
+      "binary_in_github": false,
+      "availability": "Retained locally; separate artifact handoff required to load this exact model."
+    },
+    {
+      "run_id": "relationship_1000000_s3",
+      "path_in_project_checkout": "output/seed_experiments/seed_3/samples_1000000/models/ensemble_relationships_imdb-light_1000000.pkl",
+      "bytes": 11332019,
+      "sha256": "4e87a2360e1ab3ff7944f2304597ebcb4ce9fdb646d17d61529169d0f4e4bcc7",
+      "spns": 5,
+      "binary_in_github": false,
+      "availability": "Retained locally; separate artifact handoff required to load this exact model."
+    },
+    {
+      "run_id": "rdc_100000_s1",
+      "path_in_project_checkout": "output/rdc_experiment_20261027/models/ensemble_join_3_budget_5_100000.pkl",
+      "bytes": 7601600,
+      "sha256": "f5aefdefcb8b9ee58c90968de3f1325879d76f4cc37f2702a81421c1e0dcdc47",
+      "spns": 7,
+      "binary_in_github": false,
+      "availability": "Retained locally; separate artifact handoff required to load this exact model.",
+      "spn_inventory": [
+        {
+          "tables": [
+            "movie_companies",
+            "movie_info_idx",
+            "title"
+          ],
+          "relationships": [
+            "movie_companies.movie_id = title.id",
+            "movie_info_idx.movie_id = title.id"
+          ],
+          "actual_samples": 100000,
+          "full_join_size": 4073078.0
+        },
+        {
+          "tables": [
+            "movie_companies",
+            "movie_info",
+            "title"
+          ],
+          "relationships": [
+            "movie_companies.movie_id = title.id",
+            "movie_info.movie_id = title.id"
+          ],
+          "actual_samples": 100000,
+          "full_join_size": 67371414.0
+        },
+        {
+          "tables": [
+            "movie_companies",
+            "title"
+          ],
+          "relationships": [
+            "movie_companies.movie_id = title.id"
+          ],
+          "actual_samples": 100000,
+          "full_join_size": 2609129.0
+        },
+        {
+          "tables": [
+            "movie_info",
+            "title"
+          ],
+          "relationships": [
+            "movie_info.movie_id = title.id"
+          ],
+          "actual_samples": 100000,
+          "full_join_size": 14835720.0
+        },
+        {
+          "tables": [
+            "movie_info_idx",
+            "title"
+          ],
+          "relationships": [
+            "movie_info_idx.movie_id = title.id"
+          ],
+          "actual_samples": 100000,
+          "full_join_size": 1380035.0
+        },
+        {
+          "tables": [
+            "movie_keyword"
+          ],
+          "relationships": [],
+          "actual_samples": 100000,
+          "full_join_size": 4523930.0
+        },
+        {
+          "tables": [
+            "cast_info"
+          ],
+          "relationships": [],
+          "actual_samples": 100000,
+          "full_join_size": 36244344.0
+        }
+      ]
+    },
+    {
+      "run_id": "rdc_1000000_s1",
+      "path_in_project_checkout": "output/rdc_experiment_20261027_1000000/models/ensemble_join_3_budget_5_1000000.pkl",
+      "bytes": 19916703,
+      "sha256": "e80caca6a0758be89cb4f61817b65a15be27170e2eb93de9c1f9c2dd0f717082",
+      "spns": 7,
+      "binary_in_github": false,
+      "availability": "Retained locally; separate artifact handoff required to load this exact model.",
+      "spn_inventory": [
+        {
+          "tables": [
+            "movie_companies",
+            "movie_info_idx",
+            "title"
+          ],
+          "relationships": [
+            "movie_companies.movie_id = title.id",
+            "movie_info_idx.movie_id = title.id"
+          ],
+          "actual_samples": 1000000,
+          "full_join_size": 4073078.0
+        },
+        {
+          "tables": [
+            "movie_companies",
+            "movie_info",
+            "title"
+          ],
+          "relationships": [
+            "movie_companies.movie_id = title.id",
+            "movie_info.movie_id = title.id"
+          ],
+          "actual_samples": 1000000,
+          "full_join_size": 67371414.0
+        },
+        {
+          "tables": [
+            "movie_companies",
+            "title"
+          ],
+          "relationships": [
+            "movie_companies.movie_id = title.id"
+          ],
+          "actual_samples": 1000000,
+          "full_join_size": 2609129.0
+        },
+        {
+          "tables": [
+            "movie_info",
+            "title"
+          ],
+          "relationships": [
+            "movie_info.movie_id = title.id"
+          ],
+          "actual_samples": 1000000,
+          "full_join_size": 14835720.0
+        },
+        {
+          "tables": [
+            "movie_info_idx",
+            "title"
+          ],
+          "relationships": [
+            "movie_info_idx.movie_id = title.id"
+          ],
+          "actual_samples": 1000000,
+          "full_join_size": 1380035.0
+        },
+        {
+          "tables": [
+            "movie_keyword"
+          ],
+          "relationships": [],
+          "actual_samples": 1000000,
+          "full_join_size": 4523930.0
+        },
+        {
+          "tables": [
+            "cast_info"
+          ],
+          "relationships": [],
+          "actual_samples": 1000000,
+          "full_join_size": 36244344.0
+        }
+      ]
+    },
+    {
+      "run_id": "rdc_1000000_s2",
+      "path_in_project_checkout": "output/rdc_seed_experiments/seed_2/samples_1000000/models/ensemble_join_3_budget_5_1000000.pkl",
+      "bytes": 19560028,
+      "sha256": "86e921defc3869a6e91a6e962d985bac38b4972cbea32c7c0d121aedc0a3225d",
+      "spns": 7,
+      "binary_in_github": false,
+      "availability": "Retained locally; separate artifact handoff required to load this exact model.",
+      "spn_inventory": [
+        {
+          "tables": [
+            "movie_companies",
+            "movie_info_idx",
+            "title"
+          ],
+          "relationships": [
+            "movie_companies.movie_id = title.id",
+            "movie_info_idx.movie_id = title.id"
+          ],
+          "actual_samples": 1000000,
+          "full_join_size": 4073078.0
+        },
+        {
+          "tables": [
+            "movie_companies",
+            "movie_info",
+            "title"
+          ],
+          "relationships": [
+            "movie_companies.movie_id = title.id",
+            "movie_info.movie_id = title.id"
+          ],
+          "actual_samples": 1000000,
+          "full_join_size": 67371414.0
+        },
+        {
+          "tables": [
+            "movie_companies",
+            "title"
+          ],
+          "relationships": [
+            "movie_companies.movie_id = title.id"
+          ],
+          "actual_samples": 1000000,
+          "full_join_size": 2609129.0
+        },
+        {
+          "tables": [
+            "movie_info",
+            "title"
+          ],
+          "relationships": [
+            "movie_info.movie_id = title.id"
+          ],
+          "actual_samples": 1000000,
+          "full_join_size": 14835720.0
+        },
+        {
+          "tables": [
+            "movie_info_idx"
+          ],
+          "relationships": [],
+          "actual_samples": 1000000,
+          "full_join_size": 1380035.0
+        },
+        {
+          "tables": [
+            "movie_keyword"
+          ],
+          "relationships": [],
+          "actual_samples": 1000000,
+          "full_join_size": 4523930.0
+        },
+        {
+          "tables": [
+            "cast_info"
+          ],
+          "relationships": [],
+          "actual_samples": 1000000,
+          "full_join_size": 36244344.0
+        }
+      ]
+    },
+    {
+      "run_id": "rdc_1000000_s3",
+      "path_in_project_checkout": "output/rdc_seed_experiments/seed_3/samples_1000000/models/ensemble_join_3_budget_5_1000000.pkl",
+      "bytes": 15910469,
+      "sha256": "f540835068e3be515b6923afb7730fe680f3a2d76408fd93e794cdcf7f42b27e",
+      "spns": 7,
+      "binary_in_github": false,
+      "availability": "Retained locally; separate artifact handoff required to load this exact model.",
+      "spn_inventory": [
+        {
+          "tables": [
+            "movie_companies",
+            "movie_info",
+            "movie_info_idx",
+            "title"
+          ],
+          "relationships": [
+            "movie_companies.movie_id = title.id",
+            "movie_info.movie_id = title.id",
+            "movie_info_idx.movie_id = title.id"
+          ],
+          "actual_samples": 1000000,
+          "full_join_size": 177388547.0
+        },
+        {
+          "tables": [
+            "movie_companies",
+            "movie_info",
+            "title"
+          ],
+          "relationships": [
+            "movie_companies.movie_id = title.id",
+            "movie_info.movie_id = title.id"
+          ],
+          "actual_samples": 1000000,
+          "full_join_size": 67371414.0
+        },
+        {
+          "tables": [
+            "movie_info",
+            "title"
+          ],
+          "relationships": [
+            "movie_info.movie_id = title.id"
+          ],
+          "actual_samples": 1000000,
+          "full_join_size": 14835720.0
+        },
+        {
+          "tables": [
+            "movie_companies",
+            "title"
+          ],
+          "relationships": [
+            "movie_companies.movie_id = title.id"
+          ],
+          "actual_samples": 1000000,
+          "full_join_size": 2609129.0
+        },
+        {
+          "tables": [
+            "movie_info_idx"
+          ],
+          "relationships": [],
+          "actual_samples": 1000000,
+          "full_join_size": 1380035.0
+        },
+        {
+          "tables": [
+            "movie_keyword"
+          ],
+          "relationships": [],
+          "actual_samples": 1000000,
+          "full_join_size": 4523930.0
+        },
+        {
+          "tables": [
+            "cast_info"
+          ],
+          "relationships": [],
+          "actual_samples": 1000000,
+          "full_join_size": 36244344.0
+        }
+      ]
+    }
+  ],
+  "delivery_limit": "Hashes identify the exact trained models; they do not substitute for model binaries. Models can be handed over separately from GitHub."
+}

@@ -21,3 +21,6 @@ code/full_ssb_scoped_replay.py -text
 code/tests/test_full_ssb_local_ci_replay.py -text
 # Public derived CSV checksums describe exact copied bytes, including newlines.
 output/results/fullpaper_*.csv -text
+
+# The contributed evidence hashes bind literal bytes, including CRLF.
+output/results/guoao_experiments/** -text

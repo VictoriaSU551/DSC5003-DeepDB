@@ -1,0 +1,47 @@
+{
+  "source_url": "https://event.cwi.nl/da/job/imdb.tgz",
+  "original_readme_url": "http://homepages.cwi.nl/~boncz/job/imdb.tgz",
+  "archive_sha256": "25f9d893c54f903366e0c263f88db0d429dbc2b159d4987ebc1e203242a7e988",
+  "archive_bytes": 1263193115,
+  "tables": [
+    "title",
+    "movie_info_idx",
+    "movie_info",
+    "cast_info",
+    "movie_keyword",
+    "movie_companies"
+  ],
+  "files": [
+    {
+      "path": "imdb/title.csv",
+      "bytes": 203877939,
+      "sha256": "663c5bc45f08440cd2e09d97f22768a82ea4f1f7a049e6b9dfc17fb7b34da0f4"
+    },
+    {
+      "path": "imdb/movie_info_idx.csv",
+      "bytes": 35335875,
+      "sha256": "194b245145d8035e60df6daad0cd4fabc6f58c9594c8f95cf76748753f6c0a2f"
+    },
+    {
+      "path": "imdb/movie_info.csv",
+      "bytes": 963782656,
+      "sha256": "7451bd8d6b1fa939a90f5f20bf3dc420340e49016044b6d0e7226c01431ee9c0"
+    },
+    {
+      "path": "imdb/cast_info.csv",
+      "bytes": 1418137141,
+      "sha256": "bfd359eeca7dc571272cd52d560d0178beaf722130feec128ad4681ee493a7c7"
+    },
+    {
+      "path": "imdb/movie_keyword.csv",
+      "bytes": 93799307,
+      "sha256": "50a698bdfd207489e1cb02e301e3de45ee9171f1ddc9fe9c3f7308cacc2d7240"
+    },
+    {
+      "path": "imdb/movie_companies.csv",
+      "bytes": 93112104,
+      "sha256": "38755ab1706a8e384810dd1cce0d1032839386c9c37cc7834f36a45d177cd683"
+    }
+  ],
+  "note": "Original JOB IMDb snapshot; only the six JOB-light tables retained. No row sampling."
+}

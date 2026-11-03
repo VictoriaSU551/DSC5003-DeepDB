@@ -1,0 +1,303 @@
+{
+  "dataset": "IMDb / JOB-light only",
+  "database_holdout": false,
+  "zero_shot_experiment": false,
+  "few_shot_experiment": false,
+  "sample_sizes_are_three_training_budgets_not_three_input_representations": true,
+  "configuration_frozen_at_packaging": {
+    "dataset": {
+      "name": "IMDb / JOB-light",
+      "tables": [
+        "title",
+        "movie_info_idx",
+        "movie_info",
+        "cast_info",
+        "movie_keyword",
+        "movie_companies"
+      ],
+      "distinct_queries": 70,
+      "archive_source": "https://event.cwi.nl/da/job/imdb.tgz",
+      "archive_sha256": "25f9d893c54f903366e0c263f88db0d429dbc2b159d4987ebc1e203242a7e988",
+      "query_path": "code/benchmarks/job-light/sql/job_light_queries.sql",
+      "query_answers_used_for_training": false
+    },
+    "environment": {
+      "os": "Windows x64",
+      "python": "3.8.20",
+      "dependency_reference": "requirements-lock.txt",
+      "author_revision": "655ada13a043a4226a239b0c0a65bcdefef87a02",
+      "teammate_base_revision": "ac2485496157092bcdbe85f61e18db216168566e"
+    },
+    "baseline": {
+      "strategy": "relationship",
+      "training_runs": 9,
+      "requested_samples_per_spn": [
+        10000,
+        100000,
+        1000000
+      ],
+      "global_training_seeds": [
+        1,
+        2,
+        3
+      ],
+      "spns_per_run": 5,
+      "learning_rdc_threshold": 0.3,
+      "post_sampling_factor": [
+        10,
+        10,
+        5,
+        1,
+        1
+      ]
+    },
+    "rdc": {
+      "strategy": "rdc_based",
+      "training_runs": 4,
+      "sample_seed_settings": [
+        [
+          100000,
+          1
+        ],
+        [
+          1000000,
+          1
+        ],
+        [
+          1000000,
+          2
+        ],
+        [
+          1000000,
+          3
+        ]
+      ],
+      "spns_per_run": 7,
+      "budget_factor": 5,
+      "max_joins": 3,
+      "hdf_pre_sample_rows": 10000,
+      "hdf_pre_sample_seed": 1,
+      "search_sample_rows": 10000,
+      "random_candidates": 10000,
+      "learning_threshold": 0.3,
+      "selection_threshold": 0.15,
+      "post_sampling_factor": [
+        10,
+        10,
+        5,
+        1,
+        1
+      ],
+      "published_inference": "rdc_spn_selection",
+      "global_seed_changes_affect": [
+        "RDC search",
+        "candidate search",
+        "training"
+      ],
+      "author_internal_fixed_seeds_retained": true
+    },
+    "evaluation": {
+      "max_variants": 1,
+      "evaluation_seed": 1,
+      "python_hash_seed": 1,
+      "q_error": "max(prediction/truth, truth/prediction)",
+      "percentile_interpolation": "linear",
+      "all_settings_use_same_workload": true
+    },
+    "postgresql": {
+      "version": "16.15",
+      "statistics_target": 100,
+      "extended_statistics": false,
+      "primary_and_join_key_indexes": true,
+      "analyze_before_estimation": true,
+      "max_parallel_workers_per_gather": 0,
+      "jit": false,
+      "shared_buffers": "512MB",
+      "work_mem": "16MB",
+      "measurement": "COUNT input Plan Rows below the top Aggregate",
+      "explain_warmup": 1,
+      "explain_repeats": 5
+    },
+    "truth_audit": {
+      "counts_matched": 70,
+      "original_sql_successes": 69,
+      "equivalent_exact_grouped_sql_ids": [
+        59
+      ],
+      "factorized_cross_checks": [
+        0,
+        14,
+        34,
+        57
+      ],
+      "successful_attempt_time_plot_is_not_a_controlled_runtime_comparison": true
+    },
+    "scope": {
+      "model_training_runs": 13,
+      "evaluation_settings": 14,
+      "canonical_prediction_cells": 980,
+      "figure_topics": 8,
+      "language_variants_per_topic": 2,
+      "end_to_end_retraining_scripts_included": false,
+      "core_algorithm_reimplementation_claimed": false,
+      "query_execution_speedup_claimed": false
+    }
+  },
+  "historical_preprocessing_check": {
+    "status": "PASS",
+    "checked_at": "2026-10-09T18:53:11.921411+08:00",
+    "checks": [
+      {
+        "table": "title",
+        "rows": 2528312,
+        "columns": [
+          "title.id",
+          "title.kind_id",
+          "title.production_year",
+          "title.mul_movie_info_idx.movie_id",
+          "title.mul_movie_info_idx.movie_id_nn",
+          "title.mul_movie_info.movie_id",
+          "title.mul_movie_info.movie_id_nn",
+          "title.mul_cast_info.movie_id",
+          "title.mul_cast_info.movie_id_nn",
+          "title.mul_movie_keyword.movie_id",
+          "title.mul_movie_keyword.movie_id_nn",
+          "title.mul_movie_companies.movie_id",
+          "title.mul_movie_companies.movie_id_nn"
+        ],
+        "bytes": 286115592
+      },
+      {
+        "table": "movie_info_idx",
+        "rows": 1380035,
+        "columns": [
+          "movie_info_idx.id",
+          "movie_info_idx.movie_id",
+          "movie_info_idx.info_type_id"
+        ],
+        "bytes": 44628623
+      },
+      {
+        "table": "movie_info",
+        "rows": 14835720,
+        "columns": [
+          "movie_info.id",
+          "movie_info.movie_id",
+          "movie_info.info_type_id"
+        ],
+        "bytes": 477786827
+      },
+      {
+        "table": "cast_info",
+        "rows": 36244344,
+        "columns": [
+          "cast_info.id",
+          "cast_info.movie_id",
+          "cast_info.role_id"
+        ],
+        "bytes": 1166908828
+      },
+      {
+        "table": "movie_keyword",
+        "rows": 4523930,
+        "columns": [
+          "movie_keyword.id",
+          "movie_keyword.movie_id",
+          "movie_keyword.keyword_id"
+        ],
+        "bytes": 146366267
+      },
+      {
+        "table": "movie_companies",
+        "rows": 2609129,
+        "columns": [
+          "movie_companies.id",
+          "movie_companies.movie_id",
+          "movie_companies.company_id",
+          "movie_companies.company_type_id"
+        ],
+        "bytes": 105275921
+      }
+    ],
+    "total_rows": 62121470,
+    "total_main_hdf_bytes": 2227082058,
+    "scope": "HDF row counts compared with group audit, metadata and first five rows checked. No new full raw CSV recount or query truth recomputation."
+  },
+  "historical_environment_inventory": {
+    "python": "3.8.20 (default, Oct  2 2024, 15:21:04) [MSC v.1929 64 bit (AMD64)]",
+    "executable": "${LEGACY_TEAM_ROOT}\\DeepDB\\.venv\\Scripts\\python.exe",
+    "packages": {
+      "arff": "0.9",
+      "cloudpickle": "1.2.1",
+      "colorama": "0.4.6",
+      "cycler": "0.12.1",
+      "decorator": "5.3.1",
+      "ete3": "3.1.1",
+      "exceptiongroup": "1.3.1",
+      "iniconfig": "2.1.0",
+      "joblib": "0.14.1",
+      "kiwisolver": "1.4.7",
+      "lark-parser": "0.7.1",
+      "matplotlib": "3.2.1",
+      "mpmath": "1.3.0",
+      "networkx": "2.3",
+      "numexpr": "2.8.4",
+      "numpy": "1.19.5",
+      "packaging": "26.2",
+      "pandas": "1.0.3",
+      "patsy": "1.0.3",
+      "pluggy": "1.5.0",
+      "psycopg2-binary": "2.9.9",
+      "pydot": "1.4.1",
+      "pyparsing": "3.1.4",
+      "pytest": "7.4.4",
+      "python-dateutil": "2.9.0.post0",
+      "pytz": "2026.5",
+      "scikit-learn": "0.22.2.post1",
+      "scipy": "1.4.1",
+      "six": "1.17.0",
+      "spflow": "0.0.40",
+      "sqlparse": "0.3.1",
+      "statsmodels": "0.11.1",
+      "sympy": "1.5.1",
+      "tables": "3.7.0",
+      "tomli": "2.5.0",
+      "tqdm": "4.45.0",
+      "typing_extensions": "4.13.2"
+    }
+  },
+  "benchmark": {
+    "distinct_queries": 70,
+    "query_sha256": "e61da91710ce62d3669be70a8ded2499c6de1d759fcfac9a954b939465e76fdb",
+    "truth_sha256": "87e66a3a5977d38a5e32db43451f7213776d1046f57ea2f85da854c04ba79acc"
+  },
+  "training_input_audit": {
+    "status": "PASS_WITH_SCOPE_LIMITS",
+    "method": "Inspect recorded training arguments, logged RDC commands, and the local training dispatch AST.",
+    "query_sql_flags_in_training_commands": false,
+    "official_answer_flags_in_training_commands": false,
+    "training_dispatch_reads_query_or_answer_paths": false,
+    "inspected_maqp_sha256": "3bc0e84a3883ea20689f6397b595b73a314799bf19dd127f2cdcb61963f26548",
+    "training_data": "Same database tables as queried, intentionally: this is data-driven cardinality estimation.",
+    "rdc_training_counts": "Unfiltered schema join sizes computed from the database, not benchmark query answer labels.",
+    "selection_protocol": "No query-held-out validation split was used for model/hyperparameter selection; parameters fixed for these runs. Cases were inspected after evaluation.",
+    "limits": [
+      "Static entry-point checks are not a sandboxed file-access trace or a proof of all dependencies.",
+      "Do not claim leave-one-database-out generalization or an independently held-out tuning benchmark.",
+      "Reused seed-1 10K pre-sample and author-internal fixed seeds remain shared."
+    ]
+  },
+  "resource_and_checkpoint_scope": {
+    "models": "Completed serialized ensembles retained locally.",
+    "resume": "Wrapper saves stage completion and reuses completed stages; interrupted stages restart.",
+    "within_training_checkpointing": false,
+    "resource_settings": {
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1",
+      "NUMEXPR_NUM_THREADS": "4",
+      "LOKY_MAX_CPU_COUNT": "4"
+    },
+    "limitations": "No continuous peak-memory profiler was recorded for every run; historical elapsed times are not controlled speed benchmarks."
+  }
+}

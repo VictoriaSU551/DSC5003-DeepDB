@@ -1,0 +1,2626 @@
+{
+  "training_runs": [
+    {
+      "run_id": "relationship_10000_s1",
+      "method": "relationship",
+      "requested_samples_per_spn": 10000,
+      "global_seed": 1,
+      "frozen_configuration": {
+        "strategy": "relationship",
+        "training_runs": 9,
+        "requested_samples_per_spn": [
+          10000,
+          100000,
+          1000000
+        ],
+        "global_training_seeds": [
+          1,
+          2,
+          3
+        ],
+        "spns_per_run": 5,
+        "learning_rdc_threshold": 0.3,
+        "post_sampling_factor": [
+          10,
+          10,
+          5,
+          1,
+          1
+        ]
+      },
+      "historical_run_record": {
+        "dataset": "JOB-light",
+        "strategy": "relationship",
+        "samples_per_spn": 10000,
+        "rdc_threshold": 0.3,
+        "numpy_seed": 1,
+        "python_hash_seed": 1,
+        "scope": "Official base ensemble; not the optimized RDC ensemble or full paper reproduction.",
+        "prepare": {
+          "command": [
+            "${PROJECT_ROOT}\\.venv\\Scripts\\python.exe",
+            "-u",
+            "${PROJECT_ROOT}\\code\\maqp.py",
+            "--dataset",
+            "imdb-light",
+            "--csv_path",
+            "${PROJECT_ROOT}\\data\\imdb",
+            "--hdf_path",
+            "${PROJECT_ROOT}\\output\\hdf",
+            "--max_rows_per_hdf_file",
+            "100000000",
+            "--generate_hdf",
+            "--csv_seperator",
+            ","
+          ],
+          "seconds": 325.2255849,
+          "log": "output/logs/prepare.log"
+        },
+        "train": {
+          "command": [
+            "${PROJECT_ROOT}\\.venv\\Scripts\\python.exe",
+            "-u",
+            "${PROJECT_ROOT}\\code\\maqp.py",
+            "--dataset",
+            "imdb-light",
+            "--csv_path",
+            "${PROJECT_ROOT}\\data\\imdb",
+            "--hdf_path",
+            "${PROJECT_ROOT}\\output\\hdf",
+            "--max_rows_per_hdf_file",
+            "100000000",
+            "--generate_ensemble",
+            "--ensemble_strategy",
+            "relationship",
+            "--samples_per_spn",
+            "10000",
+            "10000",
+            "10000",
+            "10000",
+            "10000",
+            "--ensemble_path",
+            "${PROJECT_ROOT}\\output\\models",
+            "--post_sampling_factor",
+            "10",
+            "10",
+            "5",
+            "1",
+            "1"
+          ],
+          "seconds": 70.0742533,
+          "log": "output/logs/train_10000.log"
+        },
+        "evaluate": {
+          "command": [
+            "${PROJECT_ROOT}\\.venv\\Scripts\\python.exe",
+            "-u",
+            "${PROJECT_ROOT}\\code\\maqp.py",
+            "--dataset",
+            "imdb-light",
+            "--csv_path",
+            "${PROJECT_ROOT}\\data\\imdb",
+            "--hdf_path",
+            "${PROJECT_ROOT}\\output\\hdf",
+            "--max_rows_per_hdf_file",
+            "100000000",
+            "--evaluate_cardinalities",
+            "--max_variants",
+            "1",
+            "--ensemble_location",
+            "${PROJECT_ROOT}\\output\\models\\ensemble_relationships_imdb-light_10000.pkl",
+            "--target_path",
+            "${PROJECT_ROOT}\\output\\results\\job_light_10000.csv",
+            "--query_file_location",
+            "${PROJECT_ROOT}\\code\\benchmarks\\job-light\\sql\\job_light_queries.sql",
+            "--ground_truth_file_location",
+            "${PROJECT_ROOT}\\code\\benchmarks\\job-light\\sql\\job_light_true_cardinalities.csv"
+          ],
+          "seconds": 3.2008043000000015,
+          "log": "output/logs/evaluate_10000.log"
+        },
+        "model_sha256": "d558364bc9ba4538d66d86bff6a2b430e77b14be60ee1b2cd02f6bb1f262f3cb"
+      },
+      "record_source": "DeepDB/output/results/run_10000.json",
+      "logs": [
+        {
+          "run_id": "relationship_10000_s1",
+          "stage": "train",
+          "source_path": "DeepDB/output/logs/train_10000.log",
+          "source_bytes": 1083249,
+          "source_sha256": "5b915ccd6929fd050dbdbc7b04efdbc65cfb5af061a65052734b6ffa77fc9106",
+          "public_text_bytes": 948688,
+          "public_text_sha256": "c61480f23e71a60692b5f277641e92ec212b04cacd06b20e8aa6d68f343ec078",
+          "header": "===== relationship_10000_s1 | train | DeepDB/output/logs/train_10000.log =====",
+          "bundle": "evidence/logs/training.log.gz",
+          "lines": 10719,
+          "content_truncated": false
+        },
+        {
+          "run_id": "relationship_10000_s1",
+          "stage": "evaluate",
+          "source_path": "DeepDB/output/logs/evaluate_10000.log",
+          "source_bytes": 36663,
+          "source_sha256": "d922257c2a650423c0e727a0ccf411175fafc52f01e78e7de50997123a14cc9e",
+          "public_text_bytes": 36569,
+          "public_text_sha256": "ba0781df1124e6a4a408c151894ddfd2e443aaa5a61e798e2d312d4f7f6cb43b",
+          "header": "===== relationship_10000_s1 | evaluate | DeepDB/output/logs/evaluate_10000.log =====",
+          "bundle": "evidence/logs/evaluation.log.gz",
+          "lines": 365,
+          "content_truncated": false
+        }
+      ],
+      "additional_evidence": {}
+    },
+    {
+      "run_id": "relationship_100000_s1",
+      "method": "relationship",
+      "requested_samples_per_spn": 100000,
+      "global_seed": 1,
+      "frozen_configuration": {
+        "strategy": "relationship",
+        "training_runs": 9,
+        "requested_samples_per_spn": [
+          10000,
+          100000,
+          1000000
+        ],
+        "global_training_seeds": [
+          1,
+          2,
+          3
+        ],
+        "spns_per_run": 5,
+        "learning_rdc_threshold": 0.3,
+        "post_sampling_factor": [
+          10,
+          10,
+          5,
+          1,
+          1
+        ]
+      },
+      "historical_run_record": {
+        "dataset": "JOB-light",
+        "strategy": "relationship",
+        "samples_per_spn": 100000,
+        "rdc_threshold": 0.3,
+        "numpy_seed": 1,
+        "python_hash_seed": 1,
+        "scope": "Official base ensemble; not the optimized RDC ensemble or full paper reproduction.",
+        "train": {
+          "command": [
+            "${PROJECT_ROOT}\\.venv\\Scripts\\python.exe",
+            "-u",
+            "${PROJECT_ROOT}\\code\\maqp.py",
+            "--dataset",
+            "imdb-light",
+            "--csv_path",
+            "${PROJECT_ROOT}\\data\\imdb",
+            "--hdf_path",
+            "${PROJECT_ROOT}\\output\\hdf",
+            "--max_rows_per_hdf_file",
+            "100000000",
+            "--generate_ensemble",
+            "--ensemble_strategy",
+            "relationship",
+            "--samples_per_spn",
+            "100000",
+            "100000",
+            "100000",
+            "100000",
+            "100000",
+            "--ensemble_path",
+            "${PROJECT_ROOT}\\output\\models",
+            "--post_sampling_factor",
+            "10",
+            "10",
+            "5",
+            "1",
+            "1"
+          ],
+          "seconds": 94.3936024,
+          "log": "output/logs/train_100000.log"
+        },
+        "evaluate": {
+          "command": [
+            "${PROJECT_ROOT}\\.venv\\Scripts\\python.exe",
+            "-u",
+            "${PROJECT_ROOT}\\code\\maqp.py",
+            "--dataset",
+            "imdb-light",
+            "--csv_path",
+            "${PROJECT_ROOT}\\data\\imdb",
+            "--hdf_path",
+            "${PROJECT_ROOT}\\output\\hdf",
+            "--max_rows_per_hdf_file",
+            "100000000",
+            "--evaluate_cardinalities",
+            "--max_variants",
+            "1",
+            "--ensemble_location",
+            "${PROJECT_ROOT}\\output\\models\\ensemble_relationships_imdb-light_100000.pkl",
+            "--target_path",
+            "${PROJECT_ROOT}\\output\\results\\job_light_100000.csv",
+            "--query_file_location",
+            "${PROJECT_ROOT}\\code\\benchmarks\\job-light\\sql\\job_light_queries.sql",
+            "--ground_truth_file_location",
+            "${PROJECT_ROOT}\\code\\benchmarks\\job-light\\sql\\job_light_true_cardinalities.csv"
+          ],
+          "seconds": 3.040373500000001,
+          "log": "output/logs/evaluate_100000.log"
+        },
+        "model_sha256": "1bbc07340e38af01f86553d8692cd4911a0452281521b853df96733513607912"
+      },
+      "record_source": "DeepDB/output/results/run_100000.json",
+      "logs": [
+        {
+          "run_id": "relationship_100000_s1",
+          "stage": "train",
+          "source_path": "DeepDB/output/logs/train_100000.log",
+          "source_bytes": 928072,
+          "source_sha256": "af47a4d306ffb64997d936c460e3f04e7c9131a7586ef1719d502f860ccffa65",
+          "public_text_bytes": 825471,
+          "public_text_sha256": "468cc3708a15005da225a6fc0aba5c2a5f1dd458ad1d553ca78a4642d775a534",
+          "header": "===== relationship_100000_s1 | train | DeepDB/output/logs/train_100000.log =====",
+          "bundle": "evidence/logs/training.log.gz",
+          "lines": 9232,
+          "content_truncated": false
+        },
+        {
+          "run_id": "relationship_100000_s1",
+          "stage": "evaluate",
+          "source_path": "DeepDB/output/logs/evaluate_100000.log",
+          "source_bytes": 36708,
+          "source_sha256": "044961faffdf9b70a9017d64b9cf59e3cc9681d84b51448f0786e072e61daf13",
+          "public_text_bytes": 36614,
+          "public_text_sha256": "704a7ed95d1add066f19321ac8d2b0eeebdc579a9aadac008bd182294b6d8522",
+          "header": "===== relationship_100000_s1 | evaluate | DeepDB/output/logs/evaluate_100000.log =====",
+          "bundle": "evidence/logs/evaluation.log.gz",
+          "lines": 365,
+          "content_truncated": false
+        }
+      ],
+      "additional_evidence": {}
+    },
+    {
+      "run_id": "relationship_1000000_s1",
+      "method": "relationship",
+      "requested_samples_per_spn": 1000000,
+      "global_seed": 1,
+      "frozen_configuration": {
+        "strategy": "relationship",
+        "training_runs": 9,
+        "requested_samples_per_spn": [
+          10000,
+          100000,
+          1000000
+        ],
+        "global_training_seeds": [
+          1,
+          2,
+          3
+        ],
+        "spns_per_run": 5,
+        "learning_rdc_threshold": 0.3,
+        "post_sampling_factor": [
+          10,
+          10,
+          5,
+          1,
+          1
+        ]
+      },
+      "historical_run_record": {
+        "dataset": "JOB-light",
+        "strategy": "relationship",
+        "samples_per_spn": 1000000,
+        "rdc_threshold": 0.3,
+        "numpy_seed": 1,
+        "python_hash_seed": 1,
+        "scope": "Official base ensemble; not the optimized RDC ensemble or full paper reproduction.",
+        "train": {
+          "command": [
+            "${PROJECT_ROOT}\\.venv\\Scripts\\python.exe",
+            "-u",
+            "${PROJECT_ROOT}\\code\\maqp.py",
+            "--dataset",
+            "imdb-light",
+            "--csv_path",
+            "${PROJECT_ROOT}\\data\\imdb",
+            "--hdf_path",
+            "${PROJECT_ROOT}\\output\\hdf",
+            "--max_rows_per_hdf_file",
+            "100000000",
+            "--generate_ensemble",
+            "--ensemble_strategy",
+            "relationship",
+            "--samples_per_spn",
+            "1000000",
+            "1000000",
+            "1000000",
+            "1000000",
+            "1000000",
+            "--ensemble_path",
+            "${PROJECT_ROOT}\\output\\models",
+            "--post_sampling_factor",
+            "10",
+            "10",
+            "5",
+            "1",
+            "1"
+          ],
+          "seconds": 247.0898242,
+          "log": "output/logs/train_1000000.log"
+        },
+        "evaluate": {
+          "command": [
+            "${PROJECT_ROOT}\\.venv\\Scripts\\python.exe",
+            "-u",
+            "${PROJECT_ROOT}\\code\\maqp.py",
+            "--dataset",
+            "imdb-light",
+            "--csv_path",
+            "${PROJECT_ROOT}\\data\\imdb",
+            "--hdf_path",
+            "${PROJECT_ROOT}\\output\\hdf",
+            "--max_rows_per_hdf_file",
+            "100000000",
+            "--evaluate_cardinalities",
+            "--max_variants",
+            "1",
+            "--ensemble_location",
+            "${PROJECT_ROOT}\\output\\models\\ensemble_relationships_imdb-light_1000000.pkl",
+            "--target_path",
+            "${PROJECT_ROOT}\\output\\results\\job_light_1000000.csv",
+            "--query_file_location",
+            "${PROJECT_ROOT}\\code\\benchmarks\\job-light\\sql\\job_light_queries.sql",
+            "--ground_truth_file_location",
+            "${PROJECT_ROOT}\\code\\benchmarks\\job-light\\sql\\job_light_true_cardinalities.csv"
+          ],
+          "seconds": 2.6596561000000065,
+          "log": "output/logs/evaluate_1000000.log"
+        },
+        "model_sha256": "9cf0e1f9c709837575824bd5cfac73b7550322b48919d06fe9f104699c40d7b2"
+      },
+      "record_source": "DeepDB/output/results/run_1000000.json",
+      "logs": [
+        {
+          "run_id": "relationship_1000000_s1",
+          "stage": "train",
+          "source_path": "DeepDB/output/logs/train_1000000.log",
+          "source_bytes": 1244682,
+          "source_sha256": "d67066cfab6aeea122817648ddc8cb47f60e8d81b9433d5e6512c1b03e4660bf",
+          "public_text_bytes": 1077832,
+          "public_text_sha256": "d52aa88cee8d9f058bf7380aeba806d693290b6e18cd294629b833af75651eb9",
+          "header": "===== relationship_1000000_s1 | train | DeepDB/output/logs/train_1000000.log =====",
+          "bundle": "evidence/logs/training.log.gz",
+          "lines": 12130,
+          "content_truncated": false
+        },
+        {
+          "run_id": "relationship_1000000_s1",
+          "stage": "evaluate",
+          "source_path": "DeepDB/output/logs/evaluate_1000000.log",
+          "source_bytes": 36681,
+          "source_sha256": "282e24bb1fc0405a18b62dae9bfd482f046642d46ec8aa8e8e60965503329fd8",
+          "public_text_bytes": 36587,
+          "public_text_sha256": "43a0eec029722ab7b50429db2d5cd525ea1800c6e7c6aeef658a279c0f11af8f",
+          "header": "===== relationship_1000000_s1 | evaluate | DeepDB/output/logs/evaluate_1000000.log =====",
+          "bundle": "evidence/logs/evaluation.log.gz",
+          "lines": 365,
+          "content_truncated": false
+        }
+      ],
+      "additional_evidence": {}
+    },
+    {
+      "run_id": "relationship_10000_s2",
+      "method": "relationship",
+      "requested_samples_per_spn": 10000,
+      "global_seed": 2,
+      "frozen_configuration": {
+        "strategy": "relationship",
+        "training_runs": 9,
+        "requested_samples_per_spn": [
+          10000,
+          100000,
+          1000000
+        ],
+        "global_training_seeds": [
+          1,
+          2,
+          3
+        ],
+        "spns_per_run": 5,
+        "learning_rdc_threshold": 0.3,
+        "post_sampling_factor": [
+          10,
+          10,
+          5,
+          1,
+          1
+        ]
+      },
+      "historical_run_record": {
+        "seed": 2,
+        "samples": 10000,
+        "python_hash_seed": 1,
+        "status": "PASS",
+        "started_at": "2026-10-10T09:11:21.092807+08:00",
+        "scope": "Vary NumPy and Python training RNG only; reuse fixed full HDF; evaluation seed 1.",
+        "files_sha256": {
+          "code\\maqp.py": "3bc0e84a3883ea20689f6397b595b73a314799bf19dd127f2cdcb61963f26548",
+          "code\\repeat_seeds.py": "7c4542e90dae0d47d0b7e8812d5d2bf6267a234675734d2b864eb8ffc16144a4",
+          "code\\verify_results.py": "c49800c43c55b88fa1897c3a6a3063c038afd0e430d18b35903556225914cb8d",
+          "data\\manifest.json": "ae6a5cef66340bae23325722f0f0d29ee616850851b99b6989ab1d5b6a6f3e13"
+        },
+        "active_pid": 29988,
+        "train": {
+          "command": [
+            "${PROJECT_ROOT}\\.venv\\Scripts\\python.exe",
+            "-u",
+            "${PROJECT_ROOT}\\code\\maqp.py",
+            "--dataset",
+            "imdb-light",
+            "--csv_path",
+            "${PROJECT_ROOT}\\data\\imdb",
+            "--hdf_path",
+            "${PROJECT_ROOT}\\output\\hdf",
+            "--max_rows_per_hdf_file",
+            "100000000",
+            "--seed",
+            "2",
+            "--generate_ensemble",
+            "--ensemble_strategy",
+            "relationship",
+            "--samples_per_spn",
+            "10000",
+            "10000",
+            "10000",
+            "10000",
+            "10000",
+            "--ensemble_path",
+            "${PROJECT_ROOT}\\output\\seed_experiments\\seed_2\\samples_10000\\models",
+            "--post_sampling_factor",
+            "10",
+            "10",
+            "5",
+            "1",
+            "1"
+          ],
+          "seconds": 157.177285,
+          "returncode": 0
+        },
+        "evaluate": {
+          "command": [
+            "${PROJECT_ROOT}\\.venv\\Scripts\\python.exe",
+            "-u",
+            "${PROJECT_ROOT}\\code\\maqp.py",
+            "--dataset",
+            "imdb-light",
+            "--csv_path",
+            "${PROJECT_ROOT}\\data\\imdb",
+            "--hdf_path",
+            "${PROJECT_ROOT}\\output\\hdf",
+            "--max_rows_per_hdf_file",
+            "100000000",
+            "--evaluate_cardinalities",
+            "--max_variants",
+            "1",
+            "--ensemble_location",
+            "${PROJECT_ROOT}\\output\\seed_experiments\\seed_2\\samples_10000\\models\\ensemble_relationships_imdb-light_10000.pkl",
+            "--target_path",
+            "${PROJECT_ROOT}\\output\\seed_experiments\\seed_2\\samples_10000\\results\\job_light_10000.csv",
+            "--query_file_location",
+            "${PROJECT_ROOT}\\code\\benchmarks\\job-light\\sql\\job_light_queries.sql",
+            "--ground_truth_file_location",
+            "${PROJECT_ROOT}\\code\\benchmarks\\job-light\\sql\\job_light_true_cardinalities.csv"
+          ],
+          "seconds": 6.0533730999999875,
+          "returncode": 0
+        },
+        "verify": {
+          "command": [
+            "${PROJECT_ROOT}\\.venv\\Scripts\\python.exe",
+            "-u",
+            "${PROJECT_ROOT}\\code\\verify_results.py",
+            "--samples",
+            "10000",
+            "--output-root",
+            "${PROJECT_ROOT}\\output\\seed_experiments\\seed_2\\samples_10000"
+          ],
+          "seconds": 4.95471569999998,
+          "returncode": 0
+        },
+        "model_sha256": "a8d30cfc23e58bbe6e26e6973bc015069b5030d0acd6a55130723fd22921d3cd",
+        "verification": {
+          "status": "PASS",
+          "queries": 70,
+          "spns": 5,
+          "replayed_predictions": 70,
+          "samples_per_spn": 10000,
+          "q_error": {
+            "50": 1.8788495709036974,
+            "90": 12.106370711022668,
+            "95": 32.626847574586876,
+            "99": 237.35138145939476,
+            "100": 344.83527083334883
+          },
+          "q_error_mean": 14.247055860186121,
+          "latency_mean_ms": 9.900819999999987,
+          "latency_median_ms": 8.380600000000182,
+          "model_sha256": "a8d30cfc23e58bbe6e26e6973bc015069b5030d0acd6a55130723fd22921d3cd",
+          "scope": "JOB-light official relationship baseline. Not full paper or optimized RDC reproduction.",
+          "ground_truth": "Official benchmark counts, checked query-by-query; see separate raw-data audit."
+        },
+        "seconds": 168.4194285,
+        "ended_at": "2026-10-10T09:14:09.527549+08:00"
+      },
+      "record_source": "DeepDB/output/seed_experiments/seed_2/samples_10000/run.json",
+      "logs": [
+        {
+          "run_id": "relationship_10000_s2",
+          "stage": "train",
+          "source_path": "DeepDB/output/seed_experiments/seed_2/samples_10000/logs/train.log",
+          "source_bytes": 1097150,
+          "source_sha256": "df82ef5e1226d77a7fd1aea4787ace4ef7ec15072e4707ce8ee1fa54b0ebcf6a",
+          "public_text_bytes": 969028,
+          "public_text_sha256": "a879560e16141475c35a19d952def948672650e8152be22072fb7939f8dda642",
+          "header": "===== relationship_10000_s2 | train | DeepDB/output/seed_experiments/seed_2/samples_10000/logs/train.log =====",
+          "bundle": "evidence/logs/training.log.gz",
+          "lines": 10915,
+          "content_truncated": false
+        },
+        {
+          "run_id": "relationship_10000_s2",
+          "stage": "evaluate",
+          "source_path": "DeepDB/output/seed_experiments/seed_2/samples_10000/logs/evaluate.log",
+          "source_bytes": 36796,
+          "source_sha256": "64b9eecea042203a5aede41bd0e81b57e0efefce1589c91f3d5079e961473f23",
+          "public_text_bytes": 36702,
+          "public_text_sha256": "7a93daa6c5209f9d8e25e24c96db1d9e725ca49997c66749d0ca67d42cd6e250",
+          "header": "===== relationship_10000_s2 | evaluate | DeepDB/output/seed_experiments/seed_2/samples_10000/logs/evaluate.log =====",
+          "bundle": "evidence/logs/evaluation.log.gz",
+          "lines": 365,
+          "content_truncated": false
+        }
+      ],
+      "additional_evidence": {}
+    },
+    {
+      "run_id": "relationship_100000_s2",
+      "method": "relationship",
+      "requested_samples_per_spn": 100000,
+      "global_seed": 2,
+      "frozen_configuration": {
+        "strategy": "relationship",
+        "training_runs": 9,
+        "requested_samples_per_spn": [
+          10000,
+          100000,
+          1000000
+        ],
+        "global_training_seeds": [
+          1,
+          2,
+          3
+        ],
+        "spns_per_run": 5,
+        "learning_rdc_threshold": 0.3,
+        "post_sampling_factor": [
+          10,
+          10,
+          5,
+          1,
+          1
+        ]
+      },
+      "historical_run_record": {
+        "seed": 2,
+        "samples": 100000,
+        "python_hash_seed": 1,
+        "status": "PASS",
+        "started_at": "2026-10-10T09:14:09.533628+08:00",
+        "scope": "Vary NumPy and Python training RNG only; reuse fixed full HDF; evaluation seed 1.",
+        "files_sha256": {
+          "code\\maqp.py": "3bc0e84a3883ea20689f6397b595b73a314799bf19dd127f2cdcb61963f26548",
+          "code\\repeat_seeds.py": "7c4542e90dae0d47d0b7e8812d5d2bf6267a234675734d2b864eb8ffc16144a4",
+          "code\\verify_results.py": "c49800c43c55b88fa1897c3a6a3063c038afd0e430d18b35903556225914cb8d",
+          "data\\manifest.json": "ae6a5cef66340bae23325722f0f0d29ee616850851b99b6989ab1d5b6a6f3e13"
+        },
+        "active_pid": 14720,
+        "train": {
+          "command": [
+            "${PROJECT_ROOT}\\.venv\\Scripts\\python.exe",
+            "-u",
+            "${PROJECT_ROOT}\\code\\maqp.py",
+            "--dataset",
+            "imdb-light",
+            "--csv_path",
+            "${PROJECT_ROOT}\\data\\imdb",
+            "--hdf_path",
+            "${PROJECT_ROOT}\\output\\hdf",
+            "--max_rows_per_hdf_file",
+            "100000000",
+            "--seed",
+            "2",
+            "--generate_ensemble",
+            "--ensemble_strategy",
+            "relationship",
+            "--samples_per_spn",
+            "100000",
+            "100000",
+            "100000",
+            "100000",
+            "100000",
+            "--ensemble_path",
+            "${PROJECT_ROOT}\\output\\seed_experiments\\seed_2\\samples_100000\\models",
+            "--post_sampling_factor",
+            "10",
+            "10",
+            "5",
+            "1",
+            "1"
+          ],
+          "seconds": 149.9355724,
+          "returncode": 0
+        },
+        "evaluate": {
+          "command": [
+            "${PROJECT_ROOT}\\.venv\\Scripts\\python.exe",
+            "-u",
+            "${PROJECT_ROOT}\\code\\maqp.py",
+            "--dataset",
+            "imdb-light",
+            "--csv_path",
+            "${PROJECT_ROOT}\\data\\imdb",
+            "--hdf_path",
+            "${PROJECT_ROOT}\\output\\hdf",
+            "--max_rows_per_hdf_file",
+            "100000000",
+            "--evaluate_cardinalities",
+            "--max_variants",
+            "1",
+            "--ensemble_location",
+            "${PROJECT_ROOT}\\output\\seed_experiments\\seed_2\\samples_100000\\models\\ensemble_relationships_imdb-light_100000.pkl",
+            "--target_path",
+            "${PROJECT_ROOT}\\output\\seed_experiments\\seed_2\\samples_100000\\results\\job_light_100000.csv",
+            "--query_file_location",
+            "${PROJECT_ROOT}\\code\\benchmarks\\job-light\\sql\\job_light_queries.sql",
+            "--ground_truth_file_location",
+            "${PROJECT_ROOT}\\code\\benchmarks\\job-light\\sql\\job_light_true_cardinalities.csv"
+          ],
+          "seconds": 15.924418300000013,
+          "returncode": 0
+        },
+        "verify": {
+          "command": [
+            "${PROJECT_ROOT}\\.venv\\Scripts\\python.exe",
+            "-u",
+            "${PROJECT_ROOT}\\code\\verify_results.py",
+            "--samples",
+            "100000",
+            "--output-root",
+            "${PROJECT_ROOT}\\output\\seed_experiments\\seed_2\\samples_100000"
+          ],
+          "seconds": 4.179711900000029,
+          "returncode": 0
+        },
+        "model_sha256": "89d0ff54c598cf71bc55a98b38ed20df1ca978b356e805b41cf2dede71f150c2",
+        "verification": {
+          "status": "PASS",
+          "queries": 70,
+          "spns": 5,
+          "replayed_predictions": 70,
+          "samples_per_spn": 100000,
+          "q_error": {
+            "50": 1.576105167958129,
+            "90": 5.809268128359325,
+            "95": 7.83088764671424,
+            "99": 33.197424595874246,
+            "100": 33.197424595874246
+          },
+          "q_error_mean": 3.447212019985633,
+          "latency_mean_ms": 6.805935714285661,
+          "latency_median_ms": 6.13050000000026,
+          "model_sha256": "89d0ff54c598cf71bc55a98b38ed20df1ca978b356e805b41cf2dede71f150c2",
+          "scope": "JOB-light official relationship baseline. Not full paper or optimized RDC reproduction.",
+          "ground_truth": "Official benchmark counts, checked query-by-query; see separate raw-data audit."
+        },
+        "seconds": 170.07460319999998,
+        "ended_at": "2026-10-10T09:16:59.610298+08:00"
+      },
+      "record_source": "DeepDB/output/seed_experiments/seed_2/samples_100000/run.json",
+      "logs": [
+        {
+          "run_id": "relationship_100000_s2",
+          "stage": "train",
+          "source_path": "DeepDB/output/seed_experiments/seed_2/samples_100000/logs/train.log",
+          "source_bytes": 996016,
+          "source_sha256": "cb11f02f46a01486f7672958b9bede955cfc6d1366b14dc1f64ca3b6c5928e52",
+          "public_text_bytes": 879879,
+          "public_text_sha256": "7b4539cbcc547fd0dc14fd98562681ad5532b8fcbda6bacf27def479b8cb28a6",
+          "header": "===== relationship_100000_s2 | train | DeepDB/output/seed_experiments/seed_2/samples_100000/logs/train.log =====",
+          "bundle": "evidence/logs/training.log.gz",
+          "lines": 9868,
+          "content_truncated": false
+        },
+        {
+          "run_id": "relationship_100000_s2",
+          "stage": "evaluate",
+          "source_path": "DeepDB/output/seed_experiments/seed_2/samples_100000/logs/evaluate.log",
+          "source_bytes": 36765,
+          "source_sha256": "e13dd38762b722e8f700eed60d271923530a9e17e718248908028b1137a4a8b1",
+          "public_text_bytes": 36671,
+          "public_text_sha256": "8856980d3352753e0d8facb6e726d06feec63051ab3415fd43f9f7f080d2f7af",
+          "header": "===== relationship_100000_s2 | evaluate | DeepDB/output/seed_experiments/seed_2/samples_100000/logs/evaluate.log =====",
+          "bundle": "evidence/logs/evaluation.log.gz",
+          "lines": 365,
+          "content_truncated": false
+        }
+      ],
+      "additional_evidence": {}
+    },
+    {
+      "run_id": "relationship_1000000_s2",
+      "method": "relationship",
+      "requested_samples_per_spn": 1000000,
+      "global_seed": 2,
+      "frozen_configuration": {
+        "strategy": "relationship",
+        "training_runs": 9,
+        "requested_samples_per_spn": [
+          10000,
+          100000,
+          1000000
+        ],
+        "global_training_seeds": [
+          1,
+          2,
+          3
+        ],
+        "spns_per_run": 5,
+        "learning_rdc_threshold": 0.3,
+        "post_sampling_factor": [
+          10,
+          10,
+          5,
+          1,
+          1
+        ]
+      },
+      "historical_run_record": {
+        "seed": 2,
+        "samples": 1000000,
+        "python_hash_seed": 1,
+        "status": "PASS",
+        "started_at": "2026-10-10T09:16:59.619591+08:00",
+        "scope": "Vary NumPy and Python training RNG only; reuse fixed full HDF; evaluation seed 1.",
+        "files_sha256": {
+          "code\\maqp.py": "3bc0e84a3883ea20689f6397b595b73a314799bf19dd127f2cdcb61963f26548",
+          "code\\repeat_seeds.py": "7c4542e90dae0d47d0b7e8812d5d2bf6267a234675734d2b864eb8ffc16144a4",
+          "code\\verify_results.py": "c49800c43c55b88fa1897c3a6a3063c038afd0e430d18b35903556225914cb8d",
+          "data\\manifest.json": "ae6a5cef66340bae23325722f0f0d29ee616850851b99b6989ab1d5b6a6f3e13"
+        },
+        "active_pid": 2012,
+        "train": {
+          "command": [
+            "${PROJECT_ROOT}\\.venv\\Scripts\\python.exe",
+            "-u",
+            "${PROJECT_ROOT}\\code\\maqp.py",
+            "--dataset",
+            "imdb-light",
+            "--csv_path",
+            "${PROJECT_ROOT}\\data\\imdb",
+            "--hdf_path",
+            "${PROJECT_ROOT}\\output\\hdf",
+            "--max_rows_per_hdf_file",
+            "100000000",
+            "--seed",
+            "2",
+            "--generate_ensemble",
+            "--ensemble_strategy",
+            "relationship",
+            "--samples_per_spn",
+            "1000000",
+            "1000000",
+            "1000000",
+            "1000000",
+            "1000000",
+            "--ensemble_path",
+            "${PROJECT_ROOT}\\output\\seed_experiments\\seed_2\\samples_1000000\\models",
+            "--post_sampling_factor",
+            "10",
+            "10",
+            "5",
+            "1",
+            "1"
+          ],
+          "seconds": 278.28090599999996,
+          "returncode": 0
+        },
+        "evaluate": {
+          "command": [
+            "${PROJECT_ROOT}\\.venv\\Scripts\\python.exe",
+            "-u",
+            "${PROJECT_ROOT}\\code\\maqp.py",
+            "--dataset",
+            "imdb-light",
+            "--csv_path",
+            "${PROJECT_ROOT}\\data\\imdb",
+            "--hdf_path",
+            "${PROJECT_ROOT}\\output\\hdf",
+            "--max_rows_per_hdf_file",
+            "100000000",
+            "--evaluate_cardinalities",
+            "--max_variants",
+            "1",
+            "--ensemble_location",
+            "${PROJECT_ROOT}\\output\\seed_experiments\\seed_2\\samples_1000000\\models\\ensemble_relationships_imdb-light_1000000.pkl",
+            "--target_path",
+            "${PROJECT_ROOT}\\output\\seed_experiments\\seed_2\\samples_1000000\\results\\job_light_1000000.csv",
+            "--query_file_location",
+            "${PROJECT_ROOT}\\code\\benchmarks\\job-light\\sql\\job_light_queries.sql",
+            "--ground_truth_file_location",
+            "${PROJECT_ROOT}\\code\\benchmarks\\job-light\\sql\\job_light_true_cardinalities.csv"
+          ],
+          "seconds": 4.583760899999902,
+          "returncode": 0
+        },
+        "verify": {
+          "command": [
+            "${PROJECT_ROOT}\\.venv\\Scripts\\python.exe",
+            "-u",
+            "${PROJECT_ROOT}\\code\\verify_results.py",
+            "--samples",
+            "1000000",
+            "--output-root",
+            "${PROJECT_ROOT}\\output\\seed_experiments\\seed_2\\samples_1000000"
+          ],
+          "seconds": 5.2035516000000825,
+          "returncode": 0
+        },
+        "model_sha256": "8ead06e7b92bcb48a17ac40f9354bb4883a8734a4fab4f1a9241952f993dfd3b",
+        "verification": {
+          "status": "PASS",
+          "queries": 70,
+          "spns": 5,
+          "replayed_predictions": 70,
+          "samples_per_spn": 1000000,
+          "q_error": {
+            "50": 1.6873803078160408,
+            "90": 5.478596618169578,
+            "95": 6.346784766648831,
+            "99": 30.80174673112764,
+            "100": 33.0
+          },
+          "q_error_mean": 3.242531505894391,
+          "latency_mean_ms": 8.323097142857115,
+          "latency_median_ms": 7.39550000000011,
+          "model_sha256": "8ead06e7b92bcb48a17ac40f9354bb4883a8734a4fab4f1a9241952f993dfd3b",
+          "scope": "JOB-light official relationship baseline. Not full paper or optimized RDC reproduction.",
+          "ground_truth": "Official benchmark counts, checked query-by-query; see separate raw-data audit."
+        },
+        "seconds": 288.10739889999996,
+        "ended_at": "2026-10-10T09:21:47.766952+08:00"
+      },
+      "record_source": "DeepDB/output/seed_experiments/seed_2/samples_1000000/run.json",
+      "logs": [
+        {
+          "run_id": "relationship_1000000_s2",
+          "stage": "train",
+          "source_path": "DeepDB/output/seed_experiments/seed_2/samples_1000000/logs/train.log",
+          "source_bytes": 1179224,
+          "source_sha256": "91b023a710e3fbe05401d3d49e60fd9ba5633d173c2c8f0ef3a797f1f49b86f7",
+          "public_text_bytes": 1016980,
+          "public_text_sha256": "e56631681c523e792abbbc1db43fa8f842cd25cd9a2986fb110969d74d9f2cf1",
+          "header": "===== relationship_1000000_s2 | train | DeepDB/output/seed_experiments/seed_2/samples_1000000/logs/train.log =====",
+          "bundle": "evidence/logs/training.log.gz",
+          "lines": 11467,
+          "content_truncated": false
+        },
+        {
+          "run_id": "relationship_1000000_s2",
+          "stage": "evaluate",
+          "source_path": "DeepDB/output/seed_experiments/seed_2/samples_1000000/logs/evaluate.log",
+          "source_bytes": 36787,
+          "source_sha256": "182d9a78fee2780ca40be006592da43a92daebd59987def605075fed0f4169ce",
+          "public_text_bytes": 36693,
+          "public_text_sha256": "8165e4f84f964d027a4807c3818c0024cf99e23ae6bdf943fc2d566da822d60c",
+          "header": "===== relationship_1000000_s2 | evaluate | DeepDB/output/seed_experiments/seed_2/samples_1000000/logs/evaluate.log =====",
+          "bundle": "evidence/logs/evaluation.log.gz",
+          "lines": 365,
+          "content_truncated": false
+        }
+      ],
+      "additional_evidence": {}
+    },
+    {
+      "run_id": "relationship_10000_s3",
+      "method": "relationship",
+      "requested_samples_per_spn": 10000,
+      "global_seed": 3,
+      "frozen_configuration": {
+        "strategy": "relationship",
+        "training_runs": 9,
+        "requested_samples_per_spn": [
+          10000,
+          100000,
+          1000000
+        ],
+        "global_training_seeds": [
+          1,
+          2,
+          3
+        ],
+        "spns_per_run": 5,
+        "learning_rdc_threshold": 0.3,
+        "post_sampling_factor": [
+          10,
+          10,
+          5,
+          1,
+          1
+        ]
+      },
+      "historical_run_record": {
+        "seed": 3,
+        "samples": 10000,
+        "python_hash_seed": 1,
+        "status": "PASS",
+        "started_at": "2026-10-10T09:21:56.746536+08:00",
+        "scope": "Vary NumPy and Python training RNG only; reuse fixed full HDF; evaluation seed 1.",
+        "files_sha256": {
+          "code\\maqp.py": "3bc0e84a3883ea20689f6397b595b73a314799bf19dd127f2cdcb61963f26548",
+          "code\\repeat_seeds.py": "7c4542e90dae0d47d0b7e8812d5d2bf6267a234675734d2b864eb8ffc16144a4",
+          "code\\verify_results.py": "c49800c43c55b88fa1897c3a6a3063c038afd0e430d18b35903556225914cb8d",
+          "data\\manifest.json": "ae6a5cef66340bae23325722f0f0d29ee616850851b99b6989ab1d5b6a6f3e13"
+        },
+        "active_pid": 2660,
+        "train": {
+          "command": [
+            "${PROJECT_ROOT}\\.venv\\Scripts\\python.exe",
+            "-u",
+            "${PROJECT_ROOT}\\code\\maqp.py",
+            "--dataset",
+            "imdb-light",
+            "--csv_path",
+            "${PROJECT_ROOT}\\data\\imdb",
+            "--hdf_path",
+            "${PROJECT_ROOT}\\output\\hdf",
+            "--max_rows_per_hdf_file",
+            "100000000",
+            "--seed",
+            "3",
+            "--generate_ensemble",
+            "--ensemble_strategy",
+            "relationship",
+            "--samples_per_spn",
+            "10000",
+            "10000",
+            "10000",
+            "10000",
+            "10000",
+            "--ensemble_path",
+            "${PROJECT_ROOT}\\output\\seed_experiments\\seed_3\\samples_10000\\models",
+            "--post_sampling_factor",
+            "10",
+            "10",
+            "5",
+            "1",
+            "1"
+          ],
+          "seconds": 107.77907459999999,
+          "returncode": 0
+        },
+        "evaluate": {
+          "command": [
+            "${PROJECT_ROOT}\\.venv\\Scripts\\python.exe",
+            "-u",
+            "${PROJECT_ROOT}\\code\\maqp.py",
+            "--dataset",
+            "imdb-light",
+            "--csv_path",
+            "${PROJECT_ROOT}\\data\\imdb",
+            "--hdf_path",
+            "${PROJECT_ROOT}\\output\\hdf",
+            "--max_rows_per_hdf_file",
+            "100000000",
+            "--evaluate_cardinalities",
+            "--max_variants",
+            "1",
+            "--ensemble_location",
+            "${PROJECT_ROOT}\\output\\seed_experiments\\seed_3\\samples_10000\\models\\ensemble_relationships_imdb-light_10000.pkl",
+            "--target_path",
+            "${PROJECT_ROOT}\\output\\seed_experiments\\seed_3\\samples_10000\\results\\job_light_10000.csv",
+            "--query_file_location",
+            "${PROJECT_ROOT}\\code\\benchmarks\\job-light\\sql\\job_light_queries.sql",
+            "--ground_truth_file_location",
+            "${PROJECT_ROOT}\\code\\benchmarks\\job-light\\sql\\job_light_true_cardinalities.csv"
+          ],
+          "seconds": 3.241608999999997,
+          "returncode": 0
+        },
+        "verify": {
+          "command": [
+            "${PROJECT_ROOT}\\.venv\\Scripts\\python.exe",
+            "-u",
+            "${PROJECT_ROOT}\\code\\verify_results.py",
+            "--samples",
+            "10000",
+            "--output-root",
+            "${PROJECT_ROOT}\\output\\seed_experiments\\seed_3\\samples_10000"
+          ],
+          "seconds": 2.6426503999999937,
+          "returncode": 0
+        },
+        "model_sha256": "527f2e2edd751f0b3cfc20ef07b611c736cb14cbc9396011eeafbd007bf72d43",
+        "verification": {
+          "status": "PASS",
+          "queries": 70,
+          "spns": 5,
+          "replayed_predictions": 70,
+          "samples_per_spn": 10000,
+          "q_error": {
+            "50": 1.8904315966573877,
+            "90": 32.55864679454271,
+            "95": 151.6677412321555,
+            "99": 1561.64947968597,
+            "100": 3024.5007206094288
+          },
+          "q_error_mean": 70.39370600610125,
+          "latency_mean_ms": 7.074214285714296,
+          "latency_median_ms": 5.946100000000065,
+          "model_sha256": "527f2e2edd751f0b3cfc20ef07b611c736cb14cbc9396011eeafbd007bf72d43",
+          "scope": "JOB-light official relationship baseline. Not full paper or optimized RDC reproduction.",
+          "ground_truth": "Official benchmark counts, checked query-by-query; see separate raw-data audit."
+        },
+        "seconds": 113.769229,
+        "ended_at": "2026-10-10T09:23:50.521542+08:00"
+      },
+      "record_source": "DeepDB/output/seed_experiments/seed_3/samples_10000/run.json",
+      "logs": [
+        {
+          "run_id": "relationship_10000_s3",
+          "stage": "train",
+          "source_path": "DeepDB/output/seed_experiments/seed_3/samples_10000/logs/train.log",
+          "source_bytes": 1008476,
+          "source_sha256": "4d4d148c046d90a1ca58c09e6c8e934005cb996603c34a084e91970f4ba05dbf",
+          "public_text_bytes": 892433,
+          "public_text_sha256": "391a140c75154e80ab4b2a5bb78ea96a0549a21580180914e351152de44e479a",
+          "header": "===== relationship_10000_s3 | train | DeepDB/output/seed_experiments/seed_3/samples_10000/logs/train.log =====",
+          "bundle": "evidence/logs/training.log.gz",
+          "lines": 10044,
+          "content_truncated": false
+        },
+        {
+          "run_id": "relationship_10000_s3",
+          "stage": "evaluate",
+          "source_path": "DeepDB/output/seed_experiments/seed_3/samples_10000/logs/evaluate.log",
+          "source_bytes": 36788,
+          "source_sha256": "79a25e52d8c212889ab627c5175d0cfe9ff71c26184a887a734bf1478369218c",
+          "public_text_bytes": 36694,
+          "public_text_sha256": "2c0fce9a25d7385e5d3c59d2dc5fdd50743f959dc1357e255146d611e5e81d35",
+          "header": "===== relationship_10000_s3 | evaluate | DeepDB/output/seed_experiments/seed_3/samples_10000/logs/evaluate.log =====",
+          "bundle": "evidence/logs/evaluation.log.gz",
+          "lines": 365,
+          "content_truncated": false
+        }
+      ],
+      "additional_evidence": {}
+    },
+    {
+      "run_id": "relationship_100000_s3",
+      "method": "relationship",
+      "requested_samples_per_spn": 100000,
+      "global_seed": 3,
+      "frozen_configuration": {
+        "strategy": "relationship",
+        "training_runs": 9,
+        "requested_samples_per_spn": [
+          10000,
+          100000,
+          1000000
+        ],
+        "global_training_seeds": [
+          1,
+          2,
+          3
+        ],
+        "spns_per_run": 5,
+        "learning_rdc_threshold": 0.3,
+        "post_sampling_factor": [
+          10,
+          10,
+          5,
+          1,
+          1
+        ]
+      },
+      "historical_run_record": {
+        "seed": 3,
+        "samples": 100000,
+        "python_hash_seed": 1,
+        "status": "PASS",
+        "started_at": "2026-10-10T09:23:50.535428+08:00",
+        "scope": "Vary NumPy and Python training RNG only; reuse fixed full HDF; evaluation seed 1.",
+        "files_sha256": {
+          "code\\maqp.py": "3bc0e84a3883ea20689f6397b595b73a314799bf19dd127f2cdcb61963f26548",
+          "code\\repeat_seeds.py": "7c4542e90dae0d47d0b7e8812d5d2bf6267a234675734d2b864eb8ffc16144a4",
+          "code\\verify_results.py": "c49800c43c55b88fa1897c3a6a3063c038afd0e430d18b35903556225914cb8d",
+          "data\\manifest.json": "ae6a5cef66340bae23325722f0f0d29ee616850851b99b6989ab1d5b6a6f3e13"
+        },
+        "active_pid": 26108,
+        "train": {
+          "command": [
+            "${PROJECT_ROOT}\\.venv\\Scripts\\python.exe",
+            "-u",
+            "${PROJECT_ROOT}\\code\\maqp.py",
+            "--dataset",
+            "imdb-light",
+            "--csv_path",
+            "${PROJECT_ROOT}\\data\\imdb",
+            "--hdf_path",
+            "${PROJECT_ROOT}\\output\\hdf",
+            "--max_rows_per_hdf_file",
+            "100000000",
+            "--seed",
+            "3",
+            "--generate_ensemble",
+            "--ensemble_strategy",
+            "relationship",
+            "--samples_per_spn",
+            "100000",
+            "100000",
+            "100000",
+            "100000",
+            "100000",
+            "--ensemble_path",
+            "${PROJECT_ROOT}\\output\\seed_experiments\\seed_3\\samples_100000\\models",
+            "--post_sampling_factor",
+            "10",
+            "10",
+            "5",
+            "1",
+            "1"
+          ],
+          "seconds": 170.32758660000002,
+          "returncode": 0
+        },
+        "evaluate": {
+          "command": [
+            "${PROJECT_ROOT}\\.venv\\Scripts\\python.exe",
+            "-u",
+            "${PROJECT_ROOT}\\code\\maqp.py",
+            "--dataset",
+            "imdb-light",
+            "--csv_path",
+            "${PROJECT_ROOT}\\data\\imdb",
+            "--hdf_path",
+            "${PROJECT_ROOT}\\output\\hdf",
+            "--max_rows_per_hdf_file",
+            "100000000",
+            "--evaluate_cardinalities",
+            "--max_variants",
+            "1",
+            "--ensemble_location",
+            "${PROJECT_ROOT}\\output\\seed_experiments\\seed_3\\samples_100000\\models\\ensemble_relationships_imdb-light_100000.pkl",
+            "--target_path",
+            "${PROJECT_ROOT}\\output\\seed_experiments\\seed_3\\samples_100000\\results\\job_light_100000.csv",
+            "--query_file_location",
+            "${PROJECT_ROOT}\\code\\benchmarks\\job-light\\sql\\job_light_queries.sql",
+            "--ground_truth_file_location",
+            "${PROJECT_ROOT}\\code\\benchmarks\\job-light\\sql\\job_light_true_cardinalities.csv"
+          ],
+          "seconds": 3.1124161000000186,
+          "returncode": 0
+        },
+        "verify": {
+          "command": [
+            "${PROJECT_ROOT}\\.venv\\Scripts\\python.exe",
+            "-u",
+            "${PROJECT_ROOT}\\code\\verify_results.py",
+            "--samples",
+            "100000",
+            "--output-root",
+            "${PROJECT_ROOT}\\output\\seed_experiments\\seed_3\\samples_100000"
+          ],
+          "seconds": 2.8923704000000043,
+          "returncode": 0
+        },
+        "model_sha256": "6d18876f7a1ef9253762c05e33f028a79341f099c1d86812c817fbcff255f116",
+        "verification": {
+          "status": "PASS",
+          "queries": 70,
+          "spns": 5,
+          "replayed_predictions": 70,
+          "samples_per_spn": 100000,
+          "q_error": {
+            "50": 1.5513952083647857,
+            "90": 6.491333593708792,
+            "95": 7.475243779538641,
+            "99": 16.165741085481912,
+            "100": 33.0
+          },
+          "q_error_mean": 3.224827559942535,
+          "latency_mean_ms": 7.904305714285712,
+          "latency_median_ms": 7.031349999999881,
+          "model_sha256": "6d18876f7a1ef9253762c05e33f028a79341f099c1d86812c817fbcff255f116",
+          "scope": "JOB-light official relationship baseline. Not full paper or optimized RDC reproduction.",
+          "ground_truth": "Official benchmark counts, checked query-by-query; see separate raw-data audit."
+        },
+        "seconds": 176.3560506,
+        "ended_at": "2026-10-10T09:26:46.892766+08:00"
+      },
+      "record_source": "DeepDB/output/seed_experiments/seed_3/samples_100000/run.json",
+      "logs": [
+        {
+          "run_id": "relationship_100000_s3",
+          "stage": "train",
+          "source_path": "DeepDB/output/seed_experiments/seed_3/samples_100000/logs/train.log",
+          "source_bytes": 947733,
+          "source_sha256": "d0b1298c5cfa65336d83a3eeac980c9ac37a77f0dd6c8de9dadbbb427c8ca16f",
+          "public_text_bytes": 841325,
+          "public_text_sha256": "3cd399d6bced05e3435ef2283f3b47993c91c562a6bdd4bea3b10f7b8f95ddcd",
+          "header": "===== relationship_100000_s3 | train | DeepDB/output/seed_experiments/seed_3/samples_100000/logs/train.log =====",
+          "bundle": "evidence/logs/training.log.gz",
+          "lines": 9421,
+          "content_truncated": false
+        },
+        {
+          "run_id": "relationship_100000_s3",
+          "stage": "evaluate",
+          "source_path": "DeepDB/output/seed_experiments/seed_3/samples_100000/logs/evaluate.log",
+          "source_bytes": 36750,
+          "source_sha256": "67f53266e4d9958320565dfe47446286d10c5369f60578ed2fdb9bdba4273b32",
+          "public_text_bytes": 36656,
+          "public_text_sha256": "1fc4c8cec9e38d10d3ceba017ec2a41a3affbd73d42a5a009a1801366c0d8578",
+          "header": "===== relationship_100000_s3 | evaluate | DeepDB/output/seed_experiments/seed_3/samples_100000/logs/evaluate.log =====",
+          "bundle": "evidence/logs/evaluation.log.gz",
+          "lines": 365,
+          "content_truncated": false
+        }
+      ],
+      "additional_evidence": {}
+    },
+    {
+      "run_id": "relationship_1000000_s3",
+      "method": "relationship",
+      "requested_samples_per_spn": 1000000,
+      "global_seed": 3,
+      "frozen_configuration": {
+        "strategy": "relationship",
+        "training_runs": 9,
+        "requested_samples_per_spn": [
+          10000,
+          100000,
+          1000000
+        ],
+        "global_training_seeds": [
+          1,
+          2,
+          3
+        ],
+        "spns_per_run": 5,
+        "learning_rdc_threshold": 0.3,
+        "post_sampling_factor": [
+          10,
+          10,
+          5,
+          1,
+          1
+        ]
+      },
+      "historical_run_record": {
+        "seed": 3,
+        "samples": 1000000,
+        "python_hash_seed": 1,
+        "status": "PASS",
+        "started_at": "2026-10-10T13:57:38.771300+08:00",
+        "scope": "Vary NumPy and Python training RNG only; reuse fixed full HDF; evaluation seed 1.",
+        "files_sha256": {
+          "code\\maqp.py": "3bc0e84a3883ea20689f6397b595b73a314799bf19dd127f2cdcb61963f26548",
+          "code\\repeat_seeds.py": "7c4542e90dae0d47d0b7e8812d5d2bf6267a234675734d2b864eb8ffc16144a4",
+          "code\\verify_results.py": "c49800c43c55b88fa1897c3a6a3063c038afd0e430d18b35903556225914cb8d",
+          "data\\manifest.json": "ae6a5cef66340bae23325722f0f0d29ee616850851b99b6989ab1d5b6a6f3e13"
+        },
+        "active_pid": 28596,
+        "train": {
+          "command": [
+            "${PROJECT_ROOT}\\.venv\\Scripts\\python.exe",
+            "-u",
+            "${PROJECT_ROOT}\\code\\maqp.py",
+            "--dataset",
+            "imdb-light",
+            "--csv_path",
+            "${PROJECT_ROOT}\\data\\imdb",
+            "--hdf_path",
+            "${PROJECT_ROOT}\\output\\hdf",
+            "--max_rows_per_hdf_file",
+            "100000000",
+            "--seed",
+            "3",
+            "--generate_ensemble",
+            "--ensemble_strategy",
+            "relationship",
+            "--samples_per_spn",
+            "1000000",
+            "1000000",
+            "1000000",
+            "1000000",
+            "1000000",
+            "--ensemble_path",
+            "${PROJECT_ROOT}\\output\\seed_experiments\\seed_3\\samples_1000000\\models",
+            "--post_sampling_factor",
+            "10",
+            "10",
+            "5",
+            "1",
+            "1"
+          ],
+          "seconds": 480.7105237,
+          "returncode": 0
+        },
+        "evaluate": {
+          "command": [
+            "${PROJECT_ROOT}\\.venv\\Scripts\\python.exe",
+            "-u",
+            "${PROJECT_ROOT}\\code\\maqp.py",
+            "--dataset",
+            "imdb-light",
+            "--csv_path",
+            "${PROJECT_ROOT}\\data\\imdb",
+            "--hdf_path",
+            "${PROJECT_ROOT}\\output\\hdf",
+            "--max_rows_per_hdf_file",
+            "100000000",
+            "--evaluate_cardinalities",
+            "--max_variants",
+            "1",
+            "--ensemble_location",
+            "${PROJECT_ROOT}\\output\\seed_experiments\\seed_3\\samples_1000000\\models\\ensemble_relationships_imdb-light_1000000.pkl",
+            "--target_path",
+            "${PROJECT_ROOT}\\output\\seed_experiments\\seed_3\\samples_1000000\\results\\job_light_1000000.csv",
+            "--query_file_location",
+            "${PROJECT_ROOT}\\code\\benchmarks\\job-light\\sql\\job_light_queries.sql",
+            "--ground_truth_file_location",
+            "${PROJECT_ROOT}\\code\\benchmarks\\job-light\\sql\\job_light_true_cardinalities.csv"
+          ],
+          "seconds": 5.439888699999983,
+          "returncode": 0
+        },
+        "verify": {
+          "command": [
+            "${PROJECT_ROOT}\\.venv\\Scripts\\python.exe",
+            "-u",
+            "${PROJECT_ROOT}\\code\\verify_results.py",
+            "--samples",
+            "1000000",
+            "--output-root",
+            "${PROJECT_ROOT}\\output\\seed_experiments\\seed_3\\samples_1000000"
+          ],
+          "seconds": 4.669760100000019,
+          "returncode": 0
+        },
+        "model_sha256": "4e87a2360e1ab3ff7944f2304597ebcb4ce9fdb646d17d61529169d0f4e4bcc7",
+        "verification": {
+          "status": "PASS",
+          "queries": 70,
+          "spns": 5,
+          "replayed_predictions": 70,
+          "samples_per_spn": 1000000,
+          "q_error": {
+            "50": 1.6260785281171493,
+            "90": 5.196848800038017,
+            "95": 6.118604025896598,
+            "99": 32.059602420567714,
+            "100": 33.0
+          },
+          "q_error_mean": 3.155862364964033,
+          "latency_mean_ms": 9.44539857142857,
+          "latency_median_ms": 8.432949999999774,
+          "model_sha256": "4e87a2360e1ab3ff7944f2304597ebcb4ce9fdb646d17d61529169d0f4e4bcc7",
+          "scope": "JOB-light official relationship baseline. Not full paper or optimized RDC reproduction.",
+          "ground_truth": "Official benchmark counts, checked query-by-query; see separate raw-data audit."
+        },
+        "seconds": 490.8654398,
+        "ended_at": "2026-10-10T14:05:49.749884+08:00"
+      },
+      "record_source": "DeepDB/output/seed_experiments/seed_3/samples_1000000/run.json",
+      "logs": [
+        {
+          "run_id": "relationship_1000000_s3",
+          "stage": "train",
+          "source_path": "DeepDB/output/seed_experiments/seed_3/samples_1000000/logs/train.log",
+          "source_bytes": 1141997,
+          "source_sha256": "a25b2ceeeb1f317c22e01ed40a70492e254c3ceef2bd0404a81c5435f6bbf250",
+          "public_text_bytes": 986004,
+          "public_text_sha256": "f12afcadbcda9e691745fa0e9eeb74c11ac674a8997333095e9505fefaace6b9",
+          "header": "===== relationship_1000000_s3 | train | DeepDB/output/seed_experiments/seed_3/samples_1000000/logs/train.log =====",
+          "bundle": "evidence/logs/training.log.gz",
+          "lines": 11104,
+          "content_truncated": false
+        },
+        {
+          "run_id": "relationship_1000000_s3",
+          "stage": "evaluate",
+          "source_path": "DeepDB/output/seed_experiments/seed_3/samples_1000000/logs/evaluate.log",
+          "source_bytes": 36780,
+          "source_sha256": "35d743864e51f434903878ef6c4946c10bc0486c76b8ad522ccc9ea67daa6853",
+          "public_text_bytes": 36686,
+          "public_text_sha256": "92ea69e1364337c3e45ad5c1ca198e9a8474c81b5e8d9714750afa2c60e7570a",
+          "header": "===== relationship_1000000_s3 | evaluate | DeepDB/output/seed_experiments/seed_3/samples_1000000/logs/evaluate.log =====",
+          "bundle": "evidence/logs/evaluation.log.gz",
+          "lines": 365,
+          "content_truncated": false
+        }
+      ],
+      "additional_evidence": {}
+    },
+    {
+      "run_id": "rdc_100000_s1",
+      "method": "rdc",
+      "requested_samples_per_spn": 100000,
+      "global_seed": 1,
+      "frozen_configuration": {
+        "strategy": "rdc_based",
+        "training_runs": 4,
+        "sample_seed_settings": [
+          [
+            100000,
+            1
+          ],
+          [
+            1000000,
+            1
+          ],
+          [
+            1000000,
+            2
+          ],
+          [
+            1000000,
+            3
+          ]
+        ],
+        "spns_per_run": 7,
+        "budget_factor": 5,
+        "max_joins": 3,
+        "hdf_pre_sample_rows": 10000,
+        "hdf_pre_sample_seed": 1,
+        "search_sample_rows": 10000,
+        "random_candidates": 10000,
+        "learning_threshold": 0.3,
+        "selection_threshold": 0.15,
+        "post_sampling_factor": [
+          10,
+          10,
+          5,
+          1,
+          1
+        ],
+        "published_inference": "rdc_spn_selection",
+        "global_seed_changes_affect": [
+          "RDC search",
+          "candidate search",
+          "training"
+        ],
+        "author_internal_fixed_seeds_retained": true
+      },
+      "historical_run_record": {
+        "started_at": "2026-10-27T17:49:28.248126+08:00",
+        "stages": {
+          "prepare": {
+            "returncode": 0,
+            "seconds": 15.403266799999999,
+            "finished_at": "2026-10-27T17:51:17.358751+08:00",
+            "command": [
+              "${PROJECT_ROOT}\\.venv\\Scripts\\python.exe",
+              "-u",
+              "${TEAM_ROOT}\\tools\\run_rdc_visible.py",
+              "--worker",
+              "prepare"
+            ]
+          },
+          "train": {
+            "returncode": 0,
+            "seconds": 218.56117179999998,
+            "finished_at": "2026-10-27T17:54:55.900280+08:00",
+            "command": [
+              "${PROJECT_ROOT}\\.venv\\Scripts\\python.exe",
+              "-u",
+              "${TEAM_ROOT}\\tools\\run_rdc_visible.py",
+              "--worker",
+              "train"
+            ]
+          },
+          "evaluate_rdc": {
+            "returncode": 0,
+            "seconds": 5.662106399999999,
+            "finished_at": "2026-10-27T17:55:01.565405+08:00",
+            "command": [
+              "${PROJECT_ROOT}\\.venv\\Scripts\\python.exe",
+              "-u",
+              "${TEAM_ROOT}\\tools\\run_rdc_visible.py",
+              "--worker",
+              "evaluate_rdc"
+            ]
+          },
+          "evaluate_greedy": {
+            "returncode": 0,
+            "seconds": 4.129376300000018,
+            "finished_at": "2026-10-27T17:55:05.697464+08:00",
+            "command": [
+              "${PROJECT_ROOT}\\.venv\\Scripts\\python.exe",
+              "-u",
+              "${TEAM_ROOT}\\tools\\run_rdc_visible.py",
+              "--worker",
+              "evaluate_greedy"
+            ]
+          },
+          "verify": {
+            "returncode": 0,
+            "seconds": 11.2091958,
+            "finished_at": "2026-10-27T17:56:15.586458+08:00",
+            "command": [
+              "${PROJECT_ROOT}\\.venv\\Scripts\\python.exe",
+              "-u",
+              "${TEAM_ROOT}\\tools\\run_rdc_visible.py",
+              "--worker",
+              "verify"
+            ]
+          }
+        },
+        "samples": 100000,
+        "seed": 1,
+        "scope": "Scaled-down official RDC ensemble; single-seed pilot",
+        "status": "PASS",
+        "last_session_seconds": 11.214631299999999,
+        "updated_at": "2026-10-27T17:56:15.588471+08:00"
+      },
+      "record_source": "DeepDB/output/rdc_experiment_20261027/run.json",
+      "logs": [
+        {
+          "run_id": "rdc_100000_s1",
+          "stage": "train",
+          "source_path": "DeepDB/output/rdc_experiment_20261027/logs/train.log",
+          "source_bytes": 1230757,
+          "source_sha256": "bde850b3b56f177b0ca1015516f63e45c781fc61f963a505503643054e54f351",
+          "public_text_bytes": 1118906,
+          "public_text_sha256": "dbbb53283cdb513f8a386cbe65b21f638c3c703bccb3248d1d772ae70f5d7a3a",
+          "header": "===== rdc_100000_s1 | train | DeepDB/output/rdc_experiment_20261027/logs/train.log =====",
+          "bundle": "evidence/logs/training.log.gz",
+          "lines": 12541,
+          "content_truncated": false
+        },
+        {
+          "run_id": "rdc_100000_s1",
+          "stage": "evaluate_rdc",
+          "source_path": "DeepDB/output/rdc_experiment_20261027/logs/evaluate_rdc.log",
+          "source_bytes": 38078,
+          "source_sha256": "e5cc3be81ff6eaa307a64b7ff293d7806f22502f3d3ce333e8d85f56b68a2db7",
+          "public_text_bytes": 37698,
+          "public_text_sha256": "9ad877fbeaa29bd6646ae14f79ef70558bc49bd62fc4fb1063877e9389e5edfa",
+          "header": "===== rdc_100000_s1 | evaluate_rdc | DeepDB/output/rdc_experiment_20261027/logs/evaluate_rdc.log =====",
+          "bundle": "evidence/logs/evaluation.log.gz",
+          "lines": 368,
+          "content_truncated": false
+        }
+      ],
+      "additional_evidence": {
+        "prepare_log": {
+          "run_id": "rdc_100000_s1",
+          "stage": "prepare",
+          "source_path": "DeepDB/output/rdc_experiment_20261027/logs/prepare.log",
+          "source_bytes": 1267,
+          "source_sha256": "7caaea456d8f154ae54c0440353511c7f748791dfc7ea788d0fd9aab8033eb50",
+          "public_text_bytes": 1082,
+          "public_text_sha256": "a9139ee9b814f13010cbf5d0afc029022931ace21585f5ea03243b0dea885e32",
+          "header": "===== rdc_100000_s1 | prepare | DeepDB/output/rdc_experiment_20261027/logs/prepare.log =====",
+          "bundle": "evidence/logs/training.log.gz",
+          "lines": 11,
+          "content_truncated": false
+        },
+        "training_join_counts.jsonl": [
+          {
+            "sql": "SELECT COUNT(*) FROM title, movie_info_idx, movie_companies WHERE movie_companies.movie_id = title.id AND movie_info_idx.movie_id = title.id",
+            "executed_sql": "WITH exact_titles AS (SELECT title.id FROM title title),\nexact_g0 AS (SELECT movie_info_idx.movie_id, COUNT(*)::numeric AS n FROM movie_info_idx movie_info_idx GROUP BY movie_info_idx.movie_id),\nexact_g1 AS (SELECT movie_companies.movie_id, COUNT(*)::numeric AS n FROM movie_companies movie_companies GROUP BY movie_companies.movie_id)\nSELECT COALESCE(SUM(exact_g0.n * exact_g1.n),0) FROM exact_titles exact_t JOIN exact_g0 ON exact_g0.movie_id=exact_t.id JOIN exact_g1 ON exact_g1.movie_id=exact_t.id;",
+            "count": 4073078,
+            "seconds": 4.9453955999999994,
+            "method": "exact multiplicity aggregation"
+          },
+          {
+            "sql": "SELECT COUNT(*) FROM movie_info, title, movie_companies WHERE movie_companies.movie_id = title.id AND movie_info.movie_id = title.id",
+            "executed_sql": "WITH exact_titles AS (SELECT title.id FROM title title),\nexact_g0 AS (SELECT movie_info.movie_id, COUNT(*)::numeric AS n FROM movie_info movie_info GROUP BY movie_info.movie_id),\nexact_g1 AS (SELECT movie_companies.movie_id, COUNT(*)::numeric AS n FROM movie_companies movie_companies GROUP BY movie_companies.movie_id)\nSELECT COALESCE(SUM(exact_g0.n * exact_g1.n),0) FROM exact_titles exact_t JOIN exact_g0 ON exact_g0.movie_id=exact_t.id JOIN exact_g1 ON exact_g1.movie_id=exact_t.id;",
+            "count": 67371414,
+            "seconds": 18.173714099999998,
+            "method": "exact multiplicity aggregation"
+          },
+          {
+            "sql": "SELECT COUNT(*) FROM title, movie_companies WHERE movie_companies.movie_id = title.id",
+            "executed_sql": "WITH exact_titles AS (SELECT title.id FROM title title),\nexact_g0 AS (SELECT movie_companies.movie_id, COUNT(*)::numeric AS n FROM movie_companies movie_companies GROUP BY movie_companies.movie_id)\nSELECT COALESCE(SUM(exact_g0.n),0) FROM exact_titles exact_t JOIN exact_g0 ON exact_g0.movie_id=exact_t.id;",
+            "count": 2609129,
+            "seconds": 2.3008557999999937,
+            "method": "exact multiplicity aggregation"
+          },
+          {
+            "sql": "SELECT COUNT(*) FROM movie_info, title WHERE movie_info.movie_id = title.id",
+            "executed_sql": "WITH exact_titles AS (SELECT title.id FROM title title),\nexact_g0 AS (SELECT movie_info.movie_id, COUNT(*)::numeric AS n FROM movie_info movie_info GROUP BY movie_info.movie_id)\nSELECT COALESCE(SUM(exact_g0.n),0) FROM exact_titles exact_t JOIN exact_g0 ON exact_g0.movie_id=exact_t.id;",
+            "count": 14835720,
+            "seconds": 14.696916200000004,
+            "method": "exact multiplicity aggregation"
+          },
+          {
+            "sql": "SELECT COUNT(*) FROM movie_info_idx, title WHERE movie_info_idx.movie_id = title.id",
+            "executed_sql": "WITH exact_titles AS (SELECT title.id FROM title title),\nexact_g0 AS (SELECT movie_info_idx.movie_id, COUNT(*)::numeric AS n FROM movie_info_idx movie_info_idx GROUP BY movie_info_idx.movie_id)\nSELECT COALESCE(SUM(exact_g0.n),0) FROM exact_titles exact_t JOIN exact_g0 ON exact_g0.movie_id=exact_t.id;",
+            "count": 1380035,
+            "seconds": 1.2798795000000212,
+            "method": "exact multiplicity aggregation"
+          },
+          {
+            "sql": "SELECT COUNT(*) FROM movie_keyword",
+            "executed_sql": "SELECT COUNT(*) FROM movie_keyword",
+            "count": 4523930,
+            "seconds": 0.8997841000000051,
+            "method": "original SQL"
+          },
+          {
+            "sql": "SELECT COUNT(*) FROM cast_info",
+            "executed_sql": "SELECT COUNT(*) FROM cast_info",
+            "count": 36244344,
+            "seconds": 6.359287899999998,
+            "method": "original SQL"
+          }
+        ]
+      }
+    },
+    {
+      "run_id": "rdc_1000000_s1",
+      "method": "rdc",
+      "requested_samples_per_spn": 1000000,
+      "global_seed": 1,
+      "frozen_configuration": {
+        "strategy": "rdc_based",
+        "training_runs": 4,
+        "sample_seed_settings": [
+          [
+            100000,
+            1
+          ],
+          [
+            1000000,
+            1
+          ],
+          [
+            1000000,
+            2
+          ],
+          [
+            1000000,
+            3
+          ]
+        ],
+        "spns_per_run": 7,
+        "budget_factor": 5,
+        "max_joins": 3,
+        "hdf_pre_sample_rows": 10000,
+        "hdf_pre_sample_seed": 1,
+        "search_sample_rows": 10000,
+        "random_candidates": 10000,
+        "learning_threshold": 0.3,
+        "selection_threshold": 0.15,
+        "post_sampling_factor": [
+          10,
+          10,
+          5,
+          1,
+          1
+        ],
+        "published_inference": "rdc_spn_selection",
+        "global_seed_changes_affect": [
+          "RDC search",
+          "candidate search",
+          "training"
+        ],
+        "author_internal_fixed_seeds_retained": true
+      },
+      "historical_run_record": {
+        "started_at": "2026-10-27T21:59:23.060781+08:00",
+        "stages": {
+          "prepare": {
+            "returncode": 0,
+            "seconds": 2.6041407000000003,
+            "finished_at": "2026-10-27T21:59:25.669967+08:00",
+            "command": [
+              "${PROJECT_ROOT}\\.venv\\Scripts\\python.exe",
+              "-u",
+              "${TEAM_ROOT}\\tools\\run_rdc_visible.py",
+              "--worker",
+              "prepare"
+            ]
+          },
+          "train": {
+            "returncode": 0,
+            "seconds": 415.72977169999996,
+            "finished_at": "2026-10-27T22:06:21.376193+08:00",
+            "command": [
+              "${PROJECT_ROOT}\\.venv\\Scripts\\python.exe",
+              "-u",
+              "${TEAM_ROOT}\\tools\\run_rdc_visible.py",
+              "--worker",
+              "train"
+            ]
+          },
+          "evaluate_rdc": {
+            "returncode": 0,
+            "seconds": 3.6218267000000424,
+            "finished_at": "2026-10-27T22:06:25.001796+08:00",
+            "command": [
+              "${PROJECT_ROOT}\\.venv\\Scripts\\python.exe",
+              "-u",
+              "${TEAM_ROOT}\\tools\\run_rdc_visible.py",
+              "--worker",
+              "evaluate_rdc"
+            ]
+          },
+          "evaluate_greedy": {
+            "returncode": 0,
+            "seconds": 2.562010799999996,
+            "finished_at": "2026-10-27T22:06:27.565107+08:00",
+            "command": [
+              "${PROJECT_ROOT}\\.venv\\Scripts\\python.exe",
+              "-u",
+              "${TEAM_ROOT}\\tools\\run_rdc_visible.py",
+              "--worker",
+              "evaluate_greedy"
+            ]
+          },
+          "verify": {
+            "returncode": 0,
+            "seconds": 5.114665099999968,
+            "finished_at": "2026-10-27T22:06:32.679381+08:00",
+            "command": [
+              "${PROJECT_ROOT}\\.venv\\Scripts\\python.exe",
+              "-u",
+              "${TEAM_ROOT}\\tools\\run_rdc_visible.py",
+              "--worker",
+              "verify"
+            ]
+          }
+        },
+        "samples": 1000000,
+        "seed": 1,
+        "scope": "Scaled-down official RDC ensemble; single-seed pilot",
+        "status": "PASS",
+        "last_session_seconds": 429.64726129999997,
+        "updated_at": "2026-10-27T22:06:32.680378+08:00"
+      },
+      "record_source": "DeepDB/output/rdc_experiment_20261027_1000000/run.json",
+      "logs": [
+        {
+          "run_id": "rdc_1000000_s1",
+          "stage": "train",
+          "source_path": "DeepDB/output/rdc_experiment_20261027_1000000/logs/train.log",
+          "source_bytes": 1756614,
+          "source_sha256": "485d6534a9bc0b7ae24b3b7eeab6f9521c879d87d81ac17dd8fecd28a8e65789",
+          "public_text_bytes": 1565611,
+          "public_text_sha256": "09ee79f4d3f7ed04f1ed60881a37c9090cdbff0ef82c4b3438fd7c0ba9915d96",
+          "header": "===== rdc_1000000_s1 | train | DeepDB/output/rdc_experiment_20261027_1000000/logs/train.log =====",
+          "bundle": "evidence/logs/training.log.gz",
+          "lines": 17652,
+          "content_truncated": false
+        },
+        {
+          "run_id": "rdc_1000000_s1",
+          "stage": "evaluate_rdc",
+          "source_path": "DeepDB/output/rdc_experiment_20261027_1000000/logs/evaluate_rdc.log",
+          "source_bytes": 38193,
+          "source_sha256": "f03581f58f8234640e0f1c66f7141b2c0029ccc2889c953f3d771399ee8db144",
+          "public_text_bytes": 37813,
+          "public_text_sha256": "456ac2c82e4fb7a6607a085146c11bfd7e75cd79d63a0a2568b4d8311b3721e3",
+          "header": "===== rdc_1000000_s1 | evaluate_rdc | DeepDB/output/rdc_experiment_20261027_1000000/logs/evaluate_rdc.log =====",
+          "bundle": "evidence/logs/evaluation.log.gz",
+          "lines": 368,
+          "content_truncated": false
+        }
+      ],
+      "additional_evidence": {
+        "prepare_log": {
+          "run_id": "rdc_1000000_s1",
+          "stage": "prepare",
+          "source_path": "DeepDB/output/rdc_experiment_20261027_1000000/logs/prepare.log",
+          "source_bytes": 80,
+          "source_sha256": "8a77f81cb95ae97b8ae970107b6288e6d1107d98ad2f7fdd9084ce8c29d36ea2",
+          "public_text_bytes": 80,
+          "public_text_sha256": "8a77f81cb95ae97b8ae970107b6288e6d1107d98ad2f7fdd9084ce8c29d36ea2",
+          "header": "===== rdc_1000000_s1 | prepare | DeepDB/output/rdc_experiment_20261027_1000000/logs/prepare.log =====",
+          "bundle": "evidence/logs/training.log.gz",
+          "lines": 1,
+          "content_truncated": false
+        },
+        "sampling_reuse.json": {
+          "source": "${PROJECT_ROOT}\\output\\rdc_experiment_20261027\\hdf",
+          "scope": "Identical 10K HDF pre-sample; full original HDF unchanged",
+          "files_sha256": {
+            "cast_info_sampled.hdf": "77859a3edd4ae42edf364907c24765e3718f42a35671b92110a35f5c995215e3",
+            "movie_companies_sampled.hdf": "1ad7d095f01b73928d88fc3a9f305cfebe0e7e83b202751f556fd0fdca607632",
+            "movie_info_idx_sampled.hdf": "73c2efe59ff00178cb64ae6c6e1bfebcf3bc8b3b83f66e1472ffa2dca2d0195c",
+            "movie_info_sampled.hdf": "8140a6a9182be4422cf7d107d555b23ae495dce50e4a3ef7eb1d4625d3842ff2",
+            "movie_keyword_sampled.hdf": "0ae01eadc5cd3c59e572b9b03284d14733c28429151061ac13e8b6fbb7b67d58",
+            "title_sampled.hdf": "a5c787f2e96eadd067d9e3f621afa732c72a6fc62423ab03709c59daffb70760"
+          }
+        },
+        "training_join_counts.jsonl": [
+          {
+            "sql": "SELECT COUNT(*) FROM title, movie_info_idx, movie_companies WHERE movie_companies.movie_id = title.id AND movie_info_idx.movie_id = title.id",
+            "executed_sql": "WITH exact_titles AS (SELECT title.id FROM title title),\nexact_g0 AS (SELECT movie_info_idx.movie_id, COUNT(*)::numeric AS n FROM movie_info_idx movie_info_idx GROUP BY movie_info_idx.movie_id),\nexact_g1 AS (SELECT movie_companies.movie_id, COUNT(*)::numeric AS n FROM movie_companies movie_companies GROUP BY movie_companies.movie_id)\nSELECT COALESCE(SUM(exact_g0.n * exact_g1.n),0) FROM exact_titles exact_t JOIN exact_g0 ON exact_g0.movie_id=exact_t.id JOIN exact_g1 ON exact_g1.movie_id=exact_t.id;",
+            "count": 4073078,
+            "seconds": 3.958210099999995,
+            "method": "exact multiplicity aggregation"
+          },
+          {
+            "sql": "SELECT COUNT(*) FROM movie_info, title, movie_companies WHERE movie_companies.movie_id = title.id AND movie_info.movie_id = title.id",
+            "executed_sql": "WITH exact_titles AS (SELECT title.id FROM title title),\nexact_g0 AS (SELECT movie_info.movie_id, COUNT(*)::numeric AS n FROM movie_info movie_info GROUP BY movie_info.movie_id),\nexact_g1 AS (SELECT movie_companies.movie_id, COUNT(*)::numeric AS n FROM movie_companies movie_companies GROUP BY movie_companies.movie_id)\nSELECT COALESCE(SUM(exact_g0.n * exact_g1.n),0) FROM exact_titles exact_t JOIN exact_g0 ON exact_g0.movie_id=exact_t.id JOIN exact_g1 ON exact_g1.movie_id=exact_t.id;",
+            "count": 67371414,
+            "seconds": 12.053292199999987,
+            "method": "exact multiplicity aggregation"
+          },
+          {
+            "sql": "SELECT COUNT(*) FROM title, movie_companies WHERE movie_companies.movie_id = title.id",
+            "executed_sql": "WITH exact_titles AS (SELECT title.id FROM title title),\nexact_g0 AS (SELECT movie_companies.movie_id, COUNT(*)::numeric AS n FROM movie_companies movie_companies GROUP BY movie_companies.movie_id)\nSELECT COALESCE(SUM(exact_g0.n),0) FROM exact_titles exact_t JOIN exact_g0 ON exact_g0.movie_id=exact_t.id;",
+            "count": 2609129,
+            "seconds": 1.623690599999975,
+            "method": "exact multiplicity aggregation"
+          },
+          {
+            "sql": "SELECT COUNT(*) FROM movie_info, title WHERE movie_info.movie_id = title.id",
+            "executed_sql": "WITH exact_titles AS (SELECT title.id FROM title title),\nexact_g0 AS (SELECT movie_info.movie_id, COUNT(*)::numeric AS n FROM movie_info movie_info GROUP BY movie_info.movie_id)\nSELECT COALESCE(SUM(exact_g0.n),0) FROM exact_titles exact_t JOIN exact_g0 ON exact_g0.movie_id=exact_t.id;",
+            "count": 14835720,
+            "seconds": 9.254691600000001,
+            "method": "exact multiplicity aggregation"
+          },
+          {
+            "sql": "SELECT COUNT(*) FROM movie_info_idx, title WHERE movie_info_idx.movie_id = title.id",
+            "executed_sql": "WITH exact_titles AS (SELECT title.id FROM title title),\nexact_g0 AS (SELECT movie_info_idx.movie_id, COUNT(*)::numeric AS n FROM movie_info_idx movie_info_idx GROUP BY movie_info_idx.movie_id)\nSELECT COALESCE(SUM(exact_g0.n),0) FROM exact_titles exact_t JOIN exact_g0 ON exact_g0.movie_id=exact_t.id;",
+            "count": 1380035,
+            "seconds": 0.970561900000007,
+            "method": "exact multiplicity aggregation"
+          },
+          {
+            "sql": "SELECT COUNT(*) FROM movie_keyword",
+            "executed_sql": "SELECT COUNT(*) FROM movie_keyword",
+            "count": 4523930,
+            "seconds": 0.6817455000000336,
+            "method": "original SQL"
+          },
+          {
+            "sql": "SELECT COUNT(*) FROM cast_info",
+            "executed_sql": "SELECT COUNT(*) FROM cast_info",
+            "count": 36244344,
+            "seconds": 5.783857599999976,
+            "method": "original SQL"
+          }
+        ]
+      }
+    },
+    {
+      "run_id": "rdc_1000000_s2",
+      "method": "rdc",
+      "requested_samples_per_spn": 1000000,
+      "global_seed": 2,
+      "frozen_configuration": {
+        "strategy": "rdc_based",
+        "training_runs": 4,
+        "sample_seed_settings": [
+          [
+            100000,
+            1
+          ],
+          [
+            1000000,
+            1
+          ],
+          [
+            1000000,
+            2
+          ],
+          [
+            1000000,
+            3
+          ]
+        ],
+        "spns_per_run": 7,
+        "budget_factor": 5,
+        "max_joins": 3,
+        "hdf_pre_sample_rows": 10000,
+        "hdf_pre_sample_seed": 1,
+        "search_sample_rows": 10000,
+        "random_candidates": 10000,
+        "learning_threshold": 0.3,
+        "selection_threshold": 0.15,
+        "post_sampling_factor": [
+          10,
+          10,
+          5,
+          1,
+          1
+        ],
+        "published_inference": "rdc_spn_selection",
+        "global_seed_changes_affect": [
+          "RDC search",
+          "candidate search",
+          "training"
+        ],
+        "author_internal_fixed_seeds_retained": true
+      },
+      "historical_run_record": {
+        "started_at": "2026-10-27T22:13:30.830254+08:00",
+        "stages": {
+          "prepare": {
+            "returncode": 0,
+            "seconds": 1.0841945,
+            "finished_at": "2026-10-27T22:13:31.918617+08:00",
+            "command": [
+              "${PROJECT_ROOT}\\.venv\\Scripts\\python.exe",
+              "-u",
+              "${TEAM_ROOT}\\tools\\run_rdc_visible.py",
+              "--worker",
+              "prepare"
+            ]
+          },
+          "train": {
+            "returncode": 0,
+            "seconds": 272.1903696,
+            "finished_at": "2026-10-27T22:18:04.096783+08:00",
+            "command": [
+              "${PROJECT_ROOT}\\.venv\\Scripts\\python.exe",
+              "-u",
+              "${TEAM_ROOT}\\tools\\run_rdc_visible.py",
+              "--worker",
+              "train"
+            ]
+          },
+          "evaluate_rdc": {
+            "returncode": 0,
+            "seconds": 3.597663099999977,
+            "finished_at": "2026-10-27T22:18:07.702481+08:00",
+            "command": [
+              "${PROJECT_ROOT}\\.venv\\Scripts\\python.exe",
+              "-u",
+              "${TEAM_ROOT}\\tools\\run_rdc_visible.py",
+              "--worker",
+              "evaluate_rdc"
+            ]
+          },
+          "evaluate_greedy": {
+            "returncode": 0,
+            "seconds": 2.5944736999999805,
+            "finished_at": "2026-10-27T22:18:10.296539+08:00",
+            "command": [
+              "${PROJECT_ROOT}\\.venv\\Scripts\\python.exe",
+              "-u",
+              "${TEAM_ROOT}\\tools\\run_rdc_visible.py",
+              "--worker",
+              "evaluate_greedy"
+            ]
+          },
+          "verify": {
+            "returncode": 0,
+            "seconds": 4.065088900000035,
+            "finished_at": "2026-10-27T22:18:14.363553+08:00",
+            "command": [
+              "${PROJECT_ROOT}\\.venv\\Scripts\\python.exe",
+              "-u",
+              "${TEAM_ROOT}\\tools\\run_rdc_visible.py",
+              "--worker",
+              "verify"
+            ]
+          }
+        },
+        "samples": 1000000,
+        "seed": 2,
+        "scope": "Vary global NumPy/Python seed for RDC search and training; fixed seed-1 HDF pre-sample, evaluation seed 1; author internal fixed seeds retained",
+        "source_sha256": {
+          "tools\\run_rdc_visible.py": "f0fd4c903ee1eb5c26610b54a97519cf4e8464d91bd7844699e9dc04aaba5963",
+          "DeepDB\\code\\maqp.py": "3bc0e84a3883ea20689f6397b595b73a314799bf19dd127f2cdcb61963f26548",
+          "DeepDB\\code\\ensemble_creation\\rdc_based.py": "7b2baf43df3e50b30c83b89b0e50f9aafad5b4a39ca76cf5f84a4fdf232b8a0f"
+        },
+        "status": "PASS",
+        "last_session_seconds": 283.54575,
+        "updated_at": "2026-10-27T22:18:14.364562+08:00"
+      },
+      "record_source": "DeepDB/output/rdc_seed_experiments/seed_2/samples_1000000/run.json",
+      "logs": [
+        {
+          "run_id": "rdc_1000000_s2",
+          "stage": "train",
+          "source_path": "DeepDB/output/rdc_seed_experiments/seed_2/samples_1000000/logs/train.log",
+          "source_bytes": 1446590,
+          "source_sha256": "724c139565135773a707e444b18ce159762ffa91746f8142ef6541e68ab584a9",
+          "public_text_bytes": 1293463,
+          "public_text_sha256": "c2f98e20d91f101fd29cb2cd5fff4270a4cbd080da3033f3ee833041c2db124e",
+          "header": "===== rdc_1000000_s2 | train | DeepDB/output/rdc_seed_experiments/seed_2/samples_1000000/logs/train.log =====",
+          "bundle": "evidence/logs/training.log.gz",
+          "lines": 14562,
+          "content_truncated": false
+        },
+        {
+          "run_id": "rdc_1000000_s2",
+          "stage": "evaluate_rdc",
+          "source_path": "DeepDB/output/rdc_seed_experiments/seed_2/samples_1000000/logs/evaluate_rdc.log",
+          "source_bytes": 38268,
+          "source_sha256": "ac53eccc4722fa72daa5f3d91c1991fdc4522a6733e3c28f4e63ca4e2c403a80",
+          "public_text_bytes": 37888,
+          "public_text_sha256": "4f933209e1e8164c2323d3f21e81d025c49e27efe076157dc2b3858034f4844f",
+          "header": "===== rdc_1000000_s2 | evaluate_rdc | DeepDB/output/rdc_seed_experiments/seed_2/samples_1000000/logs/evaluate_rdc.log =====",
+          "bundle": "evidence/logs/evaluation.log.gz",
+          "lines": 368,
+          "content_truncated": false
+        }
+      ],
+      "additional_evidence": {
+        "prepare_log": {
+          "run_id": "rdc_1000000_s2",
+          "stage": "prepare",
+          "source_path": "DeepDB/output/rdc_seed_experiments/seed_2/samples_1000000/logs/prepare.log",
+          "source_bytes": 80,
+          "source_sha256": "8a77f81cb95ae97b8ae970107b6288e6d1107d98ad2f7fdd9084ce8c29d36ea2",
+          "public_text_bytes": 80,
+          "public_text_sha256": "8a77f81cb95ae97b8ae970107b6288e6d1107d98ad2f7fdd9084ce8c29d36ea2",
+          "header": "===== rdc_1000000_s2 | prepare | DeepDB/output/rdc_seed_experiments/seed_2/samples_1000000/logs/prepare.log =====",
+          "bundle": "evidence/logs/training.log.gz",
+          "lines": 1,
+          "content_truncated": false
+        },
+        "sampling_reuse.json": {
+          "source": "${PROJECT_ROOT}\\output\\rdc_experiment_20261027\\hdf",
+          "scope": "Identical 10K HDF pre-sample; full original HDF unchanged",
+          "files_sha256": {
+            "cast_info_sampled.hdf": "77859a3edd4ae42edf364907c24765e3718f42a35671b92110a35f5c995215e3",
+            "movie_companies_sampled.hdf": "1ad7d095f01b73928d88fc3a9f305cfebe0e7e83b202751f556fd0fdca607632",
+            "movie_info_idx_sampled.hdf": "73c2efe59ff00178cb64ae6c6e1bfebcf3bc8b3b83f66e1472ffa2dca2d0195c",
+            "movie_info_sampled.hdf": "8140a6a9182be4422cf7d107d555b23ae495dce50e4a3ef7eb1d4625d3842ff2",
+            "movie_keyword_sampled.hdf": "0ae01eadc5cd3c59e572b9b03284d14733c28429151061ac13e8b6fbb7b67d58",
+            "title_sampled.hdf": "a5c787f2e96eadd067d9e3f621afa732c72a6fc62423ab03709c59daffb70760"
+          }
+        },
+        "training_join_counts.jsonl": [
+          {
+            "sql": "SELECT COUNT(*) FROM title, movie_info_idx, movie_companies WHERE movie_companies.movie_id = title.id AND movie_info_idx.movie_id = title.id",
+            "executed_sql": "WITH exact_titles AS (SELECT title.id FROM title title),\nexact_g0 AS (SELECT movie_info_idx.movie_id, COUNT(*)::numeric AS n FROM movie_info_idx movie_info_idx GROUP BY movie_info_idx.movie_id),\nexact_g1 AS (SELECT movie_companies.movie_id, COUNT(*)::numeric AS n FROM movie_companies movie_companies GROUP BY movie_companies.movie_id)\nSELECT COALESCE(SUM(exact_g0.n * exact_g1.n),0) FROM exact_titles exact_t JOIN exact_g0 ON exact_g0.movie_id=exact_t.id JOIN exact_g1 ON exact_g1.movie_id=exact_t.id;",
+            "count": 4073078,
+            "seconds": 3.6877763000000012,
+            "method": "exact multiplicity aggregation"
+          },
+          {
+            "sql": "SELECT COUNT(*) FROM movie_info, title, movie_companies WHERE movie_companies.movie_id = title.id AND movie_info.movie_id = title.id",
+            "executed_sql": "WITH exact_titles AS (SELECT title.id FROM title title),\nexact_g0 AS (SELECT movie_info.movie_id, COUNT(*)::numeric AS n FROM movie_info movie_info GROUP BY movie_info.movie_id),\nexact_g1 AS (SELECT movie_companies.movie_id, COUNT(*)::numeric AS n FROM movie_companies movie_companies GROUP BY movie_companies.movie_id)\nSELECT COALESCE(SUM(exact_g0.n * exact_g1.n),0) FROM exact_titles exact_t JOIN exact_g0 ON exact_g0.movie_id=exact_t.id JOIN exact_g1 ON exact_g1.movie_id=exact_t.id;",
+            "count": 67371414,
+            "seconds": 12.121351099999998,
+            "method": "exact multiplicity aggregation"
+          },
+          {
+            "sql": "SELECT COUNT(*) FROM title, movie_companies WHERE movie_companies.movie_id = title.id",
+            "executed_sql": "WITH exact_titles AS (SELECT title.id FROM title title),\nexact_g0 AS (SELECT movie_companies.movie_id, COUNT(*)::numeric AS n FROM movie_companies movie_companies GROUP BY movie_companies.movie_id)\nSELECT COALESCE(SUM(exact_g0.n),0) FROM exact_titles exact_t JOIN exact_g0 ON exact_g0.movie_id=exact_t.id;",
+            "count": 2609129,
+            "seconds": 1.5508461000000011,
+            "method": "exact multiplicity aggregation"
+          },
+          {
+            "sql": "SELECT COUNT(*) FROM movie_info, title WHERE movie_info.movie_id = title.id",
+            "executed_sql": "WITH exact_titles AS (SELECT title.id FROM title title),\nexact_g0 AS (SELECT movie_info.movie_id, COUNT(*)::numeric AS n FROM movie_info movie_info GROUP BY movie_info.movie_id)\nSELECT COALESCE(SUM(exact_g0.n),0) FROM exact_titles exact_t JOIN exact_g0 ON exact_g0.movie_id=exact_t.id;",
+            "count": 14835720,
+            "seconds": 7.55228009999999,
+            "method": "exact multiplicity aggregation"
+          },
+          {
+            "sql": "SELECT COUNT(*) FROM movie_info_idx",
+            "executed_sql": "SELECT COUNT(*) FROM movie_info_idx",
+            "count": 1380035,
+            "seconds": 0.14492990000002237,
+            "method": "original SQL"
+          },
+          {
+            "sql": "SELECT COUNT(*) FROM movie_keyword",
+            "executed_sql": "SELECT COUNT(*) FROM movie_keyword",
+            "count": 4523930,
+            "seconds": 0.7069046000000299,
+            "method": "original SQL"
+          },
+          {
+            "sql": "SELECT COUNT(*) FROM cast_info",
+            "executed_sql": "SELECT COUNT(*) FROM cast_info",
+            "count": 36244344,
+            "seconds": 5.655889299999956,
+            "method": "original SQL"
+          }
+        ]
+      }
+    },
+    {
+      "run_id": "rdc_1000000_s3",
+      "method": "rdc",
+      "requested_samples_per_spn": 1000000,
+      "global_seed": 3,
+      "frozen_configuration": {
+        "strategy": "rdc_based",
+        "training_runs": 4,
+        "sample_seed_settings": [
+          [
+            100000,
+            1
+          ],
+          [
+            1000000,
+            1
+          ],
+          [
+            1000000,
+            2
+          ],
+          [
+            1000000,
+            3
+          ]
+        ],
+        "spns_per_run": 7,
+        "budget_factor": 5,
+        "max_joins": 3,
+        "hdf_pre_sample_rows": 10000,
+        "hdf_pre_sample_seed": 1,
+        "search_sample_rows": 10000,
+        "random_candidates": 10000,
+        "learning_threshold": 0.3,
+        "selection_threshold": 0.15,
+        "post_sampling_factor": [
+          10,
+          10,
+          5,
+          1,
+          1
+        ],
+        "published_inference": "rdc_spn_selection",
+        "global_seed_changes_affect": [
+          "RDC search",
+          "candidate search",
+          "training"
+        ],
+        "author_internal_fixed_seeds_retained": true
+      },
+      "historical_run_record": {
+        "started_at": "2026-10-27T22:18:48.219505+08:00",
+        "stages": {
+          "prepare": {
+            "returncode": 0,
+            "seconds": 0.5368319,
+            "finished_at": "2026-10-27T22:18:48.761017+08:00",
+            "command": [
+              "${PROJECT_ROOT}\\.venv\\Scripts\\python.exe",
+              "-u",
+              "${TEAM_ROOT}\\tools\\run_rdc_visible.py",
+              "--worker",
+              "prepare"
+            ]
+          },
+          "train": {
+            "returncode": 0,
+            "seconds": 293.27824630000003,
+            "finished_at": "2026-10-27T22:26:13.615603+08:00",
+            "command": [
+              "${PROJECT_ROOT}\\.venv\\Scripts\\python.exe",
+              "-u",
+              "${TEAM_ROOT}\\tools\\run_rdc_visible.py",
+              "--worker",
+              "train"
+            ]
+          },
+          "evaluate_rdc": {
+            "returncode": 0,
+            "seconds": 3.584412499999985,
+            "finished_at": "2026-10-27T22:26:17.201996+08:00",
+            "command": [
+              "${PROJECT_ROOT}\\.venv\\Scripts\\python.exe",
+              "-u",
+              "${TEAM_ROOT}\\tools\\run_rdc_visible.py",
+              "--worker",
+              "evaluate_rdc"
+            ]
+          },
+          "evaluate_greedy": {
+            "returncode": 0,
+            "seconds": 3.0749351999999703,
+            "finished_at": "2026-10-27T22:26:20.277329+08:00",
+            "command": [
+              "${PROJECT_ROOT}\\.venv\\Scripts\\python.exe",
+              "-u",
+              "${TEAM_ROOT}\\tools\\run_rdc_visible.py",
+              "--worker",
+              "evaluate_greedy"
+            ]
+          },
+          "verify": {
+            "returncode": 0,
+            "seconds": 4.10103799999996,
+            "finished_at": "2026-10-27T22:26:24.381718+08:00",
+            "command": [
+              "${PROJECT_ROOT}\\.venv\\Scripts\\python.exe",
+              "-u",
+              "${TEAM_ROOT}\\tools\\run_rdc_visible.py",
+              "--worker",
+              "verify"
+            ]
+          }
+        },
+        "samples": 1000000,
+        "seed": 3,
+        "scope": "Vary global NumPy/Python seed for RDC search and training; fixed seed-1 HDF pre-sample, evaluation seed 1; author internal fixed seeds retained",
+        "source_sha256": {
+          "tools\\run_rdc_visible.py": "f0fd4c903ee1eb5c26610b54a97519cf4e8464d91bd7844699e9dc04aaba5963",
+          "DeepDB\\code\\maqp.py": "3bc0e84a3883ea20689f6397b595b73a314799bf19dd127f2cdcb61963f26548",
+          "DeepDB\\code\\ensemble_creation\\rdc_based.py": "7b2baf43df3e50b30c83b89b0e50f9aafad5b4a39ca76cf5f84a4fdf232b8a0f"
+        },
+        "status": "PASS",
+        "last_session_seconds": 304.0492004,
+        "updated_at": "2026-10-27T22:26:24.383781+08:00"
+      },
+      "record_source": "DeepDB/output/rdc_seed_experiments/seed_3/samples_1000000/run.json",
+      "logs": [
+        {
+          "run_id": "rdc_1000000_s3",
+          "stage": "train",
+          "source_path": "DeepDB/output/rdc_seed_experiments/seed_3/samples_1000000/logs/train.log",
+          "source_bytes": 1435421,
+          "source_sha256": "32eb390719c2d7306a6dce62282cea26e7b2c6a148ff3b912e913541ed3ced6c",
+          "public_text_bytes": 1285728,
+          "public_text_sha256": "46995926ef59b02b2448e7a30326f97a6585094ccf1d573b7b4607a561abc95f",
+          "header": "===== rdc_1000000_s3 | train | DeepDB/output/rdc_seed_experiments/seed_3/samples_1000000/logs/train.log =====",
+          "bundle": "evidence/logs/training.log.gz",
+          "lines": 14464,
+          "content_truncated": false
+        },
+        {
+          "run_id": "rdc_1000000_s3",
+          "stage": "evaluate_rdc",
+          "source_path": "DeepDB/output/rdc_seed_experiments/seed_3/samples_1000000/logs/evaluate_rdc.log",
+          "source_bytes": 38277,
+          "source_sha256": "40d9ff1dea197f81735ca467e3cd63a35545de1ba731ef1d303bd02f6c28e090",
+          "public_text_bytes": 37897,
+          "public_text_sha256": "9444c8962ad759b566d10aceb5ba9550efb7032547437b3faa14cb1744fd284b",
+          "header": "===== rdc_1000000_s3 | evaluate_rdc | DeepDB/output/rdc_seed_experiments/seed_3/samples_1000000/logs/evaluate_rdc.log =====",
+          "bundle": "evidence/logs/evaluation.log.gz",
+          "lines": 368,
+          "content_truncated": false
+        }
+      ],
+      "additional_evidence": {
+        "prepare_log": {
+          "run_id": "rdc_1000000_s3",
+          "stage": "prepare",
+          "source_path": "DeepDB/output/rdc_seed_experiments/seed_3/samples_1000000/logs/prepare.log",
+          "source_bytes": 80,
+          "source_sha256": "8a77f81cb95ae97b8ae970107b6288e6d1107d98ad2f7fdd9084ce8c29d36ea2",
+          "public_text_bytes": 80,
+          "public_text_sha256": "8a77f81cb95ae97b8ae970107b6288e6d1107d98ad2f7fdd9084ce8c29d36ea2",
+          "header": "===== rdc_1000000_s3 | prepare | DeepDB/output/rdc_seed_experiments/seed_3/samples_1000000/logs/prepare.log =====",
+          "bundle": "evidence/logs/training.log.gz",
+          "lines": 1,
+          "content_truncated": false
+        },
+        "sampling_reuse.json": {
+          "source": "${PROJECT_ROOT}\\output\\rdc_experiment_20261027\\hdf",
+          "scope": "Identical 10K HDF pre-sample; full original HDF unchanged",
+          "files_sha256": {
+            "cast_info_sampled.hdf": "77859a3edd4ae42edf364907c24765e3718f42a35671b92110a35f5c995215e3",
+            "movie_companies_sampled.hdf": "1ad7d095f01b73928d88fc3a9f305cfebe0e7e83b202751f556fd0fdca607632",
+            "movie_info_idx_sampled.hdf": "73c2efe59ff00178cb64ae6c6e1bfebcf3bc8b3b83f66e1472ffa2dca2d0195c",
+            "movie_info_sampled.hdf": "8140a6a9182be4422cf7d107d555b23ae495dce50e4a3ef7eb1d4625d3842ff2",
+            "movie_keyword_sampled.hdf": "0ae01eadc5cd3c59e572b9b03284d14733c28429151061ac13e8b6fbb7b67d58",
+            "title_sampled.hdf": "a5c787f2e96eadd067d9e3f621afa732c72a6fc62423ab03709c59daffb70760"
+          }
+        },
+        "training_join_counts.jsonl": [
+          {
+            "sql": "SELECT COUNT(*) FROM movie_info, title, movie_info_idx, movie_companies WHERE movie_companies.movie_id = title.id AND movie_info.movie_id = title.id AND movie_info_idx.movie_id = title.id",
+            "executed_sql": "WITH exact_titles AS (SELECT title.id FROM title title),\nexact_g0 AS (SELECT movie_info.movie_id, COUNT(*)::numeric AS n FROM movie_info movie_info GROUP BY movie_info.movie_id),\nexact_g1 AS (SELECT movie_info_idx.movie_id, COUNT(*)::numeric AS n FROM movie_info_idx movie_info_idx GROUP BY movie_info_idx.movie_id),\nexact_g2 AS (SELECT movie_companies.movie_id, COUNT(*)::numeric AS n FROM movie_companies movie_companies GROUP BY movie_companies.movie_id)\nSELECT COALESCE(SUM(exact_g0.n * exact_g1.n * exact_g2.n),0) FROM exact_titles exact_t JOIN exact_g0 ON exact_g0.movie_id=exact_t.id JOIN exact_g1 ON exact_g1.movie_id=exact_t.id JOIN exact_g2 ON exact_g2.movie_id=exact_t.id;",
+            "count": 177388547,
+            "seconds": 11.144146300000001,
+            "method": "exact multiplicity aggregation"
+          },
+          {
+            "sql": "SELECT COUNT(*) FROM movie_info, title, movie_companies WHERE movie_companies.movie_id = title.id AND movie_info.movie_id = title.id",
+            "executed_sql": "WITH exact_titles AS (SELECT title.id FROM title title),\nexact_g0 AS (SELECT movie_info.movie_id, COUNT(*)::numeric AS n FROM movie_info movie_info GROUP BY movie_info.movie_id),\nexact_g1 AS (SELECT movie_companies.movie_id, COUNT(*)::numeric AS n FROM movie_companies movie_companies GROUP BY movie_companies.movie_id)\nSELECT COALESCE(SUM(exact_g0.n * exact_g1.n),0) FROM exact_titles exact_t JOIN exact_g0 ON exact_g0.movie_id=exact_t.id JOIN exact_g1 ON exact_g1.movie_id=exact_t.id;",
+            "count": 67371414,
+            "seconds": 13.389865,
+            "method": "exact multiplicity aggregation"
+          },
+          {
+            "sql": "SELECT COUNT(*) FROM movie_info, title WHERE movie_info.movie_id = title.id",
+            "executed_sql": "WITH exact_titles AS (SELECT title.id FROM title title),\nexact_g0 AS (SELECT movie_info.movie_id, COUNT(*)::numeric AS n FROM movie_info movie_info GROUP BY movie_info.movie_id)\nSELECT COALESCE(SUM(exact_g0.n),0) FROM exact_titles exact_t JOIN exact_g0 ON exact_g0.movie_id=exact_t.id;",
+            "count": 14835720,
+            "seconds": 7.816251300000005,
+            "method": "exact multiplicity aggregation"
+          },
+          {
+            "sql": "SELECT COUNT(*) FROM title, movie_companies WHERE movie_companies.movie_id = title.id",
+            "executed_sql": "WITH exact_titles AS (SELECT title.id FROM title title),\nexact_g0 AS (SELECT movie_companies.movie_id, COUNT(*)::numeric AS n FROM movie_companies movie_companies GROUP BY movie_companies.movie_id)\nSELECT COALESCE(SUM(exact_g0.n),0) FROM exact_titles exact_t JOIN exact_g0 ON exact_g0.movie_id=exact_t.id;",
+            "count": 2609129,
+            "seconds": 1.6273352999999986,
+            "method": "exact multiplicity aggregation"
+          },
+          {
+            "sql": "SELECT COUNT(*) FROM movie_info_idx",
+            "executed_sql": "SELECT COUNT(*) FROM movie_info_idx",
+            "count": 1380035,
+            "seconds": 0.15319190000002436,
+            "method": "original SQL"
+          },
+          {
+            "sql": "SELECT COUNT(*) FROM movie_keyword",
+            "executed_sql": "SELECT COUNT(*) FROM movie_keyword",
+            "count": 4523930,
+            "seconds": 0.6985005999999885,
+            "method": "original SQL"
+          },
+          {
+            "sql": "SELECT COUNT(*) FROM cast_info",
+            "executed_sql": "SELECT COUNT(*) FROM cast_info",
+            "count": 36244344,
+            "seconds": 5.836494399999992,
+            "method": "original SQL"
+          }
+        ]
+      }
+    }
+  ],
+  "database_runs": {
+    "postgresql": {
+      "status": "PASS",
+      "started_at": "2026-10-15T10:23:48.626977+08:00",
+      "scope": "PostgreSQL estimates only; official truth; no workload execution or RDC training",
+      "port": 55432,
+      "tables": {
+        "title": {
+          "rows": 2528312,
+          "expected_rows": 2528312,
+          "seconds": 3.8627644999999973
+        },
+        "movie_info_idx": {
+          "rows": 1380035,
+          "expected_rows": 1380035,
+          "seconds": 0.8548967000000012
+        },
+        "movie_info": {
+          "rows": 14835720,
+          "expected_rows": 14835720,
+          "seconds": 24.3753693
+        },
+        "cast_info": {
+          "rows": 36244344,
+          "expected_rows": 36244344,
+          "seconds": 46.55712799999999
+        },
+        "movie_keyword": {
+          "rows": 4523930,
+          "expected_rows": 4523930,
+          "seconds": 3.6561994999999996
+        },
+        "movie_companies": {
+          "rows": 2609129,
+          "expected_rows": 2609129,
+          "seconds": 3.0332228000000043
+        }
+      },
+      "stages": {
+        "import_seconds": 82.3669727,
+        "indexes_analyze_and_counts_seconds": 129.2481937
+      },
+      "postgres_home": "${PG_ROOT}",
+      "invocation": "python -u code/postgres_baseline.py (DEEPDB_PG_HOME points to local PostgreSQL directory)",
+      "previous_attempt": {
+        "status": "FAILED_OR_STOPPED",
+        "started_at": "2026-10-15T10:22:46.626101+08:00",
+        "scope": "PostgreSQL estimates only; official truth; no workload execution or RDC training",
+        "port": 55432,
+        "tables": {},
+        "stages": {},
+        "stage": "2/6 Initialize isolated local database (localhost only)",
+        "elapsed_seconds": 6.566779,
+        "script_sha256": "d55ef1ffe64034e0c5330702ffa608113e19cb9c64dee2ef06fdeb86f722352e",
+        "manifest_sha256": "ae6a5cef66340bae23325722f0f0d29ee616850851b99b6989ab1d5b6a6f3e13",
+        "error": "initdb failed: The files belonging to this database system will be owned by user \"${LOCAL_USER}\".\nThis user must also own the server process.\n\nThe database cluster will be initialized with locale \"C\".\nThe default text search configuration will be set to \"english\".\n\nData page checksums are disabled.\n\ncreating directory ${LEGACY_TEAM_ROOT}/tools/postgresql/data ... ok\ncreating subdirectories ... ok\nselecting dynamic shared memory implementation ... windows\nselecting default max_connections ... 100\nselecting default shared_buffers ... 128MB\nselecting default time zone ... Asia/Shanghai\ncreating configuration files ... ok\nrunning bootstrap script ... ok\nperforming post-bootstrap initialization ... 2026-10-15 10:22:53.037 CST [23324] FATAL:  invalid byte sequence for encoding \"UTF8\": 0xb9\nchild process exited with exit code 1\ninitdb: removing data directory \"${LEGACY_TEAM_ROOT}/tools/postgresql/data\"\n"
+      },
+      "stage": "6/6 Save baseline; generate bilingual comparison report",
+      "elapsed_seconds": 227.8914117,
+      "script_sha256": "04d4e8041e156513c79ee67a629fa6d492813ba801fb303fe8347981f7cd89b2",
+      "manifest_sha256": "ae6a5cef66340bae23325722f0f0d29ee616850851b99b6989ab1d5b6a6f3e13",
+      "schema_source": "code/benchmarks/job-light/setup-sql/alternative_schema.sql; six tables only",
+      "indexes": [
+        {
+          "name": "company_id_movie_companies",
+          "table": "movie_companies",
+          "column": "company_id"
+        },
+        {
+          "name": "company_type_id_movie_companies",
+          "table": "movie_companies",
+          "column": "company_type_id"
+        },
+        {
+          "name": "info_type_id_movie_info_idx",
+          "table": "movie_info_idx",
+          "column": "info_type_id"
+        },
+        {
+          "name": "info_type_id_movie_info",
+          "table": "movie_info",
+          "column": "info_type_id"
+        },
+        {
+          "name": "keyword_id_movie_keyword",
+          "table": "movie_keyword",
+          "column": "keyword_id"
+        },
+        {
+          "name": "kind_id_title",
+          "table": "title",
+          "column": "kind_id"
+        },
+        {
+          "name": "movie_id_cast_info",
+          "table": "cast_info",
+          "column": "movie_id"
+        },
+        {
+          "name": "movie_id_movie_companies",
+          "table": "movie_companies",
+          "column": "movie_id"
+        },
+        {
+          "name": "movie_id_movie_info_idx",
+          "table": "movie_info_idx",
+          "column": "movie_id"
+        },
+        {
+          "name": "movie_id_movie_keyword",
+          "table": "movie_keyword",
+          "column": "movie_id"
+        },
+        {
+          "name": "movie_id_movie_info",
+          "table": "movie_info",
+          "column": "movie_id"
+        },
+        {
+          "name": "person_id_cast_info",
+          "table": "cast_info",
+          "column": "person_id"
+        },
+        {
+          "name": "person_role_id_cast_info",
+          "table": "cast_info",
+          "column": "person_role_id"
+        },
+        {
+          "name": "role_id_cast_info",
+          "table": "cast_info",
+          "column": "role_id"
+        }
+      ],
+      "foreign_keys": "No foreign-key constraints added; six-table schema primary keys and selected fk.sql indexes only.",
+      "postgresql_version": "PostgreSQL 16.15, compiled by Visual C++ build 1944, 64-bit",
+      "settings": {
+        "shared_buffers": "512MB",
+        "work_mem": "16MB",
+        "maintenance_work_mem": "256MB",
+        "default_statistics_target": "100",
+        "max_parallel_workers_per_gather": "0",
+        "max_parallel_maintenance_workers": "0",
+        "jit": "off",
+        "autovacuum": "off",
+        "random_page_cost": "4",
+        "effective_cache_size": "4GB",
+        "seq_page_cost": "1",
+        "cpu_tuple_cost": "0.01",
+        "geqo_threshold": "12",
+        "server_encoding": "UTF8"
+      },
+      "database_bytes": 7167360023,
+      "query_file_sha256": "e61da91710ce62d3669be70a8ded2499c6de1d759fcfac9a954b939465e76fdb",
+      "truth_file_sha256": "87e66a3a5977d38a5e32db43451f7213776d1046f57ea2f85da854c04ba79acc",
+      "summary": {
+        "queries": 70,
+        "q_error": {
+          "50": 8.68741204687915,
+          "90": 163.24425949456202,
+          "95": 842.784562789362,
+          "99": 3065.761254623046,
+          "100": 3606.4054054054054
+        },
+        "planning_ms_mean_of_per_query_medians": 0.3113142857142857,
+        "client_ms_mean_of_per_query_medians": 0.7607257142865365
+      },
+      "method": "Original COUNT(*) EXPLAIN JSON; Plan Rows of sole child below top Aggregate; parallel workers disabled; default stats target 100; one ANALYZE snapshot; 1 warmup + 5 repeats per query.",
+      "timing_limit": "PostgreSQL planning and client EXPLAIN time differ from DeepDB Python estimator latency; no direct speedup claim.",
+      "ended_at": "2026-10-15T10:27:36.517871+08:00"
+    },
+    "truth_audit": {
+      "status": "PASS",
+      "started_at": "2026-10-27T15:34:26.253006+08:00",
+      "scope": "Execute raw workload COUNT queries, not EXPLAIN estimates",
+      "query_timeout_seconds": 600,
+      "retry_timeout_seconds": 900,
+      "overall_limit_seconds": 7200,
+      "large_query_retry": true,
+      "prior_elapsed_seconds": 1780.5195122,
+      "exact_rewrite_mode": true,
+      "attempts": 1,
+      "tables": {
+        "title": 2528312,
+        "movie_info_idx": 1380035,
+        "movie_info": 14835720,
+        "cast_info": 36244344,
+        "movie_keyword": 4523930,
+        "movie_companies": 2609129
+      },
+      "settings": {
+        "transaction_read_only": "on",
+        "max_parallel_workers_per_gather": "2",
+        "work_mem": "64MB",
+        "jit": "off",
+        "temp_file_limit": "16GB",
+        "enable_nestloop": "off",
+        "data_directory": "${PG_DATA}"
+      },
+      "output_directory": "${PROJECT_ROOT}\\output\\truth_audit_20261027",
+      "path_repairs": "Moved project: venv home repaired; new ASCII junction points to current PostgreSQL storage.",
+      "query_sha256": "e61da91710ce62d3669be70a8ded2499c6de1d759fcfac9a954b939465e76fdb",
+      "official_truth_sha256": "87e66a3a5977d38a5e32db43451f7213776d1046f57ea2f85da854c04ba79acc",
+      "script_sha256": "d4b6e45be75ce05691c375218666ed472fc7df153f577c25e76d00e9eb0645ac",
+      "completed_queries": 70,
+      "matched_queries": 70,
+      "mismatched_queries": 0,
+      "unresolved_queries": [],
+      "elapsed_seconds": 54.479849900000005,
+      "cumulative_wall_seconds": 1834.9993621,
+      "postgresql_version": "PostgreSQL 16.15, compiled by Visual C++ build 1944, 64-bit",
+      "factorized_source_sha256": "f35cdbf63fae427f0feb013b19d41af9b2072b75fe53cf1b11b527d1fee65d7d",
+      "factorized_cross_checks": [
+        {
+          "query_no": 0,
+          "original_count": 715,
+          "grouped_count": 715,
+          "seconds": 0.8559825000000032,
+          "original_sql": "SELECT COUNT(*) FROM movie_companies mc,title t,movie_info_idx mi_idx WHERE t.id=mc.movie_id AND t.id=mi_idx.movie_id AND mi_idx.info_type_id=112 AND mc.company_type_id=2;",
+          "executed_sql": "WITH exact_titles AS (SELECT t.id FROM title t),\nexact_g0 AS (SELECT mc.movie_id, COUNT(*)::numeric AS n FROM movie_companies mc WHERE mc.company_type_id=2 GROUP BY mc.movie_id),\nexact_g1 AS (SELECT mi_idx.movie_id, COUNT(*)::numeric AS n FROM movie_info_idx mi_idx WHERE mi_idx.info_type_id=112 GROUP BY mi_idx.movie_id)\nSELECT COALESCE(SUM(exact_g0.n * exact_g1.n),0) FROM exact_titles exact_t JOIN exact_g0 ON exact_g0.movie_id=exact_t.id JOIN exact_g1 ON exact_g1.movie_id=exact_t.id;"
+        },
+        {
+          "query_no": 14,
+          "original_count": 1224,
+          "grouped_count": 1224,
+          "seconds": 11.430726700000001,
+          "original_sql": "SELECT COUNT(*) FROM movie_keyword mk,title t,cast_info ci WHERE t.id=mk.movie_id AND t.id=ci.movie_id AND t.production_year>2010 AND mk.keyword_id=8200;",
+          "executed_sql": "WITH exact_titles AS (SELECT t.id FROM title t WHERE t.production_year>2010),\nexact_g0 AS (SELECT mk.movie_id, COUNT(*)::numeric AS n FROM movie_keyword mk WHERE mk.keyword_id=8200 GROUP BY mk.movie_id),\nexact_g1 AS (SELECT ci.movie_id, COUNT(*)::numeric AS n FROM cast_info ci GROUP BY ci.movie_id)\nSELECT COALESCE(SUM(exact_g0.n * exact_g1.n),0) FROM exact_titles exact_t JOIN exact_g0 ON exact_g0.movie_id=exact_t.id JOIN exact_g1 ON exact_g1.movie_id=exact_t.id;"
+        },
+        {
+          "query_no": 34,
+          "original_count": 72,
+          "grouped_count": 72,
+          "seconds": 1.4680678,
+          "original_sql": "SELECT COUNT(*) FROM title t,movie_info mi,movie_info_idx mi_idx,movie_companies mc WHERE t.id=mi.movie_id AND t.id=mi_idx.movie_id AND t.id=mc.movie_id AND mi_idx.info_type_id=113 AND mi.info_type_id=105;",
+          "executed_sql": "WITH exact_titles AS (SELECT t.id FROM title t),\nexact_g0 AS (SELECT mi.movie_id, COUNT(*)::numeric AS n FROM movie_info mi WHERE mi.info_type_id=105 GROUP BY mi.movie_id),\nexact_g1 AS (SELECT mi_idx.movie_id, COUNT(*)::numeric AS n FROM movie_info_idx mi_idx WHERE mi_idx.info_type_id=113 GROUP BY mi_idx.movie_id),\nexact_g2 AS (SELECT mc.movie_id, COUNT(*)::numeric AS n FROM movie_companies mc GROUP BY mc.movie_id)\nSELECT COALESCE(SUM(exact_g0.n * exact_g1.n * exact_g2.n),0) FROM exact_titles exact_t JOIN exact_g0 ON exact_g0.movie_id=exact_t.id JOIN exact_g1 ON exact_g1.movie_id=exact_t.id JOIN exact_g2 ON exact_g2.movie_id=exact_t.id;"
+        },
+        {
+          "query_no": 57,
+          "original_count": 1352809555,
+          "grouped_count": 1352809555,
+          "seconds": 10.611466900000003,
+          "original_sql": "SELECT COUNT(*) FROM title t,movie_info mi,movie_companies mc,cast_info ci,movie_keyword mk WHERE t.id=mi.movie_id AND t.id=mc.movie_id AND t.id=ci.movie_id AND t.id=mk.movie_id AND ci.role_id=2 AND mi.info_type_id=16 AND t.production_year>2010;",
+          "executed_sql": "WITH exact_titles AS (SELECT t.id FROM title t WHERE t.production_year>2010),\nexact_g0 AS (SELECT mi.movie_id, COUNT(*)::numeric AS n FROM movie_info mi WHERE mi.info_type_id=16 GROUP BY mi.movie_id),\nexact_g1 AS (SELECT mc.movie_id, COUNT(*)::numeric AS n FROM movie_companies mc GROUP BY mc.movie_id),\nexact_g2 AS (SELECT ci.movie_id, COUNT(*)::numeric AS n FROM cast_info ci WHERE ci.role_id=2 GROUP BY ci.movie_id),\nexact_g3 AS (SELECT mk.movie_id, COUNT(*)::numeric AS n FROM movie_keyword mk GROUP BY mk.movie_id)\nSELECT COALESCE(SUM(exact_g0.n * exact_g1.n * exact_g2.n * exact_g3.n),0) FROM exact_titles exact_t JOIN exact_g0 ON exact_g0.movie_id=exact_t.id JOIN exact_g1 ON exact_g1.movie_id=exact_t.id JOIN exact_g2 ON exact_g2.movie_id=exact_t.id JOIN exact_g3 ON exact_g3.movie_id=exact_t.id;"
+        }
+      ],
+      "database_stopped": true,
+      "ended_at": "2026-10-27T15:35:20.731706+08:00"
+    }
+  },
+  "note": "Historical records. Wrappers vary sample and seed via environment; see expanded COMMAND lines in logs. Paths use placeholders; no timings or metrics were rewritten."
+}

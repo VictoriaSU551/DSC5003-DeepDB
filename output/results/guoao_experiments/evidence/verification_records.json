@@ -1,0 +1,1652 @@
+{
+  "runs": [
+    {
+      "run_id": "relationship_10000_s1",
+      "historical_verification": {
+        "status": "PASS",
+        "queries": 70,
+        "spns": 5,
+        "replayed_predictions": 70,
+        "samples_per_spn": 10000,
+        "q_error": {
+          "50": 1.9701419161428706,
+          "90": 28.726254050189567,
+          "95": 49.733917169806006,
+          "99": 1432.8470608679995,
+          "100": 2600.613714150832
+        },
+        "q_error_mean": 58.401728436312666,
+        "latency_mean_ms": 7.279968571428539,
+        "latency_median_ms": 5.250999999999895,
+        "model_sha256": "d558364bc9ba4538d66d86bff6a2b430e77b14be60ee1b2cd02f6bb1f262f3cb",
+        "scope": "JOB-light official relationship baseline. Not full paper or optimized RDC reproduction.",
+        "ground_truth": "Official benchmark counts, checked query-by-query; see separate raw-data audit."
+      },
+      "source_path": "DeepDB/output/results/verification_10000.json"
+    },
+    {
+      "run_id": "relationship_100000_s1",
+      "historical_verification": {
+        "status": "PASS",
+        "queries": 70,
+        "spns": 5,
+        "replayed_predictions": 70,
+        "samples_per_spn": 100000,
+        "q_error": {
+          "50": 1.54224081048232,
+          "90": 6.829753757639166,
+          "95": 16.778417764574336,
+          "99": 82.23774629453393,
+          "100": 190.79416547572308
+        },
+        "q_error_mean": 6.426657986971613,
+        "latency_mean_ms": 4.483130000000018,
+        "latency_median_ms": 4.149750000000063,
+        "model_sha256": "1bbc07340e38af01f86553d8692cd4911a0452281521b853df96733513607912",
+        "scope": "JOB-light official relationship baseline. Not full paper or optimized RDC reproduction.",
+        "ground_truth": "Official benchmark counts, checked query-by-query; see separate raw-data audit."
+      },
+      "source_path": "DeepDB/output/results/verification_100000.json"
+    },
+    {
+      "run_id": "relationship_1000000_s1",
+      "historical_verification": {
+        "status": "PASS",
+        "queries": 70,
+        "spns": 5,
+        "replayed_predictions": 70,
+        "samples_per_spn": 1000000,
+        "q_error": {
+          "50": 1.49969942393055,
+          "90": 5.353033995850792,
+          "95": 6.901041544194374,
+          "99": 25.247694453790317,
+          "100": 63.164468780270596
+        },
+        "q_error_mean": 3.339582436333123,
+        "latency_mean_ms": 3.1324914285714383,
+        "latency_median_ms": 2.7165499999999287,
+        "model_sha256": "9cf0e1f9c709837575824bd5cfac73b7550322b48919d06fe9f104699c40d7b2",
+        "scope": "JOB-light official relationship baseline. Not full paper or optimized RDC reproduction.",
+        "ground_truth": "Official benchmark counts, checked query-by-query; see separate raw-data audit."
+      },
+      "source_path": "DeepDB/output/results/verification_1000000.json"
+    },
+    {
+      "run_id": "relationship_10000_s2",
+      "historical_verification": {
+        "status": "PASS",
+        "queries": 70,
+        "spns": 5,
+        "replayed_predictions": 70,
+        "samples_per_spn": 10000,
+        "q_error": {
+          "50": 1.8788495709036974,
+          "90": 12.106370711022668,
+          "95": 32.626847574586876,
+          "99": 237.35138145939476,
+          "100": 344.83527083334883
+        },
+        "q_error_mean": 14.247055860186121,
+        "latency_mean_ms": 9.900819999999987,
+        "latency_median_ms": 8.380600000000182,
+        "model_sha256": "a8d30cfc23e58bbe6e26e6973bc015069b5030d0acd6a55130723fd22921d3cd",
+        "scope": "JOB-light official relationship baseline. Not full paper or optimized RDC reproduction.",
+        "ground_truth": "Official benchmark counts, checked query-by-query; see separate raw-data audit."
+      },
+      "source_path": "DeepDB/output/seed_experiments/seed_2/samples_10000/results/verification_10000.json"
+    },
+    {
+      "run_id": "relationship_100000_s2",
+      "historical_verification": {
+        "status": "PASS",
+        "queries": 70,
+        "spns": 5,
+        "replayed_predictions": 70,
+        "samples_per_spn": 100000,
+        "q_error": {
+          "50": 1.576105167958129,
+          "90": 5.809268128359325,
+          "95": 7.83088764671424,
+          "99": 33.197424595874246,
+          "100": 33.197424595874246
+        },
+        "q_error_mean": 3.447212019985633,
+        "latency_mean_ms": 6.805935714285661,
+        "latency_median_ms": 6.13050000000026,
+        "model_sha256": "89d0ff54c598cf71bc55a98b38ed20df1ca978b356e805b41cf2dede71f150c2",
+        "scope": "JOB-light official relationship baseline. Not full paper or optimized RDC reproduction.",
+        "ground_truth": "Official benchmark counts, checked query-by-query; see separate raw-data audit."
+      },
+      "source_path": "DeepDB/output/seed_experiments/seed_2/samples_100000/results/verification_100000.json"
+    },
+    {
+      "run_id": "relationship_1000000_s2",
+      "historical_verification": {
+        "status": "PASS",
+        "queries": 70,
+        "spns": 5,
+        "replayed_predictions": 70,
+        "samples_per_spn": 1000000,
+        "q_error": {
+          "50": 1.6873803078160408,
+          "90": 5.478596618169578,
+          "95": 6.346784766648831,
+          "99": 30.80174673112764,
+          "100": 33.0
+        },
+        "q_error_mean": 3.242531505894391,
+        "latency_mean_ms": 8.323097142857115,
+        "latency_median_ms": 7.39550000000011,
+        "model_sha256": "8ead06e7b92bcb48a17ac40f9354bb4883a8734a4fab4f1a9241952f993dfd3b",
+        "scope": "JOB-light official relationship baseline. Not full paper or optimized RDC reproduction.",
+        "ground_truth": "Official benchmark counts, checked query-by-query; see separate raw-data audit."
+      },
+      "source_path": "DeepDB/output/seed_experiments/seed_2/samples_1000000/results/verification_1000000.json"
+    },
+    {
+      "run_id": "relationship_10000_s3",
+      "historical_verification": {
+        "status": "PASS",
+        "queries": 70,
+        "spns": 5,
+        "replayed_predictions": 70,
+        "samples_per_spn": 10000,
+        "q_error": {
+          "50": 1.8904315966573877,
+          "90": 32.55864679454271,
+          "95": 151.6677412321555,
+          "99": 1561.64947968597,
+          "100": 3024.5007206094288
+        },
+        "q_error_mean": 70.39370600610125,
+        "latency_mean_ms": 7.074214285714296,
+        "latency_median_ms": 5.946100000000065,
+        "model_sha256": "527f2e2edd751f0b3cfc20ef07b611c736cb14cbc9396011eeafbd007bf72d43",
+        "scope": "JOB-light official relationship baseline. Not full paper or optimized RDC reproduction.",
+        "ground_truth": "Official benchmark counts, checked query-by-query; see separate raw-data audit."
+      },
+      "source_path": "DeepDB/output/seed_experiments/seed_3/samples_10000/results/verification_10000.json"
+    },
+    {
+      "run_id": "relationship_100000_s3",
+      "historical_verification": {
+        "status": "PASS",
+        "queries": 70,
+        "spns": 5,
+        "replayed_predictions": 70,
+        "samples_per_spn": 100000,
+        "q_error": {
+          "50": 1.5513952083647857,
+          "90": 6.491333593708792,
+          "95": 7.475243779538641,
+          "99": 16.165741085481912,
+          "100": 33.0
+        },
+        "q_error_mean": 3.224827559942535,
+        "latency_mean_ms": 7.904305714285712,
+        "latency_median_ms": 7.031349999999881,
+        "model_sha256": "6d18876f7a1ef9253762c05e33f028a79341f099c1d86812c817fbcff255f116",
+        "scope": "JOB-light official relationship baseline. Not full paper or optimized RDC reproduction.",
+        "ground_truth": "Official benchmark counts, checked query-by-query; see separate raw-data audit."
+      },
+      "source_path": "DeepDB/output/seed_experiments/seed_3/samples_100000/results/verification_100000.json"
+    },
+    {
+      "run_id": "relationship_1000000_s3",
+      "historical_verification": {
+        "status": "PASS",
+        "queries": 70,
+        "spns": 5,
+        "replayed_predictions": 70,
+        "samples_per_spn": 1000000,
+        "q_error": {
+          "50": 1.6260785281171493,
+          "90": 5.196848800038017,
+          "95": 6.118604025896598,
+          "99": 32.059602420567714,
+          "100": 33.0
+        },
+        "q_error_mean": 3.155862364964033,
+        "latency_mean_ms": 9.44539857142857,
+        "latency_median_ms": 8.432949999999774,
+        "model_sha256": "4e87a2360e1ab3ff7944f2304597ebcb4ce9fdb646d17d61529169d0f4e4bcc7",
+        "scope": "JOB-light official relationship baseline. Not full paper or optimized RDC reproduction.",
+        "ground_truth": "Official benchmark counts, checked query-by-query; see separate raw-data audit."
+      },
+      "source_path": "DeepDB/output/seed_experiments/seed_3/samples_1000000/results/verification_1000000.json"
+    },
+    {
+      "run_id": "rdc_100000_s1",
+      "historical_verification": {
+        "status": "PASS",
+        "requested_samples_per_spn": 100000,
+        "seed": 1,
+        "queries": 70,
+        "spns": 7,
+        "inventory": [
+          {
+            "tables": [
+              "movie_companies",
+              "movie_info_idx",
+              "title"
+            ],
+            "relationships": [
+              "movie_companies.movie_id = title.id",
+              "movie_info_idx.movie_id = title.id"
+            ],
+            "actual_samples": 100000,
+            "full_join_size": 4073078.0
+          },
+          {
+            "tables": [
+              "movie_companies",
+              "movie_info",
+              "title"
+            ],
+            "relationships": [
+              "movie_companies.movie_id = title.id",
+              "movie_info.movie_id = title.id"
+            ],
+            "actual_samples": 100000,
+            "full_join_size": 67371414.0
+          },
+          {
+            "tables": [
+              "movie_companies",
+              "title"
+            ],
+            "relationships": [
+              "movie_companies.movie_id = title.id"
+            ],
+            "actual_samples": 100000,
+            "full_join_size": 2609129.0
+          },
+          {
+            "tables": [
+              "movie_info",
+              "title"
+            ],
+            "relationships": [
+              "movie_info.movie_id = title.id"
+            ],
+            "actual_samples": 100000,
+            "full_join_size": 14835720.0
+          },
+          {
+            "tables": [
+              "movie_info_idx",
+              "title"
+            ],
+            "relationships": [
+              "movie_info_idx.movie_id = title.id"
+            ],
+            "actual_samples": 100000,
+            "full_join_size": 1380035.0
+          },
+          {
+            "tables": [
+              "movie_keyword"
+            ],
+            "relationships": [],
+            "actual_samples": 100000,
+            "full_join_size": 4523930.0
+          },
+          {
+            "tables": [
+              "cast_info"
+            ],
+            "relationships": [],
+            "actual_samples": 100000,
+            "full_join_size": 36244344.0
+          }
+        ],
+        "metrics": {
+          "relationship": {
+            "median": 1.54224081048232,
+            "p90": 6.829753757639166,
+            "p95": 16.778417764574336,
+            "max": 190.79416547572308,
+            "mean": 6.426657986971613,
+            "mean_latency_ms": 4.483130000000018
+          },
+          "rdc_greedy": {
+            "median": 1.4710150984444477,
+            "p90": 5.029629060477031,
+            "p95": 42.69877265714773,
+            "max": 2386.6428373249005,
+            "mean": 45.8630576293246,
+            "mean_latency_ms": 4.124030000000005
+          },
+          "rdc_selection": {
+            "median": 1.422097549893068,
+            "p90": 3.8293423951000736,
+            "p95": 42.69877265714773,
+            "max": 2386.6428373249005,
+            "mean": 45.66543601136109,
+            "mean_latency_ms": 5.474902857142842
+          }
+        },
+        "rdc_wins": 38,
+        "rdc_losses": 32,
+        "ties": 0,
+        "replay_checks": {
+          "rdc_greedy": "70 saved-model predictions replayed and matched",
+          "rdc_selection": "70 saved-model predictions replayed and matched"
+        },
+        "model_sha256": "f5aefdefcb8b9ee58c90968de3f1325879d76f4cc37f2702a81421c1e0dcdc47",
+        "configuration": {
+          "budget_factor": 5,
+          "max_joins": 3,
+          "rdc_search_samples": 10000,
+          "hdf_sample_size": 10000,
+          "random_candidates": 10000,
+          "learning_threshold": 0.3,
+          "selection_threshold": 0.15
+        },
+        "limitations": [
+          "Single seed; scaled-down training, not paper-scale reproduction",
+          "Same requested samples per SPN, different number of SPNs; total sample and compute budget not equal",
+          "Baseline historical wall-clock training time is not a controlled runtime benchmark",
+          "No SQL execution speedup measured",
+          "All query truth values checked against independent audit (69 original SQL plus 1 equivalent exact count)"
+        ]
+      },
+      "source_path": "DeepDB/output/rdc_experiment_20261027/verification.json"
+    },
+    {
+      "run_id": "rdc_1000000_s1",
+      "historical_verification": {
+        "status": "PASS",
+        "requested_samples_per_spn": 1000000,
+        "seed": 1,
+        "queries": 70,
+        "spns": 7,
+        "inventory": [
+          {
+            "tables": [
+              "movie_companies",
+              "movie_info_idx",
+              "title"
+            ],
+            "relationships": [
+              "movie_companies.movie_id = title.id",
+              "movie_info_idx.movie_id = title.id"
+            ],
+            "actual_samples": 1000000,
+            "full_join_size": 4073078.0
+          },
+          {
+            "tables": [
+              "movie_companies",
+              "movie_info",
+              "title"
+            ],
+            "relationships": [
+              "movie_companies.movie_id = title.id",
+              "movie_info.movie_id = title.id"
+            ],
+            "actual_samples": 1000000,
+            "full_join_size": 67371414.0
+          },
+          {
+            "tables": [
+              "movie_companies",
+              "title"
+            ],
+            "relationships": [
+              "movie_companies.movie_id = title.id"
+            ],
+            "actual_samples": 1000000,
+            "full_join_size": 2609129.0
+          },
+          {
+            "tables": [
+              "movie_info",
+              "title"
+            ],
+            "relationships": [
+              "movie_info.movie_id = title.id"
+            ],
+            "actual_samples": 1000000,
+            "full_join_size": 14835720.0
+          },
+          {
+            "tables": [
+              "movie_info_idx",
+              "title"
+            ],
+            "relationships": [
+              "movie_info_idx.movie_id = title.id"
+            ],
+            "actual_samples": 1000000,
+            "full_join_size": 1380035.0
+          },
+          {
+            "tables": [
+              "movie_keyword"
+            ],
+            "relationships": [],
+            "actual_samples": 1000000,
+            "full_join_size": 4523930.0
+          },
+          {
+            "tables": [
+              "cast_info"
+            ],
+            "relationships": [],
+            "actual_samples": 1000000,
+            "full_join_size": 36244344.0
+          }
+        ],
+        "metrics": {
+          "relationship": {
+            "median": 1.49969942393055,
+            "p90": 5.353033995850792,
+            "p95": 6.901041544194374,
+            "max": 63.164468780270596,
+            "mean": 3.339582436333123,
+            "mean_latency_ms": 3.1324914285714383
+          },
+          "rdc_greedy": {
+            "median": 1.499624543284162,
+            "p90": 5.183866704211131,
+            "p95": 8.410610731325548,
+            "max": 191.96597848522734,
+            "mean": 5.052201742838083,
+            "mean_latency_ms": 2.579077142857145
+          },
+          "rdc_selection": {
+            "median": 1.3846532773834035,
+            "p90": 3.295111868025035,
+            "p95": 6.962957219185815,
+            "max": 191.96597848522734,
+            "mean": 4.760917228212356,
+            "mean_latency_ms": 2.8374685714285826
+          }
+        },
+        "rdc_wins": 42,
+        "rdc_losses": 28,
+        "ties": 0,
+        "replay_checks": {
+          "rdc_greedy": "70 saved-model predictions replayed and matched",
+          "rdc_selection": "70 saved-model predictions replayed and matched"
+        },
+        "model_sha256": "e80caca6a0758be89cb4f61817b65a15be27170e2eb93de9c1f9c2dd0f717082",
+        "configuration": {
+          "budget_factor": 5,
+          "max_joins": 3,
+          "rdc_search_samples": 10000,
+          "hdf_sample_size": 10000,
+          "random_candidates": 10000,
+          "learning_threshold": 0.3,
+          "selection_threshold": 0.15
+        },
+        "limitations": [
+          "Single seed; scaled-down training, not paper-scale reproduction",
+          "Same requested samples per SPN, different number of SPNs; total sample and compute budget not equal",
+          "Baseline historical wall-clock training time is not a controlled runtime benchmark",
+          "No SQL execution speedup measured",
+          "All query truth values checked against independent audit (69 original SQL plus 1 equivalent exact count)"
+        ]
+      },
+      "source_path": "DeepDB/output/rdc_experiment_20261027_1000000/verification.json"
+    },
+    {
+      "run_id": "rdc_1000000_s2",
+      "historical_verification": {
+        "status": "PASS",
+        "requested_samples_per_spn": 1000000,
+        "seed": 2,
+        "queries": 70,
+        "spns": 7,
+        "inventory": [
+          {
+            "tables": [
+              "movie_companies",
+              "movie_info_idx",
+              "title"
+            ],
+            "relationships": [
+              "movie_companies.movie_id = title.id",
+              "movie_info_idx.movie_id = title.id"
+            ],
+            "actual_samples": 1000000,
+            "full_join_size": 4073078.0
+          },
+          {
+            "tables": [
+              "movie_companies",
+              "movie_info",
+              "title"
+            ],
+            "relationships": [
+              "movie_companies.movie_id = title.id",
+              "movie_info.movie_id = title.id"
+            ],
+            "actual_samples": 1000000,
+            "full_join_size": 67371414.0
+          },
+          {
+            "tables": [
+              "movie_companies",
+              "title"
+            ],
+            "relationships": [
+              "movie_companies.movie_id = title.id"
+            ],
+            "actual_samples": 1000000,
+            "full_join_size": 2609129.0
+          },
+          {
+            "tables": [
+              "movie_info",
+              "title"
+            ],
+            "relationships": [
+              "movie_info.movie_id = title.id"
+            ],
+            "actual_samples": 1000000,
+            "full_join_size": 14835720.0
+          },
+          {
+            "tables": [
+              "movie_info_idx"
+            ],
+            "relationships": [],
+            "actual_samples": 1000000,
+            "full_join_size": 1380035.0
+          },
+          {
+            "tables": [
+              "movie_keyword"
+            ],
+            "relationships": [],
+            "actual_samples": 1000000,
+            "full_join_size": 4523930.0
+          },
+          {
+            "tables": [
+              "cast_info"
+            ],
+            "relationships": [],
+            "actual_samples": 1000000,
+            "full_join_size": 36244344.0
+          }
+        ],
+        "metrics": {
+          "relationship": {
+            "median": 1.6873803078160408,
+            "p90": 5.478596618169578,
+            "p95": 6.346784766648831,
+            "max": 33.0,
+            "mean": 3.242531505894391,
+            "mean_latency_ms": 8.323097142857115
+          },
+          "rdc_greedy": {
+            "median": 1.4681640318803222,
+            "p90": 3.669567853467119,
+            "p95": 5.512154821106799,
+            "max": 223.75380601664722,
+            "mean": 5.242068766329908,
+            "mean_latency_ms": 2.855258571428552
+          },
+          "rdc_selection": {
+            "median": 1.4322216084423434,
+            "p90": 3.32604199167098,
+            "p95": 3.823158392192413,
+            "max": 223.75380601664722,
+            "mean": 5.1060219145938675,
+            "mean_latency_ms": 3.853025714285671
+          }
+        },
+        "rdc_wins": 44,
+        "rdc_losses": 26,
+        "ties": 0,
+        "replay_checks": {
+          "rdc_greedy": "70 saved-model predictions replayed and matched",
+          "rdc_selection": "70 saved-model predictions replayed and matched"
+        },
+        "model_sha256": "86e921defc3869a6e91a6e962d985bac38b4972cbea32c7c0d121aedc0a3225d",
+        "configuration": {
+          "budget_factor": 5,
+          "max_joins": 3,
+          "rdc_search_samples": 10000,
+          "hdf_sample_size": 10000,
+          "random_candidates": 10000,
+          "learning_threshold": 0.3,
+          "selection_threshold": 0.15,
+          "training_and_search_seed": 2,
+          "evaluation_seed": 1,
+          "fixed_pre_sample_seed": 1,
+          "python_hash_seed": 1
+        },
+        "limitations": [
+          "Per-run results require joint seed summary; scaled-down training, not paper-scale reproduction",
+          "Same requested samples per SPN, different number of SPNs; total sample and compute budget not equal",
+          "Baseline historical wall-clock training time is not a controlled runtime benchmark",
+          "No SQL execution speedup measured",
+          "All query truth values checked against independent audit (69 original SQL plus 1 equivalent exact count)"
+        ]
+      },
+      "source_path": "DeepDB/output/rdc_seed_experiments/seed_2/samples_1000000/verification.json"
+    },
+    {
+      "run_id": "rdc_1000000_s3",
+      "historical_verification": {
+        "status": "PASS",
+        "requested_samples_per_spn": 1000000,
+        "seed": 3,
+        "queries": 70,
+        "spns": 7,
+        "inventory": [
+          {
+            "tables": [
+              "movie_companies",
+              "movie_info",
+              "movie_info_idx",
+              "title"
+            ],
+            "relationships": [
+              "movie_companies.movie_id = title.id",
+              "movie_info.movie_id = title.id",
+              "movie_info_idx.movie_id = title.id"
+            ],
+            "actual_samples": 1000000,
+            "full_join_size": 177388547.0
+          },
+          {
+            "tables": [
+              "movie_companies",
+              "movie_info",
+              "title"
+            ],
+            "relationships": [
+              "movie_companies.movie_id = title.id",
+              "movie_info.movie_id = title.id"
+            ],
+            "actual_samples": 1000000,
+            "full_join_size": 67371414.0
+          },
+          {
+            "tables": [
+              "movie_info",
+              "title"
+            ],
+            "relationships": [
+              "movie_info.movie_id = title.id"
+            ],
+            "actual_samples": 1000000,
+            "full_join_size": 14835720.0
+          },
+          {
+            "tables": [
+              "movie_companies",
+              "title"
+            ],
+            "relationships": [
+              "movie_companies.movie_id = title.id"
+            ],
+            "actual_samples": 1000000,
+            "full_join_size": 2609129.0
+          },
+          {
+            "tables": [
+              "movie_info_idx"
+            ],
+            "relationships": [],
+            "actual_samples": 1000000,
+            "full_join_size": 1380035.0
+          },
+          {
+            "tables": [
+              "movie_keyword"
+            ],
+            "relationships": [],
+            "actual_samples": 1000000,
+            "full_join_size": 4523930.0
+          },
+          {
+            "tables": [
+              "cast_info"
+            ],
+            "relationships": [],
+            "actual_samples": 1000000,
+            "full_join_size": 36244344.0
+          }
+        ],
+        "metrics": {
+          "relationship": {
+            "median": 1.6260785281171493,
+            "p90": 5.196848800038017,
+            "p95": 6.118604025896598,
+            "max": 33.0,
+            "mean": 3.155862364964033,
+            "mean_latency_ms": 9.44539857142857
+          },
+          "rdc_greedy": {
+            "median": 1.4445876107484228,
+            "p90": 3.6780537468170147,
+            "p95": 8.699902948595703,
+            "max": 664.0055608028099,
+            "mean": 11.862877701822915,
+            "mean_latency_ms": 3.007881428571453
+          },
+          "rdc_selection": {
+            "median": 1.4445876107484228,
+            "p90": 3.6780537468170147,
+            "p95": 8.699902948595703,
+            "max": 664.0055608028099,
+            "mean": 11.862877701822915,
+            "mean_latency_ms": 3.618752857142831
+          }
+        },
+        "rdc_wins": 42,
+        "rdc_losses": 28,
+        "ties": 0,
+        "replay_checks": {
+          "rdc_greedy": "70 saved-model predictions replayed and matched",
+          "rdc_selection": "70 saved-model predictions replayed and matched"
+        },
+        "model_sha256": "f540835068e3be515b6923afb7730fe680f3a2d76408fd93e794cdcf7f42b27e",
+        "configuration": {
+          "budget_factor": 5,
+          "max_joins": 3,
+          "rdc_search_samples": 10000,
+          "hdf_sample_size": 10000,
+          "random_candidates": 10000,
+          "learning_threshold": 0.3,
+          "selection_threshold": 0.15,
+          "training_and_search_seed": 3,
+          "evaluation_seed": 1,
+          "fixed_pre_sample_seed": 1,
+          "python_hash_seed": 1
+        },
+        "limitations": [
+          "Per-run results require joint seed summary; scaled-down training, not paper-scale reproduction",
+          "Same requested samples per SPN, different number of SPNs; total sample and compute budget not equal",
+          "Baseline historical wall-clock training time is not a controlled runtime benchmark",
+          "No SQL execution speedup measured",
+          "All query truth values checked against independent audit (69 original SQL plus 1 equivalent exact count)"
+        ]
+      },
+      "source_path": "DeepDB/output/rdc_seed_experiments/seed_3/samples_1000000/verification.json"
+    },
+    {
+      "run_id": "postgresql",
+      "historical_verification": {
+        "status": "PASS",
+        "queries": 70,
+        "matched_deepdb_runs": 9,
+        "postgres_q_error": {
+          "50": 8.68741204687915,
+          "95": 842.784562789362,
+          "100": 3606.4054054054054
+        },
+        "deepdb": [
+          {
+            "seed": 1,
+            "samples": 10000,
+            "q": [
+              908.1982746104895,
+              10.958214040050851,
+              53.70850197356237,
+              19.25226695791691,
+              2.0006063983075935,
+              1.4286815032931401,
+              2.4286965431068808,
+              1.3730335609668067,
+              1.05055258194929,
+              1.497367807572782,
+              1.0392423769219552,
+              1.456575195523751,
+              1.6104607660236891,
+              1.3843296920761727,
+              32.47752576444241,
+              2600.613714150832,
+              1.1420484848484849,
+              32.47752576444241,
+              1.2409797733556303,
+              1.0203971110625552,
+              1.0726388693007824,
+              1.0290060323588346,
+              1.099814267866505,
+              1.0181109914520996,
+              1.0839742763479676,
+              1.2366737515672628,
+              1.2720619628096062,
+              1.262212876278068,
+              1.1479913747982056,
+              1.056116135884115,
+              2.7348169662498054,
+              3.418419109842777,
+              1.061128364868822,
+              2.1103741156581295,
+              204.0425180858382,
+              2.1023154660921706,
+              1.343077406765337,
+              3.023021432571452,
+              6.3576726544697575,
+              3.4839496307405042,
+              1.9396774339781477,
+              1.5038001434527224,
+              1.7437392638825617,
+              3.329409476303216,
+              1.3105607753025945,
+              1.917992722788349,
+              1.8032568382884666,
+              2.41373119466802,
+              2.0980697315292294,
+              2.481375615762745,
+              1.152543527776117,
+              1.212455122154405,
+              6.992152556575925,
+              10.3987914049431,
+              9.350874101770508,
+              3.409026156979491,
+              3.917990663831333,
+              8.366345075611815,
+              4.909865896118604,
+              4.771749269634187,
+              2.727392373266807,
+              1.5866153877919604,
+              1.700854683829012,
+              1.8254889570323796,
+              28.309446081939246,
+              3.436932971072078,
+              2.875750966722879,
+              44.87609129854826,
+              6.843925185071561,
+              1.600196836755442
+            ],
+            "q_error": {
+              "50": 1.9701419161428706,
+              "95": 49.733917169806,
+              "100": 2600.613714150832
+            },
+            "deepdb_better": 59,
+            "postgres_better": 11,
+            "ties": 0,
+            "deepdb_latency_ms_mean": 7.279968571428539
+          },
+          {
+            "seed": 1,
+            "samples": 100000,
+            "q": [
+              2.972377061390292,
+              10.968298115140852,
+              2.216223552902977,
+              19.131330421697196,
+              2.0570276623013974,
+              1.0315687883163336,
+              1.0069961954065116,
+              1.0110412147632388,
+              1.0302828317180535,
+              1.4149843325870748,
+              1.1102566684780255,
+              1.5565283725918595,
+              1.6215483768943775,
+              1.4802197530683094,
+              33.46602173486872,
+              3.4677789783054767,
+              1.1083154545454548,
+              33.46602173486872,
+              1.0138368841071377,
+              1.0035743415205565,
+              1.0026848223292826,
+              1.0090932928253318,
+              1.1679702547161916,
+              1.1578851977763738,
+              1.4830615693590927,
+              1.21612459068483,
+              1.402231812511128,
+              1.195822421956463,
+              1.21060203334253,
+              1.0261005862578618,
+              2.048007647761553,
+              2.514591828341075,
+              1.010776270287235,
+              3.0793942881931153,
+              190.79416547572308,
+              2.543720564668738,
+              1.5180235956543944,
+              6.962470692916929,
+              5.447940368199684,
+              4.683760317152398,
+              1.5279532483727807,
+              1.7550182212114522,
+              1.3243951408927859,
+              3.411793393870513,
+              1.4460591727560854,
+              1.936978587623858,
+              2.0074896654798216,
+              1.1139262028037935,
+              1.3124912699534554,
+              1.0068582001088804,
+              1.047955619078334,
+              1.0022526575841184,
+              5.344719374315382,
+              6.815007431497192,
+              6.039950944805524,
+              4.6166151076821,
+              6.144102019223666,
+              2.1983449047538883,
+              13.902635628090872,
+              1.0386179719315238,
+              4.089343183137562,
+              3.2986196223113757,
+              1.3928333803965094,
+              1.4631122168567718,
+              3.742961370548569,
+              5.2989381850071995,
+              5.160616558829898,
+              1.4263205812472135,
+              1.1739582969668352,
+              3.2175308245450918
+            ],
+            "q_error": {
+              "50": 1.54224081048232,
+              "95": 16.778417764574336,
+              "100": 190.79416547572308
+            },
+            "deepdb_better": 63,
+            "postgres_better": 7,
+            "ties": 0,
+            "deepdb_latency_ms_mean": 4.483130000000018
+          },
+          {
+            "seed": 1,
+            "samples": 1000000,
+            "q": [
+              3.5276894193902244,
+              1.0341920203831416,
+              2.591366268537283,
+              1.6656129220064382,
+              2.1426234150355548,
+              1.0193425698910004,
+              1.3105155283812366,
+              1.0153905227733508,
+              1.041672030980651,
+              1.4380087363864797,
+              1.125336977109333,
+              1.494010784048846,
+              1.6181962399928946,
+              1.4389516952142427,
+              63.164468780270596,
+              4.903442043901496,
+              1.111078121212121,
+              8.212621930298996,
+              1.0323820818233838,
+              1.001889021395977,
+              1.0177049371284892,
+              1.0024097263122136,
+              1.148794881241855,
+              1.1628860081758103,
+              1.3746723736164734,
+              1.2056734734922612,
+              1.1989530008436182,
+              1.2096266383338894,
+              1.2281909551311125,
+              1.019934128056515,
+              2.2401073546884858,
+              2.877622317655772,
+              1.001480603288871,
+              2.5995937764374557,
+              1.5053880638122539,
+              2.7222709204092785,
+              1.9971677350038077,
+              5.329386991078322,
+              4.608508494535615,
+              4.51839680825177,
+              1.5125272257105744,
+              1.6836715761677767,
+              1.2659069770553761,
+              3.603511841151324,
+              1.4781827061093364,
+              2.055531998476058,
+              2.0610234460115056,
+              1.082723262558476,
+              1.3498008305747418,
+              1.0742531824931973,
+              1.0035068029260297,
+              1.0087950666098462,
+              6.102245374090863,
+              7.73086191091812,
+              6.901324539125228,
+              4.8045449379345655,
+              5.336920572562277,
+              1.0111547565166963,
+              4.6326202512497,
+              1.0906305569739467,
+              4.221644411710324,
+              3.4507606027669904,
+              1.4135120416494218,
+              1.567683107803244,
+              6.900695661501107,
+              5.498054805447425,
+              4.963744004832452,
+              1.3355967078203264,
+              1.2573410190941676,
+              3.5144400689504156
+            ],
+            "q_error": {
+              "50": 1.49969942393055,
+              "95": 6.901041544194374,
+              "100": 63.164468780270596
+            },
+            "deepdb_better": 66,
+            "postgres_better": 4,
+            "ties": 0,
+            "deepdb_latency_ms_mean": 3.1324914285714383
+          },
+          {
+            "seed": 2,
+            "samples": 10000,
+            "q": [
+              5.04013336176749,
+              11.138413975757647,
+              5.599841483962343,
+              19.19782877930334,
+              1.7974378736718737,
+              1.1111973963603285,
+              2.4091754630061435,
+              1.31175469067257,
+              1.086867992577222,
+              1.4043319832222163,
+              1.2314996103514537,
+              1.4548999337445936,
+              1.4896359266287424,
+              1.35165256132935,
+              32.318794276616146,
+              1.5832025652172497,
+              1.1476575757575755,
+              32.318794276616146,
+              1.521376180219262,
+              1.023408902021444,
+              1.047141568132904,
+              1.0245092067526602,
+              1.1093749242708717,
+              1.119856933513752,
+              1.691158094158049,
+              1.0046604412246762,
+              1.2884389716814884,
+              1.0437270610933358,
+              1.2886201853905113,
+              1.0570302774021014,
+              2.83273273585434,
+              3.1823041407057038,
+              1.0917999450658884,
+              1.7088857035455438,
+              189.06151811747284,
+              2.557280860318894,
+              1.1080372700113998,
+              5.756659126531634,
+              4.107072071172836,
+              3.849556021928494,
+              2.0093331233267215,
+              2.280847133475021,
+              1.9602612681355205,
+              3.4469127065482468,
+              1.6239827724792362,
+              2.0156767678141967,
+              2.140752455563578,
+              1.650635429116579,
+              1.3347038858697586,
+              1.3018590023042578,
+              1.0544225050749327,
+              1.4740504745113279,
+              8.816911586092248,
+              9.01173429463026,
+              8.674982636026467,
+              5.20591476257757,
+              6.255192916526477,
+              3.569688787492334,
+              11.318430925658138,
+              1.0180094274217013,
+              4.417181596860003,
+              4.228417156764056,
+              1.2893815394560058,
+              1.5057577033384657,
+              32.878891182017476,
+              4.897275366579421,
+              4.07988866844733,
+              344.83527083334883,
+              166.29476381130218,
+              4.234511029239137
+            ],
+            "q_error": {
+              "50": 1.878849570903697,
+              "95": 32.626847574586876,
+              "100": 344.83527083334883
+            },
+            "deepdb_better": 64,
+            "postgres_better": 6,
+            "ties": 0,
+            "deepdb_latency_ms_mean": 9.900819999999985
+          },
+          {
+            "seed": 2,
+            "samples": 100000,
+            "q": [
+              2.4237221772278343,
+              5.112237531622254,
+              1.2329079970492443,
+              7.881676377905368,
+              2.0635867174391804,
+              1.1411646927249246,
+              1.230292067713774,
+              1.0354557661177801,
+              1.0153996568748254,
+              1.3831514831042757,
+              1.0945960577563056,
+              1.4962836525827858,
+              1.6462856969938164,
+              1.4583743752145408,
+              33.19742459587424,
+              4.023336822320969,
+              1.1172827272727273,
+              33.19742459587424,
+              1.1657898159603655,
+              1.0149135612690763,
+              1.0061761958347875,
+              1.0057285530221216,
+              1.1821896564347334,
+              1.1801675250929222,
+              1.2827133552005228,
+              1.2052745796450308,
+              1.171725289886957,
+              1.1810635147049835,
+              1.2510388899898863,
+              1.020203774721076,
+              2.2766303502455014,
+              2.8580767576324733,
+              1.0257235947294345,
+              2.8969640634206413,
+              1.8195249778390195,
+              2.6120308689368583,
+              1.1483417588707663,
+              3.9992741154979106,
+              3.5181763138278654,
+              4.4310826334836255,
+              1.218965584165756,
+              1.2391287236884974,
+              1.1633820700895294,
+              3.5117393570358804,
+              1.3851138300513188,
+              1.9625683620100929,
+              2.0316059310638463,
+              1.4201815121033339,
+              1.5059246389224417,
+              1.3491276560106258,
+              1.0724395991174889,
+              1.1596106628590328,
+              7.107834969244913,
+              7.768812530813972,
+              7.440957617368064,
+              3.785605783144189,
+              4.18781961427056,
+              1.108139890984597,
+              5.664982923816478,
+              1.4675647304713442,
+              4.0828889395471535,
+              2.7221538529479234,
+              1.7297804167425073,
+              1.7911444121194875,
+              12.536670205198327,
+              5.058352957054241,
+              4.669916115885507,
+              2.1042450288931236,
+              3.826668476994186,
+              3.228101868464186
+            ],
+            "q_error": {
+              "50": 1.576105167958129,
+              "95": 7.83088764671424,
+              "100": 33.19742459587424
+            },
+            "deepdb_better": 67,
+            "postgres_better": 3,
+            "ties": 0,
+            "deepdb_latency_ms_mean": 6.805935714285661
+          },
+          {
+            "seed": 2,
+            "samples": 1000000,
+            "q": [
+              3.2171502008902695,
+              1.8499014666802358,
+              2.2575194112527504,
+              2.9205292546284594,
+              2.1727315244132597,
+              1.069078227774049,
+              1.1158983641175038,
+              1.026554954189534,
+              1.0511349642215577,
+              1.3983900794339879,
+              1.127126895769149,
+              1.541058519677418,
+              1.7404269180029115,
+              1.4507356855629046,
+              29.814125697286432,
+              1.3919271226489442,
+              33.0,
+              3.975550205919636,
+              1.1390325248426174,
+              1.0028124885681022,
+              1.0091505912122742,
+              1.0023982667930669,
+              1.1542057061031077,
+              1.143403054634969,
+              1.2713772922583448,
+              1.3548640084760595,
+              1.2831398320632292,
+              1.3410746420001998,
+              1.4440302885558212,
+              1.0563970168626537,
+              2.1466010039148284,
+              2.8257783551920537,
+              1.0039360371267627,
+              2.6198703290889935,
+              1.8081048421822692,
+              2.6181853839516482,
+              1.8417999038603372,
+              5.774117643897272,
+              4.881689583963134,
+              4.542838315427487,
+              1.7110853897659362,
+              1.9059496741587005,
+              1.3819272508073988,
+              3.6674546454174757,
+              1.4648320012942277,
+              2.0619650339605196,
+              2.0744296216709937,
+              1.0764438628362683,
+              1.2919617694722771,
+              1.079200516381583,
+              1.304825039564932,
+              1.1894222731681992,
+              5.628524382723877,
+              7.333747148364931,
+              6.449997042149408,
+              4.759341269272173,
+              5.461937977663544,
+              1.5659657086464678,
+              5.075976659039515,
+              1.1437521817617773,
+              4.235267306842722,
+              3.3501630871063455,
+              1.3130310533985285,
+              1.4177842972732364,
+              6.220636429925905,
+              5.3615087417143386,
+              4.892356213296407,
+              1.6636752258661456,
+              1.0955016431529747,
+              3.413895362466326
+            ],
+            "q_error": {
+              "50": 1.6873803078160408,
+              "95": 6.346784766648831,
+              "100": 33.0
+            },
+            "deepdb_better": 65,
+            "postgres_better": 5,
+            "ties": 0,
+            "deepdb_latency_ms_mean": 8.323097142857115
+          },
+          {
+            "seed": 3,
+            "samples": 10000,
+            "q": [
+              904.4264584015104,
+              11.132970958820296,
+              53.5368508419525,
+              19.206913681883726,
+              2.0062316702207097,
+              1.0319274115651538,
+              2.35291390357339,
+              1.0094308505526024,
+              1.0051319611573593,
+              1.679568069437354,
+              1.0067331198127687,
+              1.422972844409578,
+              1.3561546558061977,
+              1.304993864316509,
+              32.55864679454272,
+              3024.500720609428,
+              1.13920303030303,
+              32.55864679454271,
+              1.5599445247026,
+              1.0025266589566373,
+              1.1097427492160563,
+              1.0059976859048825,
+              1.2029639656610318,
+              1.1976336032792263,
+              1.3749075567448552,
+              1.2834923124669673,
+              1.0597059407131624,
+              1.0735787890782966,
+              1.4228529118512243,
+              1.1054987595022616,
+              2.5270363955955326,
+              3.136731680620821,
+              1.0872851181708676,
+              4.105473751947101,
+              173.66985159924522,
+              3.749054127134628,
+              1.897082228202826,
+              7.816115722983652,
+              4.1705086762702015,
+              6.040420424453216,
+              1.6379111475490014,
+              2.482868308882559,
+              1.403791146712497,
+              3.5970933459556327,
+              1.344617638817425,
+              1.7618807272052612,
+              1.8837809651119493,
+              1.4925350943747142,
+              1.2353041921276124,
+              1.0530399472482013,
+              1.4194824228496679,
+              1.659229619825706,
+              9.438619181148939,
+              9.916513902223612,
+              9.676021253618135,
+              5.63620635508671,
+              8.645386606541416,
+              5.884946988429949,
+              6.773673672732145,
+              1.2650014538636474,
+              4.201388340221099,
+              4.686658101647357,
+              1.6072997657653818,
+              1.806189235486235,
+              3.216803671498154,
+              9.688592203001324,
+              8.526556639111483,
+              371.3816784306178,
+              124.77627300571281,
+              3.6252024171827264
+            ],
+            "q_error": {
+              "50": 1.8904315966573875,
+              "95": 151.6677412321555,
+              "100": 3024.500720609428
+            },
+            "deepdb_better": 60,
+            "postgres_better": 10,
+            "ties": 0,
+            "deepdb_latency_ms_mean": 7.074214285714296
+          },
+          {
+            "seed": 3,
+            "samples": 100000,
+            "q": [
+              3.782907144561728,
+              4.8890501302233815,
+              3.9713446792477893,
+              7.528082772343546,
+              2.115087440338289,
+              1.0767438861987861,
+              1.5548786466334252,
+              1.0713132416935138,
+              1.0350011303989781,
+              1.545978744834186,
+              1.0668254243308062,
+              1.547911770096146,
+              1.6760333292269831,
+              1.4604896723789895,
+              6.010449482315197,
+              7.242631261951529,
+              33.0,
+              1.1101588803839306,
+              1.2494363749165731,
+              1.014365108904563,
+              1.035920103908614,
+              1.002651212322684,
+              1.102176274189127,
+              1.0671485008117456,
+              1.426217673708072,
+              1.136151328504999,
+              1.1582706163908252,
+              1.1158537543297053,
+              1.1926764963908985,
+              1.0909088740783661,
+              2.0512161112286487,
+              2.5555476428553274,
+              1.0202085452882261,
+              2.8544913697889105,
+              1.530153757083016,
+              2.9872193322406178,
+              1.6117509627943207,
+              8.602523312292547,
+              5.573418189231905,
+              5.583403184787975,
+              1.2602360884184491,
+              1.5182379885335318,
+              1.1085394909202229,
+              3.664518922236451,
+              1.542453162114293,
+              2.352912798642151,
+              2.078427977510184,
+              1.0575025760462708,
+              1.388340139545796,
+              1.106605470514326,
+              1.244265367056586,
+              1.3695064117310458,
+              5.83322753094022,
+              5.21497888268629,
+              5.56038120021721,
+              7.410662788332647,
+              8.078048642972703,
+              2.21789870169322,
+              4.5455693205433505,
+              1.3749262654098753,
+              4.2542633791795765,
+              4.246293057504408,
+              1.210581797255372,
+              1.2545139758225015,
+              5.065217374779468,
+              6.524653322781888,
+              6.487631401589559,
+              1.9626980936016898,
+              1.4293970646025238,
+              3.728843639590755
+            ],
+            "q_error": {
+              "50": 1.5513952083647857,
+              "95": 7.475243779538641,
+              "100": 33.0
+            },
+            "deepdb_better": 66,
+            "postgres_better": 4,
+            "ties": 0,
+            "deepdb_latency_ms_mean": 7.904305714285712
+          },
+          {
+            "seed": 3,
+            "samples": 1000000,
+            "q": [
+              3.1630149719707537,
+              1.0515330456564242,
+              2.1767202444551725,
+              1.621129515518639,
+              2.130878951353791,
+              1.025586163455905,
+              1.291882432635461,
+              1.0169079297077972,
+              1.0274928415429179,
+              1.4469447845955814,
+              1.1005130748017833,
+              1.5112733873171067,
+              1.6539966552009584,
+              1.445328822436325,
+              31.637104957344505,
+              1.0674461044008217,
+              33.0,
+              4.573548847597642,
+              1.0853970935183912,
+              1.001702589037762,
+              1.0017577763886762,
+              1.0026804074267255,
+              1.1498656915293628,
+              1.1549713411529028,
+              1.3286098769893475,
+              1.3493715940081261,
+              1.280646773935931,
+              1.334006996667432,
+              1.4355762727810057,
+              1.0465096030672105,
+              2.3575307268535743,
+              2.9190722013070913,
+              1.0273705280322798,
+              2.6068592177524805,
+              2.0784801187241184,
+              2.7028253404514984,
+              1.329196384297656,
+              3.9647432294616287,
+              3.279196591397716,
+              4.484015059750856,
+              1.6310275407156594,
+              1.9164054615561203,
+              1.3153077262296662,
+              3.479735901778622,
+              1.4845051822331288,
+              2.0542766085788124,
+              2.0429619381973523,
+              1.1416880794405273,
+              1.2927528170022398,
+              1.0693355763611863,
+              1.033536967851419,
+              1.073797762275798,
+              6.614480311423721,
+              5.899063960333037,
+              6.298227715903152,
+              4.644915369201573,
+              5.180598331003636,
+              1.3603191311182248,
+              4.366002019928639,
+              1.1089174888041249,
+              4.045321397702594,
+              3.1419116580918875,
+              1.8689837746036555,
+              1.9995309374150936,
+              5.745879680564534,
+              5.343103021347445,
+              4.8138890478139755,
+              1.7423473717763418,
+              1.1066099246675185,
+              3.233244699039288
+            ],
+            "q_error": {
+              "50": 1.6260785281171493,
+              "95": 6.118604025896599,
+              "100": 33.0
+            },
+            "deepdb_better": 64,
+            "postgres_better": 6,
+            "ties": 0,
+            "deepdb_latency_ms_mean": 9.445398571428568
+          }
+        ],
+        "checks": [
+          "70 ordered SQL strings and truths match across all methods",
+          "PostgreSQL estimate taken below COUNT aggregate, never rows=1",
+          "Saved plans and q-error recomputed independently",
+          "All nine DeepDB runs previously passed reload verification"
+        ],
+        "scope": "Official truth, no independent recomputation of all workload answers; baseline accuracy only",
+        "timing_limit": "PostgreSQL planning and client EXPLAIN time differ from DeepDB Python estimator latency; no direct speedup claim."
+      }
+    },
+    {
+      "run_id": "truth_audit",
+      "historical_verification": {
+        "status": "PASS",
+        "executed": 70,
+        "matched": 70,
+        "mismatched": 0,
+        "unresolved": [],
+        "checks": [
+          "All 70 original SQL strings and ordered IDs match reference",
+          "Actual database counts equal reference counts",
+          "All differences zero",
+          "CSV counts match saved execution-attempt log",
+          "Audit script SHA256 matches recorded source",
+          "Equivalent grouped SQL matches four original-SQL execution results",
+          "Prior-run scripts match recorded source hashes"
+        ],
+        "original_sql_successes": 69,
+        "factorized_exact_sql_successes": 1,
+        "factorized_query_ids": [
+          59
+        ],
+        "actual_source": "69 direct original SQL executions; query 59 by exact multiplicity aggregation over the same base tables",
+        "attempts_recorded": 76,
+        "timeout_attempts": 3,
+        "run_seconds": 54.479849900000005,
+        "cumulative_active_run_seconds": 1834.9993621,
+        "large_retry_query_ids": [
+          59
+        ],
+        "error_attempts": 3,
+        "successful_count_seconds_total": 757.0202370000001,
+        "median_query_seconds": 5.3623855,
+        "max_query_seconds": 97.865735,
+        "slowest_query_no": 57,
+        "truth_counts_sha256": "cf7dadc7a71685aba585d7d7c2e6e4470fa582be29f45a9422bea401425adacb",
+        "attempts_sha256": "a2abacd3da2ef0c758e19e5c0350ae640cc5cd2e23b976b5316082c8b47c6c13",
+        "query_sha256": "e61da91710ce62d3669be70a8ded2499c6de1d759fcfac9a954b939465e76fdb",
+        "official_truth_sha256": "87e66a3a5977d38a5e32db43451f7213776d1046f57ea2f85da854c04ba79acc",
+        "scope": "Independent local SQL recomputation on the same imported data; 69 raw SQL plus 1 equivalent exact grouped SQL, not 70 direct original-SQL successes."
+      }
+    }
+  ],
+  "truth_factorized_cross_checks": [
+    {
+      "query_no": 0,
+      "original_count": 715,
+      "grouped_count": 715,
+      "seconds": 0.8559825000000032,
+      "original_sql": "SELECT COUNT(*) FROM movie_companies mc,title t,movie_info_idx mi_idx WHERE t.id=mc.movie_id AND t.id=mi_idx.movie_id AND mi_idx.info_type_id=112 AND mc.company_type_id=2;",
+      "executed_sql": "WITH exact_titles AS (SELECT t.id FROM title t),\nexact_g0 AS (SELECT mc.movie_id, COUNT(*)::numeric AS n FROM movie_companies mc WHERE mc.company_type_id=2 GROUP BY mc.movie_id),\nexact_g1 AS (SELECT mi_idx.movie_id, COUNT(*)::numeric AS n FROM movie_info_idx mi_idx WHERE mi_idx.info_type_id=112 GROUP BY mi_idx.movie_id)\nSELECT COALESCE(SUM(exact_g0.n * exact_g1.n),0) FROM exact_titles exact_t JOIN exact_g0 ON exact_g0.movie_id=exact_t.id JOIN exact_g1 ON exact_g1.movie_id=exact_t.id;"
+    },
+    {
+      "query_no": 14,
+      "original_count": 1224,
+      "grouped_count": 1224,
+      "seconds": 11.430726700000001,
+      "original_sql": "SELECT COUNT(*) FROM movie_keyword mk,title t,cast_info ci WHERE t.id=mk.movie_id AND t.id=ci.movie_id AND t.production_year>2010 AND mk.keyword_id=8200;",
+      "executed_sql": "WITH exact_titles AS (SELECT t.id FROM title t WHERE t.production_year>2010),\nexact_g0 AS (SELECT mk.movie_id, COUNT(*)::numeric AS n FROM movie_keyword mk WHERE mk.keyword_id=8200 GROUP BY mk.movie_id),\nexact_g1 AS (SELECT ci.movie_id, COUNT(*)::numeric AS n FROM cast_info ci GROUP BY ci.movie_id)\nSELECT COALESCE(SUM(exact_g0.n * exact_g1.n),0) FROM exact_titles exact_t JOIN exact_g0 ON exact_g0.movie_id=exact_t.id JOIN exact_g1 ON exact_g1.movie_id=exact_t.id;"
+    },
+    {
+      "query_no": 34,
+      "original_count": 72,
+      "grouped_count": 72,
+      "seconds": 1.4680678,
+      "original_sql": "SELECT COUNT(*) FROM title t,movie_info mi,movie_info_idx mi_idx,movie_companies mc WHERE t.id=mi.movie_id AND t.id=mi_idx.movie_id AND t.id=mc.movie_id AND mi_idx.info_type_id=113 AND mi.info_type_id=105;",
+      "executed_sql": "WITH exact_titles AS (SELECT t.id FROM title t),\nexact_g0 AS (SELECT mi.movie_id, COUNT(*)::numeric AS n FROM movie_info mi WHERE mi.info_type_id=105 GROUP BY mi.movie_id),\nexact_g1 AS (SELECT mi_idx.movie_id, COUNT(*)::numeric AS n FROM movie_info_idx mi_idx WHERE mi_idx.info_type_id=113 GROUP BY mi_idx.movie_id),\nexact_g2 AS (SELECT mc.movie_id, COUNT(*)::numeric AS n FROM movie_companies mc GROUP BY mc.movie_id)\nSELECT COALESCE(SUM(exact_g0.n * exact_g1.n * exact_g2.n),0) FROM exact_titles exact_t JOIN exact_g0 ON exact_g0.movie_id=exact_t.id JOIN exact_g1 ON exact_g1.movie_id=exact_t.id JOIN exact_g2 ON exact_g2.movie_id=exact_t.id;"
+    },
+    {
+      "query_no": 57,
+      "original_count": 1352809555,
+      "grouped_count": 1352809555,
+      "seconds": 10.611466900000003,
+      "original_sql": "SELECT COUNT(*) FROM title t,movie_info mi,movie_companies mc,cast_info ci,movie_keyword mk WHERE t.id=mi.movie_id AND t.id=mc.movie_id AND t.id=ci.movie_id AND t.id=mk.movie_id AND ci.role_id=2 AND mi.info_type_id=16 AND t.production_year>2010;",
+      "executed_sql": "WITH exact_titles AS (SELECT t.id FROM title t WHERE t.production_year>2010),\nexact_g0 AS (SELECT mi.movie_id, COUNT(*)::numeric AS n FROM movie_info mi WHERE mi.info_type_id=16 GROUP BY mi.movie_id),\nexact_g1 AS (SELECT mc.movie_id, COUNT(*)::numeric AS n FROM movie_companies mc GROUP BY mc.movie_id),\nexact_g2 AS (SELECT ci.movie_id, COUNT(*)::numeric AS n FROM cast_info ci WHERE ci.role_id=2 GROUP BY ci.movie_id),\nexact_g3 AS (SELECT mk.movie_id, COUNT(*)::numeric AS n FROM movie_keyword mk GROUP BY mk.movie_id)\nSELECT COALESCE(SUM(exact_g0.n * exact_g1.n * exact_g2.n * exact_g3.n),0) FROM exact_titles exact_t JOIN exact_g0 ON exact_g0.movie_id=exact_t.id JOIN exact_g1 ON exact_g1.movie_id=exact_t.id JOIN exact_g2 ON exact_g2.movie_id=exact_t.id JOIN exact_g3 ON exact_g3.movie_id=exact_t.id;"
+    }
+  ],
+  "historical_source_compatibility": {
+    "upstream_commit": "655ada13a043a4226a239b0c0a65bcdefef87a02",
+    "compatibility_patch_reverse_check": "PASS",
+    "regression_tests": 4,
+    "unchanged_upstream_files": 148,
+    "modified_algorithm_files": [
+      "data_preparation/prepare_single_tables.py",
+      "maqp.py",
+      "rspn/learning/structure_learning.py"
+    ],
+    "removed_hdf_model_replay": "PASS"
+  }
+}
