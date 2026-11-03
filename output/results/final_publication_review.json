@@ -58,5 +58,71 @@
   "schema": "deepdb_static_publication_review_v1",
   "scientific_execution_by_reviewer": false,
   "scope": "Tracked public source/results diff vs10770d75a22319938dbbb53fe855ae6b6d29e5bd. No ignoredrawdata/runtime inspection, scientific correctness or operational acceptance claim.",
-  "status": "PASS_BOUNDED_STATIC_REVIEW_AFTER_BYTE_REPAIRS"
+  "status": "PASS_BOUNDED_STATIC_REVIEW_AFTER_BYTE_REPAIRS",
+  "updated_at_utc": "2026-11-03T15:23:13.7999615+00:00",
+  "ci_consumer_review": {
+    "status": "PASS_BOUNDED_INDEPENDENT_SOURCE_REVIEW",
+    "adapter_sha256": "93a1558d2eeed9d3a3454f4fe23f965aa2907b5b4fbee37e5073947d2dde004b",
+    "scoped_pure_tests": 105,
+    "external_temp_tests": 31,
+    "portable_temp_fixture_issue": "RESOLVED",
+    "accepted_scientific_reports_unchanged": true,
+    "actual_scientific_execution_by_reviewer": false
+  },
+  "local_verdict_v10_candidate": {
+    "status": "PASS_BOUNDED_INDEPENDENT_SOURCE_REVIEW_ACTUAL_RUN_PENDING",
+    "source_files": [
+      {
+        "path": "code/full_verdict_ssb_local.py",
+        "bytes": 32645,
+        "sha256": "70af73c309f376f010122225af540df1562c759239bcde4281c1b4eab9317ed5"
+      },
+      {
+        "path": "code/full_verdict_ssb_local_ops.py",
+        "bytes": 26823,
+        "sha256": "d31f04717d1ec5123e1e6729bf9a99b879923371cb24add0161a607dceddc163"
+      },
+      {
+        "path": "code/full_verdict_ssb_local_run.py",
+        "bytes": 40208,
+        "sha256": "0002de583fa4e898e1d29e2c0f3bf85082cb09f433fee32afc66a6aed547d823"
+      },
+      {
+        "path": "code/full_verdict_ssb_local_bridge.java",
+        "bytes": 5620,
+        "sha256": "1f375acd3ba824f725c0bcf4c7dbe67e7b9f7526fea56578d16cae1e452725ff"
+      },
+      {
+        "path": "code/tests/test_full_verdict_ssb_local.py",
+        "bytes": 43537,
+        "sha256": "9932c674f4032bc13724c90a4febc24c773859f52e303d7d008cefdce23874e6"
+      },
+      {
+        "path": "code/tests/test_full_verdict_ssb_local_ops.py",
+        "bytes": 17368,
+        "sha256": "4d5e707bd5c91e051592f0ceb5904e49bb4359edf689863385a32bf6ff9c5a9d"
+      },
+      {
+        "path": "code/tests/test_full_verdict_ssb_local_run.py",
+        "bytes": 14777,
+        "sha256": "3dcb48d17b51448b00b35d3b46363be9874cca26f3b5306903a75c487b439739"
+      },
+      {
+        "path": "docs/FULL_VERDICT_LOCAL_SSB_IMPLEMENTATION.md",
+        "bytes": 31426,
+        "sha256": "3b34fc45ea0415d94e955b568d71dd6b85e385324e892b3051e5226cc543078f"
+      },
+      {
+        "path": "docs/FULL_VERDICT_LOCAL_SSB_PROPOSAL.md",
+        "bytes": 9851,
+        "sha256": "7d39bd8e335e4c3194ea92c93fcfa4ab741516145ee3af446a8d35a9e2ffb1b9"
+      }
+    ],
+    "root_scoped_pure_tests": 199,
+    "test_seconds": 5.21,
+    "protected_parent_source_pins": 23,
+    "database": "deepdb_verdict_ssb_local500_v10",
+    "resource_caps_unchanged": true,
+    "no_actual_PG_or_science_claimed_by_this_review": true
+  }
 }

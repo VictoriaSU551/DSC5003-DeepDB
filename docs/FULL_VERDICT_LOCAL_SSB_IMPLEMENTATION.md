@@ -1,5 +1,9 @@
 # LOCAL Verdict SSB implementation plan
 
+This is the versioned implementation protocol. Candidate/unrun statements below
+describe their implementation stage; current actual execution and acceptance
+status is maintained in [FULL_REPRODUCTION_STATUS.md](FULL_REPRODUCTION_STATUS.md).
+
 Goal: a separately configured original Verdict existing-sample controller for the accepted LOCAL SF500 population, with no change to frozen SF2/scientific sources and no execution during the local model/replay stage.
 
 Architecture: compose pinned pure parsing/SQL/hash/COPY and project pg_ctl ownership functions with explicit LOCAL configuration, source/oracle and database operations. Do not copy the old runner or patch its DB/LIMITS/globals. Parent-model verification is lazy and unavailable until all explicitly pinned final publications exist. An executable plan additionally needs independently reviewed relation/row-width measurements and the separate 12GiB resource envelope.
@@ -12,7 +16,7 @@ Files and interfaces:
 - `code/full_verdict_ssb_local_bridge.java`: new fixed LOCAL DB/n/N context, retaining original JAR/public APIs and one execute per call. Do not modify the SF2 Java source/class.
 - New `code/tests/test_full_verdict_ssb_local*.py`: pure/micro fixtures only in this phase.
 
-Fixed invariants: LOCAL N=3,000,028,242; n=9,996,946; source ID a574cd95f8ba184c809c66e438c88f69ddb1ddcc7b984c9ea99bcbb4c476dcf9; 1,713 author differences; new DB deepdb_verdict_ssb_local500; three protected prior databases; full four dimensions; zero-row fact skeleton; fact-only n/N metadata and 100 partitions; 13 raw + six child SUMs per mode = 38 calls; exact13 signed-integer moment oracles; two-SUM difference only, no child population truth or adapter CI. Original p and DeepDB n/p stay separate.
+Fixed invariants: LOCAL N=3,000,028,242; n=9,996,946; source ID a574cd95f8ba184c809c66e438c88f69ddb1ddcc7b984c9ea99bcbb4c476dcf9; 1,713 author differences; fresh V10 DB deepdb_verdict_ssb_local500_v10; three protected prior databases; full four dimensions; zero-row fact skeleton; fact-only n/N metadata and 100 partitions; 13 raw + six child SUMs per mode = 38 calls; exact13 signed-integer moment oracles; two-SUM difference only, no child population truth or adapter CI. Original p and DeepDB n/p stay separate.
 
 Implementation sequence:
 
@@ -34,7 +38,7 @@ Within forbidden DB/process/science and verified native-platform contexts, the c
 
 Single-entry verification cost is explicit: `pilot-plan`, `build_plan`, public `verify_pilot` and public `verify` each call the full parent verifier **once** through frozen replay. A private fresh boundary proof carries this complete evidence through nested pilot/plan checks. Public APIs accept no skip flag or proof/cache. A new public entry always verifies afresh. `pilot` and `run` have two separate fresh boundaries (entry and exit); only final output validation reuses the just-completed exit proof. No result or artifact cache crosses these boundaries. Unique repeated descriptors are checked once within a collector, while conflicting repeats fail. This avoids four full parent validations per public plan/verify without weakening before/after checks. It is a code/fixture count, not a measured runtime promise.
 
-Database and resource behavior is explicit. The LOCAL operation alone creates `deepdb_verdict_ssb_local500`; it refuses an existing database and never adopts/reimports/replaces any prior database. The three prior databases are protected by catalog identities, not a claim of per-row protected-data hashing. Only a proven controller-owned stopped project cluster may be started; pg_ctl uses the already reviewed file-handle logging and ownership cleanup. PG11.5 and fixed sealed JDK paths/JAR are verified. Python/Java connections request `extra_float_digits=3`, 16MiB work memory, 1GiB per-backend temp-file limit and 600s statement timeout; JVM heap is384MiB, metaspace192MiB, process RSS cap1GiB, timeout660s. The original shared cluster startup options remain bound in e141; connection-specific values override work memory for these sessions. No global database/system settings are changed.
+Database and resource behavior is explicit. The LOCAL operation alone creates `deepdb_verdict_ssb_local500_v10`; it refuses an existing database and never adopts/reimports/replaces any prior database, including the failed V9 `deepdb_verdict_ssb_local500`. The three prior databases are protected by catalog identities, not a claim of per-row protected-data hashing. Only a proven controller-owned stopped project cluster may be started; pg_ctl uses the already reviewed file-handle logging and ownership cleanup. PG11.5 and fixed sealed JDK paths/JAR are verified. Python/Java connections request `extra_float_digits=3`, 16MiB work memory, 1GiB per-backend temp-file limit and 600s statement timeout; JVM heap is384MiB, metaspace192MiB, process RSS cap1GiB, timeout660s. The original shared cluster startup options remain bound in e141; connection-specific values override work memory for these sessions. No global database/system settings are changed.
 
 Full four dimensions and the existing fact sample are copied in bounded10000-row chunks. Each committed table has an individual receipt, exact target row count and canonical all-field COPY bytes/row-count/SHA, preserving duplicate rows and string/NULL serialization. The complete import requires the five unique targets (15M customer,1M supplier,1.8M part,2556 dates,9996946 fact rows). The original fact relation remains empty. Only the fact has original uniform sample metadata and100 `verdict_vpart` partitions; dimensions have neither metadata nor auxiliary partition columns. Exact native float8 bits validate n/N. A SHARE lock covers the fact, full dimensions and both metadata tables through all38 serial original calls; before/after all-field and auxiliary COPY, schema, own catalog, partition histograms and protected catalogs must match. These checks are not replaced by an OID or COUNT-only assertion.
 
@@ -171,3 +175,62 @@ fixtures and stub one parent call; no actual F, raw data scan, model, PG/JVM,
 metadata plan, deletion or commit occurs. Only the LOCAL contract, its tests,
 this protocol and a small v9 freeze manifest change; protected sources and
 all numerical and resource rules remain fixed.
+
+V10 removes the unbounded physical-order sort in all three LOCAL readback paths:
+post-import fields, SHARE-locked before/after fields, and auxiliary native bits
+and partitions. The actual V9 customer readback failed at its `ORDER BY ctid`
+when the 15M-row external sort reached the unchanged 1GiB temp limit. Its
+TAINTED run and old database are not repaired, adopted or deleted. Python's
+explicit spec and the Java DATABASE literal both select the fresh
+`deepdb_verdict_ssb_local500_v10`; all Java query, registration and resource
+statements otherwise remain unchanged.
+
+Each V10 readback performs one `SELECT ctid::text,<same projection> FROM ONLY
+<target>` COPY, without sorting, filtering, joins or CTID-range rescans. Before
+COPY, transaction-local `synchronize_seqscans=off` and
+`max_parallel_workers_per_gather=0` are set and read back. `EXPLAIN
+(VERBOSE,FORMAT JSON)` must show exactly one serial, unfiltered Seq Scan on the
+explicit schema/relation, with its original alias and no child plans. PostgreSQL
+11 documents that disabling synchronized scans starts a sequential scan at the
+beginning, and setting parallel workers to zero disables parallel query.
+The actual output independently must have strictly increasing, unique physical
+`(block,offset)` CTIDs; a different or wrapped scan fails closed. The two prior
+setting values are restored and checked before a successful return. On error,
+restoration is attempted without masking the first error; a SQL-aborted
+transaction still fails and is closed/rolled back by the existing controller.
+No server-wide settings, work memory, temp or runtime caps are increased.
+
+COPY retains pipe CSV and explicitly selects UTF8. The CTID prefix has no pipe
+or quotes, so the bounded sink removes only that prefix and its first delimiter.
+It never parses/re-encodes the payload's quoted fields. The frozen raw
+normalizer already rejects NUL, CR and LF inside fields; the sink also rejects
+CR/NUL and malformed/truncated physical records. Arbitrary fragments, including
+UTF8 split points, quoted empty strings, literal backslash-N, doubled quotes
+and duplicate payloads retain exactly their original bytes and SHA. Auxiliary
+hashes retain the CTID prefix itself, as before. A record is limited to64KiB
+and an incoming fragment to8MiB; no full-table Python buffer or disk staging is
+introduced, and the existing512MiB Python RSS cap still applies. Small
+`physical_scan` receipts record the verified plan/settings/row count/CTID range;
+the offline committed/full-field load verifier rechecks those receipts.
+The independent offline snapshot verifier also requires the auxiliary scan
+receipt with CTIDs retained; matching auxiliary row counts and hashes alone
+cannot bypass that order/plan/settings proof.
+
+The changed source closure invalidates V9 pilot and formal bindings. ROOT must
+create a fresh `pilot-plan`, approve its exact binding/limits and run `pilot`
+with a fresh name and explicit project-PG startup. The completed new measurement
+then needs a new `APPROVED_LOCAL_VERDICT_RESOURCE_PLAN` with its final SHA,
+unchanged limits, positive integer projected own-DB/total sizes within both
+caps. `plan` accepts only that current measurement, followed by ROOT's new
+`APPROVED_LOCAL_VERDICT_EXECUTION` binding/limits review and a fresh `run` name.
+There is no old measurement adoption, failed-DB adoption or skipped parent F.
+Development uses only pure/mock tests:27 new cases failed before implementation,
+then27 passed; the expanded complete ops file passed50 tests, and three focused
+spec/command/pilot-source-binding regressions passed. No actual F, database,
+JVM, metadata plan, scientific call, deletion or commit is run by this change.
+Five auxiliary-proof tamper cases additionally first failed to raise under the
+old offline verifier, then passed after its one-line physical-scan check.
+
+Primary references: [PostgreSQL11 synchronized scans](https://www.postgresql.org/docs/11/runtime-config-compatible.html),
+[parallel-worker setting](https://www.postgresql.org/docs/11/runtime-config-resource.html),
+and [COPY CSV/encoding](https://www.postgresql.org/docs/11/sql-copy.html).

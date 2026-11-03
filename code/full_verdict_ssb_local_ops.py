@@ -89,6 +89,79 @@ def expected_inputs(plan):
     items.append(('lineorder',contract.ROOT/d['path'],False,s['sample_rows']));return items
 
 
+def validate_serial_scan(explain,target):
+    schema,relation=target.split('.')
+    contract.require(isinstance(explain,list) and len(explain)==1 and isinstance(explain[0],dict) and isinstance(explain[0].get('Plan'),dict),
+        'One explicit physical COPY plan required')
+    node=explain[0]['Plan']
+    contract.require(node.get('Node Type')=='Seq Scan' and node.get('Parallel Aware') is False and
+        node.get('Schema')==schema and node.get('Relation Name')==node.get('Alias')==relation and
+        not any(key in node for key in ('Plans','Filter','One-Time Filter','Index Cond','Recheck Cond')),
+        'Physical COPY requires only one serial unfiltered target Seq Scan')
+
+
+def validate_physical_scan(proof,target,rows,keep_ctid=False):
+    contract.require(isinstance(proof,dict) and proof.get('status')=='PASS_SERIAL_SEQSCAN_MONOTONIC_CTID' and
+        proof.get('table')==target and type(proof.get('rows')) is int and proof['rows']==rows>0 and proof.get('keep_ctid') is keep_ctid and
+        proof.get('settings')==['off','0'] and isinstance(proof.get('previous_settings'),list) and len(proof['previous_settings'])==2 and
+        all(isinstance(x,str) for x in proof['previous_settings']) and proof.get('restored_settings')==proof['previous_settings'],
+        'Complete physical COPY settings/order receipt required')
+    first,last=proof.get('first_ctid'),proof.get('last_ctid')
+    contract.require(all(isinstance(pair,list) and len(pair)==2 and all(type(x) is int for x in pair) and
+        0<=pair[0]<2**32-1 and 0<pair[1]<2**16 for pair in (first,last)) and
+        (first==last if rows==1 else first<last),'Invalid physical COPY CTID range')
+    validate_serial_scan(proof.get('explain'),target)
+
+
+class PhysicalCopySink:
+    """Strip only the fixed CTID field; normalized source forbids CR/LF fields."""
+    def __init__(self,sink,keep_ctid=False):
+        self.sink=sink;self.keep_ctid=keep_ctid;self.pending=b'';self.first=None;self.last=None;self.rows=0
+    def write(self,data):
+        contract.require(isinstance(data,(str,bytes)) and len(data)<=8*1024**2,'Physical COPY fragment exceeds bounded memory')
+        data=data.encode('utf-8') if isinstance(data,str) else data
+        contract.require(len(data)<=8*1024**2,'Physical COPY UTF8 fragment exceeds bounded memory')
+        lines=(self.pending+data).split(b'\n');self.pending=lines.pop()
+        contract.require(len(self.pending)<=65536,'Incomplete physical COPY record exceeds bound')
+        for line in lines:
+            contract.require(len(line)<=65536 and b'\r' not in line and b'\x00' not in line,'Invalid normalized physical COPY record')
+            prefix,separator,payload=line.partition(b'|');match=re.fullmatch(rb'\((0|[1-9][0-9]*),(0|[1-9][0-9]*)\)',prefix)
+            contract.require(match is not None and separator and payload,'Malformed physical COPY CTID prefix/payload')
+            pair=(int(match[1]),int(match[2]))
+            contract.require(0<=pair[0]<2**32-1 and 0<pair[1]<2**16 and (self.last is None or self.last<pair),
+                'Physical COPY CTIDs must be strictly increasing')
+            self.first=self.first or pair;self.last=pair;self.rows+=1
+            self.sink.write((line if self.keep_ctid else payload)+b'\n')
+        return len(data)
+    def finish(self):
+        contract.require(not self.pending and self.rows>0 and self.rows==self.sink.rows,'Empty/incomplete physical COPY stream')
+
+
+def copy_physical(c,target,columns,core,budget,keep_ctid=False):
+    """One linear heap scan, verified order, exact original CSV payload bytes."""
+    contract.require(re.fullmatch(r'[a-z_][a-z_0-9]*\.[a-z_][a-z_0-9]*',target) is not None,'Explicit physical COPY target required')
+    settings_sql="SELECT current_setting('synchronize_seqscans'),current_setting('max_parallel_workers_per_gather')"
+    restore_sql="SELECT set_config('synchronize_seqscans',%s,true),set_config('max_parallel_workers_per_gather',%s,true)"
+    c.execute(settings_sql);previous=tuple(c.fetchone())
+    contract.require(len(previous)==2 and all(isinstance(x,str) for x in previous),'Physical COPY original settings missing')
+    query='SELECT ctid::text,'+columns+' FROM ONLY '+target
+    try:
+        c.execute('SET LOCAL synchronize_seqscans=off');c.execute('SET LOCAL max_parallel_workers_per_gather=0')
+        c.execute(settings_sql);effective=tuple(c.fetchone());contract.require(effective==('off','0'),'Physical COPY effective settings differ')
+        c.execute('EXPLAIN (VERBOSE,FORMAT JSON) '+query);explain=c.fetchone()[0];validate_serial_scan(explain,target)
+        sink=core.CopyHashSink(budget);stream=PhysicalCopySink(sink,keep_ctid)
+        c.copy_expert('COPY ('+query+") TO STDOUT WITH(FORMAT CSV,DELIMITER '|',NULL E'\\\\N',ENCODING 'UTF8')",stream);stream.finish()
+    except BaseException:
+        # A failed SQL may have aborted the transaction; never mask its first error.
+        try:c.execute(restore_sql,previous);contract.require(tuple(c.fetchone())==previous,'Physical COPY settings not restored')
+        except BaseException:pass
+        raise
+    c.execute(restore_sql,previous);restored=tuple(c.fetchone());contract.require(restored==previous,'Physical COPY settings not restored')
+    sink.physical_scan=dict(status='PASS_SERIAL_SEQSCAN_MONOTONIC_CTID',table=target,rows=stream.rows,keep_ctid=keep_ctid,
+        first_ctid=list(stream.first),last_ctid=list(stream.last),explain=explain,settings=list(effective),previous_settings=list(previous),restored_settings=list(restored))
+    validate_physical_scan(sink.physical_scan,target,sink.rows,keep_ctid);return sink
+
+
 def validate_loads(spec,loads,committed=False):
     expected={'public.'+table:rows for table,rows in spec['dimension_rows'].items()}
     expected[spec['sample_relation']]=spec['sample_rows']
@@ -100,6 +173,7 @@ def validate_loads(spec,loads,committed=False):
         contract.require(set(canonical)=={'bytes','rows','sha256'} and type(canonical['bytes']) is int and canonical['bytes']>0 and
             type(canonical['rows']) is int and canonical['rows']==count and isinstance(canonical['sha256'],str) and re.fullmatch('[0-9a-f]{64}',canonical['sha256']),
             'Complete LOCAL canonical field statistics required')
+        validate_physical_scan(row.get('physical_scan'),row['table'],count)
         if committed:
             contract.require(row.get('status')=='PASS_COMMITTED_TABLE_IMPORT' and row.get('canonical_source')==canonical and
                 type(row.get('seconds')) in (int,float) and math.isfinite(row['seconds']) and row['seconds']>=0,'Committed LOCAL source/value import proof differs')
@@ -200,11 +274,10 @@ class LocalDatabase:
                     source=self.core.CopyHashSink();count=0
                     for n,unused,text in self.core.raw_chunks(path,len(plan['schema_contract'][table]['columns']),terminal):
                         source.write(text);c.copy_expert('COPY '+target+' ('+columns+") FROM STDIN WITH(FORMAT CSV,DELIMITER '|',NULL E'\\\\N')",io.StringIO(text));count+=n;budget.tick()
-                    actual=self.core.CopyHashSink(budget)
-                    c.copy_expert('COPY (SELECT '+columns+' FROM '+target+" ORDER BY ctid) TO STDOUT WITH(FORMAT CSV,DELIMITER '|',NULL E'\\\\N')",actual)
+                    actual=copy_physical(c,target,columns,self.core,budget)
                     contract.require(count==expected and source.result()==actual.result(),'LOCAL complete imported field/order/duplicate accounting differs')
                     connection.commit()
-                    loads.append(dict(status='PASS_COMMITTED_TABLE_IMPORT',table=target,rows=count,canonical_source=source.result(),canonical_actual=actual.result(),seconds=time.monotonic()-started))
+                    loads.append(dict(status='PASS_COMMITTED_TABLE_IMPORT',table=target,rows=count,canonical_source=source.result(),canonical_actual=actual.result(),physical_scan=actual.physical_scan,seconds=time.monotonic()-started))
                     self.core.atomic_json(home/('import_'+table+'.json'),loads[-1])
                 c.execute('SELECT COUNT(*) FROM public.lineorder');contract.require(c.fetchone()[0]==0,'Original LOCAL fact skeleton must remain empty')
                 connection.commit()
@@ -225,19 +298,17 @@ class LocalDatabase:
         contract.require(c.fetchone()[0]==0,'External triggers in LOCAL namespace')
         return dict(database=row,relations=relations)
     def aux_hash(self,c,budget):
-        sink=self.core.CopyHashSink(budget)
-        c.copy_expert("COPY (SELECT ctid::text,encode(float8send(verdict_vprob),'hex'),verdict_vpart FROM "+self.spec['sample_relation']+" ORDER BY ctid) TO STDOUT WITH(FORMAT CSV,DELIMITER '|')",sink)
-        return sink.result()
+        sink=copy_physical(c,self.spec['sample_relation'],"encode(float8send(verdict_vprob),'hex'),verdict_vpart",self.core,budget,True)
+        return dict(sink.result(),physical_scan=sink.physical_scan)
     def locked_snapshot(self,plan,home,c,budget):
         before=contract.read(home/'protected_before.json');protected=self.protected()
         contract.require(set(before)==set(self.spec['protected_databases']) and before==protected,'Protected prior3 catalog identities changed')
         imported=contract.read(home/'import.json');loads=[]
         for table,path,terminal,expected in expected_inputs(plan):
             target=self.spec['sample_relation'] if table=='lineorder' else 'public.'+table
-            columns=','.join('"'+name+'"' for name,kind in plan['schema_contract'][table]['columns']);sink=self.core.CopyHashSink(budget)
-            c.copy_expert('COPY (SELECT '+columns+' FROM '+target+" ORDER BY ctid) TO STDOUT WITH(FORMAT CSV,DELIMITER '|',NULL E'\\\\N')",sink)
+            columns=','.join('"'+name+'"' for name,kind in plan['schema_contract'][table]['columns']);sink=copy_physical(c,target,columns,self.core,budget)
             previous=next(x for x in imported['loads'] if x['table']==target);contract.require(previous['canonical_source']==sink.result() and sink.rows==expected,'Locked LOCAL original fields changed')
-            loads.append(dict(table=target,canonical_actual=sink.result(),rows=expected))
+            loads.append(dict(table=target,canonical_actual=sink.result(),physical_scan=sink.physical_scan,rows=expected))
         c.execute('SELECT COUNT(*),MIN(verdict_vprob),MAX(verdict_vprob),MIN(verdict_vpart),MAX(verdict_vpart),encode(float8send(MIN(verdict_vprob)),\'hex\'),encode(float8send(MAX(verdict_vprob)),\'hex\') FROM '+self.spec['sample_relation']);account=list(c.fetchone())
         c.execute('SELECT verdict_vpart,COUNT(*) FROM '+self.spec['sample_relation']+' GROUP BY verdict_vpart ORDER BY verdict_vpart');parts=[list(x) for x in c.fetchall()]
         validate_aux(self.spec,account[:5],parts,account[5:])

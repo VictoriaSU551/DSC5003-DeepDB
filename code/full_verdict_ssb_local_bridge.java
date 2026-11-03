@@ -10,7 +10,7 @@ import edu.umich.verdict.dbms.DbmsJDBC;
 
 /** LOCAL I/O only; original pinned Verdict JAR computes every native query. */
 public class full_verdict_ssb_local_bridge {
-    static final String DATABASE="deepdb_verdict_ssb_local500";
+    static final String DATABASE="deepdb_verdict_ssb_local500_v10";
     static final long SAMPLE_ROWS=9996946L, POPULATION_ROWS=3000028242L;
     static VerdictJDBCContext context() throws Exception {
         Locale.setDefault(Locale.US);

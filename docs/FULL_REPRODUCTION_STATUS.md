@@ -1,140 +1,58 @@
 # 完整复现阶段状态
 
-本文件是2026-10-31的阶段说明，不是整篇论文完成证明。
-本地 `output/full/completion_status.json` 由已封存阶段凭据重建；仍标记 `INCOMPLETE_FULL_PAPER`。
-代码、正式测试和协议发布到公开协作分支；数据、环境、模型、PDF及大输出留在本地原目录。
+更新：2026-11-03。当前状态为 `INCOMPLETE_FULL_PAPER`，`full_paper_complete=false`。
+[公开结果索引](../output/results/FULL_PAPER_RESULTS.md)及[摘要](../output/results/fullpaper_summary.json)来源于 `2026-11-03T14:44:58.354882+00:00` 的封存状态：31项派生交付文件，没有EVIDENCE_INVALID；待完成、作者母体失败和输入缺口仍保留。PASS仅适用于各自命名的实验及验收范围。
 
-## 已有可复核结果
+## 已完成并保留的实验
 
-- 原2026-10-08的1M五关系基础模型及结果摘要不变。
-- 六张完整IMDb表在项目内PostgreSQL11.5导入，70条JOB-light真值独立核对通过。
-- 原schema100K存储配置、10M单表与RDC预算配置完成；另用public-scale支持person_id的683条分组查询。
-- 1K/10K/100K/1M/10M样本扫描及B=0/.5/1/2/3代理成本扫描完成；原代码分母与论文CBase口径分开保存。
-- 5个10M请求规模的时间切分更新完成，每树实际标量更新差分、逐批恢复、前后模型及70条逆序重载核验保留。
-- 6SPN正文预算代理模型的canonical v3 C++执行753条查询×3次，Python/native/当前CSV三方逐条匹配，
-  最大相对差约1e-15；所有15个4--6表分组都有耗时。严格只读入口核验75个最终工件并禁止补跑推断。
-  实际native成功调用7,422次，原作者计数漏27次，完整物理调用wall与原计时分别保留。
-- Flights真正遍历1,000,000,000行，保留9,997,912行Bernoulli样本及同一母体12SQL精确真值。
-  正式RSPN训练及AQP/CI完成，331个真值组和模型组全部对应，无缺失、额外组或查询异常。
-  按实际样本组数>=10保留322组CI，9组明确排除。原模型CI与独立整数样本矩参考并列。
-- Flights另在新鲜进程重载模型，12SQL逆序各执行point/CI，24次调用及331组与原point/区间一致，
-  最大相对差0。当前外层绑定sqlparse0.3.1及22个完整Python源；这是事后绑定，不能回填历史parser证据。
-- 原DBEstPy引擎已实际完成200K金标准输入上的75个小模型/78次原聚合调用；这是接入门禁，不是Figure13全复现。
-- 新单维路由在同一200K母体的固定20K样本上另完成103次拟合尝试、101次原聚合调用，
-  SUM/AVG独立数值核验通过，拟合错误和数值验证错误均为0。79个空样本和2个预算不支持项完整保留；
-  1B母体新路由V4随后实际通过严格验收：204组件、101次拟合尝试、99次原生调用；
-  103个空样本及2个预算不支持项保留，无拟合/数值验证错误。独立派生表已通过；旧4类76次调用没有重跑。
-- 官方MSCN在匹配的100K训练查询/位图上完成100轮，70条原loader重放预测完全一致；
-  本地q-error中位3.535663、p90 50.162261、p95 120.591826、最大1102.039610。
-- 同一样本重建的MSCN另完成100轮/753条评估；JOB中位2.6770，公开683条中位3.0587、p95 375.1615，
-  4--6表413条中位8.2527、p95 984.0398。165个产物及100份checkpoint经父任务复核，
-  local真值评分复用原预测，没有重训或重复推断。
-- 原DBEstPy在实际1B Flights母体的9,997,912行样本上流式选择20K拟合行，完成76个原模型/聚合调用；
-  只支持4类SQL，F4.1缺1组，其余8类明确unsupported，不能冒充完整Figure13对照。
-- 原Verdict0.4.7另在同一9,997,912行样本执行12SQL，point和原生95%CI各14个物理调用；
-  331真值组、329原始预测组，F3.2/F5.2各缺1组，无额外组。F5.2原始未放大差值错误保留，
-  两个原SUM调用的外部差分适配另列，适配CI不凭空拼接。2873个文件和原archive闭包经严格只读验收。
-  这是已有样本执行，原1B表未存入该数据库，不能替代作者原表建样本或端到端成本。
-- LOCAL SSB母体来源门禁核验21766个物理工件，五个1M/table模型及13SQL执行完成，
-  三阶段封存通过，2059个真值组全部返回，无查询错误。但旧逆序验收因S4.3区间差异失败；
-  原报告与TAINTED记录保留。新配对分组排序变体的13SQL双hash/正逆序诊断中，
-  2059个点及4118个CI端点完全一致；旧canonical失败记录不改写。
-  首次正式事务因Windows Job名称前缀不兼容在零模型调用时停止。v2最小修正经正逆两个真实启动门禁通过，
-  第二次事务正向26次调用/2059组通过，逆向在任何模型调用前因存储监控过期停止。
-  首个continuation事务在完成来源核对后因可用RAM不足5GiB、尚未启动worker而停止，科学调用为0。
-  v2的ram_retry_02接续事务已整体通过运行前后完整来源核验并发布，复用正向、新做逆向13次载入/26次调用。
-  2059个点及4118个区间端点最大差异为0；没有缺组、额外组或非有限输出。参考CI有1253组，另806组因样本少于10条排除。
-  新结果SHA为f37833fdc2b249e22632f5fa3e0ea98499c748487a43fcd42b0d692768fbeac8；3张派生表及2张图已独立只读验收并完成图像检查。
-  图表保留LOCAL/1M及1713项作者真值差异标注，公开副本位于output/results/fullpaper_ssb_local_continuation_*。
-  Figure11训练入口的科学小黄金事务已整体通过：五表采样矩阵、模型结构和两套随机状态均一致，恢复确实只拟合三个缺失组件。
-  小黄金只用SF2/10K算法等价夹具，并不表示10M训练或作者母体已复现。正式10M计划已封存并启动运行事务，模型尚未验收；LOCAL Verdict仍未执行。
-- 原Verdict的SSB SF2接入实际执行38次，540个必要样本缩放组通过；1798个真值组中1258组缺失。
-  345个有限原生95%区间覆盖207组，原Q4漏缩放109组及外部双SUM差分分别保留。
-  此处仅SF2证据，不能替代SF500基线。
-- Scalar单表精确计数结合uniform-title-key公式、JOB-light独立每表1000行WOR采样均已有实现和独审，
-  后者49项纯/模拟测试通过。Scalar V4已完成50项单表计数和70条预测，严格只读派生验收通过；
-  evaluation-only floor1口径下中位8.739292、p95 818.658286。
-  内存恢复后，SRS和IBJS均实际完成70条并通过严格验收及独立汇总，超时/查询错误均为0。
-  SRS原始零估计70条，所有q-error为无穷大；IBJS零估计13条，完整70条中位1.458495，p90/p95/最大值为无穷大。
-  有限57条的条件指标与完整70条指标分开，零估计没有加floor。
-  这些是本地变体，不能声称作者Perfect Selectivities或采样配置已恢复。
+| 范围 | 实际执行与核验 | 证据入口 |
+|---|---|---|
+| 基础JOB-light与真值 | 原1M五关系基础模型保留；六张完整IMDb表在PG11.5导入，70条真值独立核对。 | [原结果](../output/results/RESULTS.md)、[基数实验表](../output/results/fullpaper_cardinality_studies.csv) |
+| 参数与配置 | 原schema100K存储、10M单表/RDC、public-scale配置、1K至10M样本、B=0/.5/1/2/3及阈值解释分别保存。 | [参数协议](FULL_PARAMETER_STUDIES.md) |
+| 增量更新 | 五个10M请求规模时间切点；逐批恢复、实际标量差分、前后模型及70条逆序重载。 | [更新时间图](../output/results/fullpaper_cardinality_temporal_updates.png) |
+| Python/C++ | 38配置通过四个真实hash seed、62,548次预测门禁；canonical C++执行753条×3次、7,422次实际native成功调用，Python/native/CSV逐条匹配，最大相对差约1e-15，全部15个4–6表分组有耗时。 | [C++审计](FULL_CPP_V3_AUDIT.md) |
+| MSCN | 官方100K查询/匹配位图训练100轮、70条原loader重放一致；一致样本重建MSCN另训练100轮、评估753条。 | [官方核验](FULL_MSCN_VERIFY.md)、[重建协议](FULL_MSCN_REBUILT.md) |
+| Flights 1B | 实际遍历1,000,000,000行，实际样本9,997,912行；12SQL、331组全部对应，逆序24次point/CI调用一致；参考CI322可用/9排除。 | [模型](FULL_FLIGHTS_MODEL_RUN.md)、[重放](FULL_FLIGHTS_REPLAY_AUDIT.md) |
+| LOCAL SSB 1M continuation | 复用已验收正向26次调用，新做逆序13次载入/26次调用；2,059点/4,118端点最大差0，无缺组、额外组或非有限输出；参考CI1,253可用/806排除。旧失败保留。 | [continuation](FULL_SSB_LOCAL_CONTINUATION.md)、[公开来源](../output/results/fullpaper_ssb_local_continuation_sources.json) |
+| LOCAL SSB 10M cap | 五个新模型正式训练、完整来源验收、独立逆序及3表/2图均通过。 | [公开来源](../output/results/fullpaper_ssb_local_ci10m_sources.json)、[补充摘要](../output/results/fullpaper_additional_baselines.json) |
+| Scalar / SRS / IBJS | Scalar完成50项单表计数/70预测；SRS和IBJS各完成70条，无超时或查询错误，零估计及无穷大q-error保留。 | [Scalar](../output/results/fullpaper_scalar_RESULTS.md)、[采样](../output/results/fullpaper_sampling_RESULTS.md) |
+| DBEst / Flights Verdict | 原DBEst的1B母体20K拟合、4类SQL完成76次调用；新路由99次原生调用/101次拟合尝试。原Verdict0.4.7在同一Flights已有样本执行12SQL，point/native95%CI各14次物理调用。 | [DBEst路由](../output/results/fullpaper_dbest_routes_RESULTS.md)、[Verdict](FULL_VERDICT_PROTOCOL.md) |
 
-## 整理状态
+组员guoao（贡献署名 `breck1016`）另交付14组JOB-light设置、980预测、多预算/多种子基础模型/RDC、PG16.15和独立真值记录。原提交、文件字节、归属与协议保留；本次整合未重训或重新执行其SQL。详见 [TEAM_EXPERIMENTS.md](TEAM_EXPERIMENTS.md)。
 
-用户要求仅保留必要源数据、最终处理数据、代码和结果。已完成约46GB文件盘点，
-测试夹具约686MB、失败运行、重复源码副本及训练中间checkpoint列为待清理候选；
-TAINTED父目录中已经验收的正向结果单独保留，不能整目录删除。
-先前删除缓存及两个未完成草稿均被系统自动审批以`blocked by policy`拒绝，未改用其他途径删除。
-两个草稿随后补齐为采样独立汇总的正式测试和协议，已验收并提交；缓存和失败产物仍未清理。
-再次清理9个已结束的测试临时目录也被同一自动审批拒绝，实际删除仍为0；尚不能称文件夹已清理完成。
-清理检查时项目数据库及科学进程已经停止；后续实验按单独记录继续，清理未完成不改记为完成。
-本地清单：`output/full/results/cleanup_plan_current.json`。历史递归审计依赖尚未退役；
-将来删除它们后，原fullF及依赖它的continuation/CI/Verdict验收必须明确标记为已退役。
+## LOCAL SSB 10M CI的最终证据
 
-## 重要差异和发现
+状态为 **`PASS_VERIFIED_LOCAL_10M_CAP_CI_MODEL_REVERSE_AND_DERIVED_TABLES`**。小黄金仅为独立SF2/10K算法等价证据；正式结论由实际SF500训练和重放支撑。
 
-JOB-light原schema的10M论文预算代理配置，中位q-error1.344960、90分位3.837906、
-95分位4.313755、最大256.651971。作者Table1为1.34/2.50/3.16/39.63。
-中位数接近不能掩盖尾部差异；100K本地配置的尾部也没有恢复作者结果。
-所有参数、样本、组件和不同配置均保留，不选择最有利的配置替换原结果。
-当前最大误差来自JOB-light query_no16：真值33、预测0.1285788，原公式q-error256.651971；
-它含production_year>2014和keyword_id=8200。query_no14含同一keyword及year>2010，真值1224、预测57.25391。
-这是定位后续审查的具体查询，不能仅凭这两例确定尾部差异原因或改用有利计分口径。
+- 训练上限10M/table；五表实际训练行数：lineorder **9,996,946**、dwdate **2,556**、customer **10,000,000**、part **1,800,000**、supplier **1,000,000**，五个新模型。
+- 本地母体3,000,028,242行，复用封存预处理与独立样本统计，采用canonical配对分组顺序。
+- 新进程逆序13SQL，**13次模型载入、26次evaluator调用**，**2,059个点、4,118个CI端点**最大绝对/相对差均为0。
+- 无缺组、额外组或非有限输出；参考CI **1,253组可用、806组因样本少于10行排除**。一次样本不证明重复抽样校准。
+- 正式报告SHA256：`cfdd8a8033a624505a5705d95e7b8fcb37af2151616922efa1f452094a53f6fd`。
+- 逆序报告SHA256：`29701ebec287bcd588e3a1b78034ba35243352c49ccb2a2206cf6b6fb88f2874`。
+- 公开输出 `output/results/fullpaper_ssb_local_ci10m_*`：[全部分组](../output/results/fullpaper_ssb_local_ci10m_all_groups.csv)、[训练行数](../output/results/fullpaper_ssb_local_ci10m_training_tables.csv)、[区间图](../output/results/fullpaper_ssb_local_ci10m_ssb_ci_half_width.png)。
 
-公开分组文件包含683条，4--6表为413条；作者200条具体成员未找到。
-独立原始PostgreSQL数值列精确运算发现74条4表查询与公开真值CSV不同，
-74条均已由另一套精确PostgreSQL语句确认本地值；第1条为1104284894、公开1104284888。
-最大相对计数差约0.0037433%。原published真值和既有预测不改，19个模型的local真值指标另存；
-不推断差异原因，也不把两套标签静默混合。
+表图与状态消费者经[固定调用拼写适配](FULL_SSB_LOCAL_CI_ACCEPTANCE.md)使用一次原完整验收器；其余来源、封印、进程凭据、参数和数值检查不变，不补跑科学调用或改写凭据。
 
-原IndicatorExpectation缓存会在物理RSPN间复用相同hash，已用真实因子确认；
-旧CSV原样保留，v2曾用于物理模型缓存修正。随后独立审查发现原贪心选择器的集合顺序依赖：
-B2的4_1/query64在seed0/3为36,099,666.480442，seed1/2为11,973,471.088227，
-模型、RDC、CSV摘要相同。当前新增v3规范起点/下一张表遍历与RDC求和顺序，并执行四seed完整门禁；
-38配置已通过四个真实hash进程的62,548次查询预测。旧v2到v3共126个配置/查询结果变化，
-默认public-scale B.5为30/753条。当前表图只接纳此最终门禁；历史C++ v2证据另保留，
-新的canonical C++完整差分和只读验收已完成。C++的条件参数映射和数值叶边界另有最小修正。
-原RDC还保留两个对称NaN列对；本轮排序适配不静默修正这些值或重选/重训旧模型。
-公开ensemble默认阈值.15与每树.3并非同一参数；正文表间.3的解释另建 `threshold03_*` 实验。
+## 差异与适用边界
 
-Flights使用公开IDEBench生成器，但作者完整生成参数/种子未公开绑定，故这是同原规模的本地母体。
-322组CI的一次样本覆盖率不是重复抽样校准证明；F5.2的相关SUM项违反独立性近似。
-原CI参考代码的SUM量纲问题已单独数值审计，未把错误公式当作参考真值。
+SSB修正生成器完成4,000片、3,000,028,242行及9,996,946样本。作者行数和查询0–5的346项真值匹配，但查询6–12的 **1,713项customer连接真值不同**；无缺/额外组。作者母体MISMATCH及外层失败不改写，LOCAL结果仅对本地同母体精确真值评分。两实现的完整维表字段一致也不证明作者原始母体相同。
+
+JOB-light正文预算代理结果中位q-error1.344960、p90为3.837906、p95为4.313755、最大256.651971；作者Table1为1.34/2.50/3.16/39.63，中位接近不能消除尾部差异。公开683条查询（4–6表413条）不能标作作者200条。74个公开4表标签差异由另一套PG精确语句确认本地值；原标签/预测保留，local评分另存。
+
+Scalar使用本地uniform-title-key组合公式和独立 `EVALUATION_ONLY_FLOOR1` 计分，中位8.739292、p95为818.658286，不是已恢复的作者Perfect Selectivities。SRS的70条均为原始零估计，q-error均无穷大；IBJS有13条零估计，完整70条中位1.458495，p90/p95/最大无穷大。有限57条的条件指标另列，不添加floor或丢弃零值。
+
+Flights生成参数未完全绑定作者种子，属同原规模本地母体。DBEst新路由有204组件、103空样本、2个数值预算不支持项，拟合/数值验证错误为0；F3.3精确年份预筛是显式本地变体，双SUM差值没有联合CI。Flights Verdict有331真值/329原始预测组，缺2组；F5.2原错误和两SUM外部差分分开保留。原生95%CI不与DeepDB中央90%混作覆盖率或延迟排名。
 
 ## 尚未完成
 
-- SSB SF500首次4000片已遍历完：实际3,000,028,334行、9,993,609样本，作者行数多92行，
-  2059项聚合值不同，无缺/额外组；监督器正确停止，正式作者母体训练/评估未启动。
-  原MISMATCH保留。已定位日期/订单共享流初始化、优先级字段缓冲区、无效随机流索引及Windows long宽度问题。
-  新原生路径在SF1/SF2约1800万事实行上逐行核对17字段、全部维表字段和有效随机流状态；
-  13条精确聚合另由SQLite核对。实际恢复/整数采样边界门禁、49项测试和9个readiness门禁通过。
-  修正SF500已完成：3,000,028,242行、9,996,946样本，native流式3344.61秒，峰值working set223,911,936字节。
-  行数及查询0--5的346项真值完全一致，但查询6--12的1713项customer连接真值均不同，无缺/额外组。
-  该新记录仍为MISMATCH，外层TAINTED，不启动作者母体正式模型；旧失败记录亦未重写。
-  独立诊断文件为`output/full/ssb/native_v2/author_gap_diagnostic.json`，不能仅据涉及customer就认定具体成因。
-  已有SF500完整维表跨平台门禁核对了15,000,000行customer的每个字段，MinGW和实际LP64输出一致；
-  supplier/part/date及192条种子轨迹也一致。这排除了本地两实现之间该维表差异，仍不能证明作者原始母体相同。
-- 普通PostgreSQL中仅13条SSB SQL需要的9个int4事实列，
-  3,000,028,242行的数值载荷下界就为108,001,016,712字节，尚未计行头/索引/WAL等。
-  该载荷超过2026-10-31 07:35测得的81,971,544,064可用字节，当前无法执行原规模普通全表数据库基线；
-  具体列和边界见[FULL_BASELINE_FEASIBILITY.md](FULL_BASELINE_FEASIBILITY.md)。
-- Verdict的已有样本执行已完成，但原表建样本/端到端口径，以及XDB/在线采样等原规模比较尚未齐备。
-  Figure12左图比较DBEst过滤维数与延迟，右图比较Wavelets维数与误差；并不是SPN叶或批量执行微基准。
-  已找到18份历史Wavelet CSV及部分维数/系数元数据、三份DBEst 1D/2D/3D各9条历史查询记录，
-  仍缺原实现、域编码/附加列顺序、训练/积分和绘图协议，不能把历史CSV当本次重跑结果。
-- Figure5原合成生成器、作者200条查询成员、部分原基线参数仍缺原始公开输入。
-- 最终所有图表/对照、整分支独立审查和无用中间产物清理还未结束。
+- **LOCAL Verdict SF500：待最终验收。** v9在 `COPY ... ORDER BY ctid` 的数据库暂存文件触及1GiB上限后失败；有界往返修正及独立v10命名空间待实际完成。实现、模拟测试或SF2证据不能写成SF500成功。
+- **四项作者公开输入缺口**：作者200条泛化成员、Figure5合成数据库配方、Wavelet及Figure12右图材料、Figure12左图DBEst原材料。见 [FINAL_PUBLIC_INPUT_GAPS.md](FINAL_PUBLIC_INPUT_GAPS.md)。
+- **原规模完整数据库基线未执行**：3B事实表仅9个int4列的载荷下界108,001,016,712字节，另需行头/WAL/索引/排序空间。已有样本不替代原表建样本、TABLESAMPLE、XDB或端到端成本，见[资源说明](FULL_BASELINE_FEASIBILITY.md)。
+- 其他作者原配置、完整比较方法和一致预算/计时条件未齐备，保持PENDING/SOURCE_GAP，不记为全论文完成。
 
-## 从可信状态继续
+## 交付与继续
 
-```powershell
-.venv/Scripts/python.exe code/full_status.py
-.venv/Scripts/python.exe code/full_paper_tables.py
-```
+GitHub最终在 `main`交付代码和审查后的共享结果，数据/HDF、模型本体、环境、数据库、PDF和凭据不上传；`reproduction/full-paper`保留扩展开发历史，[PR #3](https://github.com/VictoriaSU551/DSC5003-DeepDB/pull/3)记录整合。
 
-第二条只核对封存预测并生成表图，不重新训练或预测；输出保存在
-`output/full/figures/cardinality_<input-hash>/`，最新指针为
-`output/full/results/cardinality_tables_latest.json`。
-训练/数据生成只恢复缺少的阶段，继续前须通过对应输入和代码封印；不要删除仍被恢复点引用的模型或样本。
-重建MSCN父审计还核验完整21组/753条、固定每组条数及三个helper源，与最终封印的源码快照比较；
-不能用部分查询通过后硬报753。新的父审计按源码SHA另存，保留原165个正式工件。
+本地最终目标为根 `README.md`加 `results/`结果包，实际保留集合以最终清单为准；当前不宣称清理完成。若精简移除历史来源闭包，须明确退役对应fullF及传递依赖入口，保留结果、哈希、验收时间和退役边界。未确认去留的最终模型先安全保留。已验证结果直接使用，不重复训练或推断。继续工作按[运行指南](FULL_RUNNING_GUIDE.md)，不自动重启TAINTED控制器。

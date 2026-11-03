@@ -1,91 +1,71 @@
 # DeepDB 论文复现 · DSC5003
 
-论文：Benjamin Hilprecht 等，**DeepDB: Learn from Data, not from Queries!**，VLDB 2020。
+Benjamin Hilprecht 等，**DeepDB: Learn from Data, not from Queries!**，VLDB 2020。
+[论文](https://arxiv.org/abs/1909.00607) · [作者代码](https://github.com/DataManagementLab/deepdb-public) · [来源与适配](docs/UPSTREAM.md)
 
-[论文](https://arxiv.org/abs/1909.00607) · [作者代码](https://github.com/DataManagementLab/deepdb-public) · [源码来源与适配](docs/UPSTREAM.md)
+本仓库交付JOB-light基数估计、参数与增量实验、C++推理、Flights 1B、LOCAL SSB SF500的模型/AQP/CI，以及实际完成的比较方法和组员实验。**整篇论文仍未完成复现，`full_paper_complete=False`。** 作者输入缺失、本地母体差异和原规模数据库基线缺口保留，不用完成比例或作者历史数字替代本次实验。
 
-本仓库汇总 DeepDB 的本地复现和小组实验。**JOB-light 基础流程及组员的扩展结果已整理到 `main`；整篇论文仍未完成复现。** 2026-11-03 的同步核验通过了 14 组设置、980 个保存预测的指标重算、70 条查询对齐和证据包完整性检查。本次整理未重新训练或执行数据库查询。
+代码和可公开结果的最终交付分支为 `main`；完整阶段整合与审查见 [PR #3](https://github.com/VictoriaSU551/DSC5003-DeepDB/pull/3)。当前公开快照来源于 **2026-11-03** 的封存状态，包含31项派生交付文件，没有 `EVIDENCE_INVALID` 项；PENDING、作者母体失败和输入缺口仍明确列出。
 
-## 直接查看结果
+## 查看结果
 
-- [组员中文图文报告](output/results/guoao_experiments/report_zh.md) · [English report](output/results/guoao_experiments/report_en.md)
-- [实验汇总、协议差异与核验边界](docs/TEAM_EXPERIMENTS.md)
-- [14 组完整指标](output/results/guoao_experiments/metrics.csv) · [70 条逐查询预测](output/results/guoao_experiments/predictions.csv)
-- [全部真值核验记录](output/results/guoao_experiments/truth_audit.csv) · [配置](output/results/guoao_experiments/settings.json)
-- [逐轮运行与日志索引](output/results/guoao_experiments/DELIVERY_MAP.md) · [本次同步核验记录](output/results/guoao_integration_audit.json)
-- [最初的 1M 关系基础模型结果](output/results/RESULTS.md)
+- [全部已验证阶段、表格和图片](output/results/FULL_PAPER_RESULTS.md) · [摘要与来源哈希](output/results/fullpaper_summary.json)
+- [补充基线及SSB两种预算的实际调用和覆盖](output/results/fullpaper_additional_baselines.json)
+- [详细状态](docs/FULL_REPRODUCTION_STATUS.md) · [运行指南](docs/FULL_RUNNING_GUIDE.md) · [四项作者公开输入缺口](docs/FINAL_PUBLIC_INPUT_GAPS.md)
+- [guoao中文报告](output/results/guoao_experiments/report_zh.md) · [English report](output/results/guoao_experiments/report_en.md) · [组员协议、署名和核验边界](docs/TEAM_EXPERIMENTS.md)
 
-组员 guoao 的贡献提交署名为 `breck1016`，来源为 [`contribution/guoao-experiment-results`](https://github.com/VictoriaSU551/DSC5003-DeepDB/tree/contribution/guoao-experiment-results)。原提交、36 个交付文件和作者许可证均保留。
+| 已实际执行的内容 | 结果及适用范围 |
+|---|---|
+| JOB-light / PostgreSQL | 六张完整IMDb表，70条独立真值和PG11.5估计；100K存储配置、10M单表/RDC和两个schema分别保存。正文预算代理配置中位q-error1.344960、p95为4.313755，尾部未恢复作者结果。 |
+| 泛化、参数和更新 | 公开683条分组查询，其中4–6表413条；1K至10M样本、B=0/.5/1/2/3、五个时间切点及增量恢复。作者200条成员仍缺；74个公开标签差异另存本地精确真值评分。 |
+| C++ / MSCN | canonical C++执行753条×3次，7,422次实际native成功调用，Python/native/CSV逐条一致；官方MSCN与一致样本重建MSCN分别训练100轮，70/753条评估各自封存。 |
+| Flights 1B | 实际遍历1,000,000,000行，保留9,997,912行样本；12SQL、331组；新鲜逆序24次point/CI调用一致。参考CI有322组可用、9组排除。 |
+| LOCAL SSB 1M/table | 五个原模型的continuation复用已验收正向，另做逆序13次载入/26次调用；2,059点、4,118区间端点最大差0，历史失败保留。 |
+| LOCAL SSB 10M/table cap | **另训练五个模型，正式验收、独立逆序及派生表图均通过**。事实表实际9,996,946行；逆序13次模型载入/26次调用，2,059点、4,118端点最大差0；参考CI1,253组可用，806组因样本少于10行排除。 |
+| 其他实际比较方法 | Scalar本地变体、SRS/IBJS各70条；DBEst原引擎的Flights部分覆盖及单维路由；Flights Verdict已有样本执行。原零估计、缺组、不支持项和原错误保留，见[补充结果](output/results/fullpaper_additional_baselines.json)。 |
+| LOCAL Verdict SF500 | 待最终验收，当前边界见[详细状态](docs/FULL_REPRODUCTION_STATUS.md)。SF2接入不能作为SF500完成证明。 |
 
-## 已完成的 JOB-light 实验
+SSB本地母体3,000,028,242行，与作者行数一致，但2,059项作者真值中 **1,713项customer连接真值不同**。LOCAL模型按同一生成母体的独立精确真值评分，作者母体门禁仍失败。两种SSB模型共享实际样本参考，不构成重复抽样CI校准，也不把训练上限写成恰好10M事实行。
 
-六张完整 IMDb 表、同一套 **70 条不同 SQL**：9 轮关系基础模型训练（1万/10万/100万样本预算 × 种子1/2/3），4 轮 RDC 训练（10万预算种子1；100万预算种子1/2/3），加一组 PostgreSQL 16.15 估计，共 **14 组评估设置、980 个预测值**。16 张中英文图片对应 8 类图表，不作为新增实验计数。
+![LOCAL SSB 10M/table模型的区间对照](output/results/fullpaper_ssb_local_ci10m_ssb_ci_half_width.png)
 
-下表摘录百万预算及 PostgreSQL 的结果；q-error 越接近 1 越好。
+完整3B事实表的普通数据库基线、原表建样本、XDB等原规模比较尚未执行，见[资源可行性说明](docs/FULL_BASELINE_FEASIBILITY.md)。Flights Verdict仅运行已有样本，原生95%CI与DeepDB中央90%CI分开报告；DBEst部分SQL/20K拟合及本地路由不构成完整Figure13或等预算延迟排名。
 
-| 设置 | 中位 q-error | P95 | 最大 q-error |
-|---|---:|---:|---:|
-| 关系基础模型，种子1 | 1.4997 | 6.9010 | 63.1645 |
-| RDC，种子1 | 1.3847 | 6.9630 | 191.9660 |
-| 关系基础模型，种子2 | 1.6874 | 6.3468 | 33.0000 |
-| RDC，种子2 | 1.4322 | 3.8232 | 223.7538 |
-| 关系基础模型，种子3 | 1.6261 | 6.1186 | 33.0000 |
-| RDC，种子3 | 1.4446 | 8.6999 | 664.0056 |
-| PostgreSQL 16.15 | 8.6874 | 842.7846 | 3606.4054 |
+guoao的贡献署名为 `breck1016`，原提交、文件和归属保留。其14组JOB-light设置、980个预测、多种子RDC/基础模型和PG16.15比较独立保存，不与扩展实验的PG11.5、schema或随机化协议混算。结论及复训交接条件见 [TEAM_EXPERIMENTS.md](docs/TEAM_EXPERIMENTS.md)。
 
-RDC 在三个种子下分别改善 42、44、42 条查询，中位误差三轮均降低；P95 仅一轮改善，最大误差三轮均增大。基础模型每轮 5 个 RSPN，RDC 每轮 7 个，请求样本预算按每个 RSPN 计；两条流程的连接规模来源也不同。它们是两条配置流程的对照，不能把全部差异只归因于 RDC，也不构成等总预算或 SQL 执行提速的结论。
+## 离线阅读与重新运行
 
-![RDC与基础模型的三个种子比较](output/results/guoao_experiments/figures/zh/08_rdc_seed_stability.png)
-
-70 条保存的独立计数全部匹配官方答案：69 条使用原始 SQL，ID59 使用等价的精确分组计数，并以 ID0、14、34、57 的原始执行结果交叉检查。这是组员已完成并交付的数据库实验；本次同步核验的是保存记录、SQL 哈希和数值，未在本机重新执行这些 SQL。
-
-## 无需下载数据的离线核验
-
-从仓库根目录运行，Python 标准库即可：
+克隆后可直接阅读公开CSV、PNG、报告和JSON，不需要下载数据或模型。组员包还有Python标准库只读核验入口：
 
 ```powershell
 python -B output/results/guoao_experiments/verify_results.py --repo-root .
 python -B output/results/guoao_experiments/verify_evidence.py
 ```
 
-第一条重算误差、检查 980 个预测及 70 条 SQL/官方计数对齐；第二条核验公开文件、37 段选定日志、源码快照和模型清单的指纹对应。两条命令均应输出 `"status": "PASS"`，不会训练、连接数据库或写入结果。模型清单核对不等于重新加载模型；13 个模型本体未包含在 GitHub 中。
-
-## 文件布局与分支
-
-```text
-Deep DB/
-  code/                          作者算法、基础复现脚本和基准 SQL
-  data/                          原始及最终处理数据；数据本体留在本地
-  output/
-    models/                      本地模型
-    results/
-      guoao_experiments/         组员的原始交付包：表格、图、报告、压缩日志和源码取证
-      guoao_integration_audit.json  本次同步与离线核验摘要
-  docs/                          来源、协议、协作和实验详细说明
-```
-
-- `main`：基础复现流程和已同步的 JOB-light 组员结果，作为小组阅读入口。
-- [`reproduction/full-paper`](https://github.com/VictoriaSU551/DSC5003-DeepDB/tree/reproduction/full-paper)：扩展复现代码及各阶段结果，包括参数实验、Flights、SSB 和其他基线；尚未完成整篇论文。详见该分支的[详细状态](https://github.com/VictoriaSU551/DSC5003-DeepDB/blob/reproduction/full-paper/docs/FULL_REPRODUCTION_STATUS.md)与[运行指南](https://github.com/VictoriaSU551/DSC5003-DeepDB/blob/reproduction/full-paper/docs/FULL_RUNNING_GUIDE.md)。组员这批 70 查询结果不与扩展分支的其他工作负载、数据库版本和随机化协议混算。
-- `contribution/guoao-experiment-results`：保留的组员贡献分支；两个原始提交已纳入主线历史。
-
-## 从数据重跑基础流程
-
-Windows PowerShell，使用 Git、curl、uv 和 Python 3.8.20；固定环境见 `requirements-lock.txt`。
+从数据重跑基础JOB-light流程，使用Windows PowerShell、Git、curl、uv及固定Python3.8.20环境：
 
 ```powershell
+git clone https://github.com/VictoriaSU551/DSC5003-DeepDB.git
+Set-Location DSC5003-DeepDB
 powershell -ExecutionPolicy Bypass -File setup.ps1
-.venv/Scripts/python.exe code/download_data.py
-.venv/Scripts/python.exe -m pytest
-.venv/Scripts/python.exe code/reproduce.py all
-.venv/Scripts/python.exe code/verify_results.py
+.venv/Scripts/python.exe -B code/download_data.py
+.venv/Scripts/python.exe -B -m pytest code/tests/test_learning.py code/tests/test_preparation.py
+.venv/Scripts/python.exe -B code/reproduce.py all
+.venv/Scripts/python.exe -B code/verify_results.py
 ```
 
-`all` 运行六表预处理、每个关系请求 1M 样本的五个 RSPN 训练及 70 查询评估；已有模型时会复用。原始六表约 2.81GB，下载包约 1.26GB，预处理另需空间。只重评已有模型可运行 `code/reproduce.py evaluate`，无需 HDF。不同设置使用独立目录，保留已验证结果。
+`all`运行六表预处理、五个关系RSPN训练和70条评估；已有匹配模型会复用。原始六表约2.81GB，预处理另需空间。这不会自动重跑全部扩展实验或恢复组员13轮训练。扩展数据、MSCN环境、数据库及科学执行门禁按[运行指南](docs/FULL_RUNNING_GUIDE.md)分别准备。完整测试目录包含真实生成器、原生编译和数据库门禁，日常按改动选择纯/合成测试，不直接运行整个目录。
 
-上述命令重跑基础流程，**不会自动恢复组员全部 13 轮训练**。组员的模型本体、HDF、完整环境和数据库仍需另外交接；ZIP 中是历史驱动与适配源码取证，不是解压即用的完整训练包。恢复条件详见[详细说明](docs/TEAM_EXPERIMENTS.md)。
+## 文件与交付边界
 
-## 来源与协作
+```text
+code/                 固定作者算法、适配、执行/核验入口、SQL和测试
+docs/                 协议、状态、差异、来源缺口和运行说明
+data/                 下载/生成的数据；数据本体不随GitHub分发
+output/results/       可公开表、图、报告和来源摘要
+output/full/          本地科学运行、模型、完整证据闭包和派生输出
+```
 
-作者算法固定提交 `655ada13a043a4226a239b0c0a65bcdefef87a02`，保留 MIT 许可证。小组基础流程负责 Windows 兼容、数据来源和模型重放；guoao 补充多预算/多种子训练、RDC 流程、PostgreSQL 对照、真值核验、图文报告和交付证据。本次同步负责主线整合、数值及包完整性复核和文档整理，不计为新增训练。
+GitHub发布代码和审查后的共享结果；大型权重、数据/HDF、环境、数据库、PDF和凭据不提交。新机器需要下载或生成数据并建立环境，清单不等于模型本体随仓库交付。作者算法固定于 `655ada13a043a4226a239b0c0a65bcdefef87a02`，MIT许可证及来源说明保留。
 
-按 [CONTRIBUTING.md](CONTRIBUTING.md) 使用独立分支和 Pull Request 协作。GitHub 发布代码、必要核验工具及可共享结果；数据、模型、环境、PDF 和凭据留在本地。后续新增结果使用新的目录和运行编号，不覆盖已核验交付包。
+本地最终交付目标为 `README.md`加 `results/`结果包，具体保留文件以最终清单为准；当前不宣称清理完成。若精简移除历史运行闭包，相关完整来源验收入口须明确退役，结果快照不能冒充仍可现场完整复核。新实验另建目录，不覆盖已验证结果。协作规则见 [CONTRIBUTING.md](CONTRIBUTING.md)。

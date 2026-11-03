@@ -174,3 +174,42 @@ def test_fresh_operational_names_are_bounded_before_long_windows_child_paths():
     m=module();assert m.safe_name('a'*32)=='a'*32
     for bad in ('a'*33,'a'*64,'../other','','x/y'):
         with pytest.raises(ValueError):m.safe_name(bad)
+
+
+@pytest.mark.parametrize('tamper',['missing','sort','keep_ctid','range','restore'])
+def test_offline_snapshot_requires_the_auxiliary_physical_scan_proof(monkeypatch,tmp_path,tamper):
+    m=module();s=m.contract.local_spec();n=s['sample_rows'];protected={k:{} for k in s['protected_databases']}
+    def proof(target,rows,keep=False):
+        schema,table=target.split('.')
+        return dict(status='PASS_SERIAL_SEQSCAN_MONOTONIC_CTID',table=target,rows=rows,keep_ctid=keep,
+            first_ctid=[0,1],last_ctid=[rows,1],settings=['off','0'],previous_settings=['on','2'],restored_settings=['on','2'],
+            explain=[{'Plan':{'Node Type':'Seq Scan','Parallel Aware':False,'Schema':schema,'Relation Name':table,'Alias':table}}])
+    loads=[]
+    for target,rows in [('public.'+t,r) for t,r in s['dimension_rows'].items()]+[(s['sample_relation'],n)]:
+        canonical=dict(bytes=rows*20,rows=rows,sha256='a'*64)
+        loads.append(dict(status='PASS_COMMITTED_TABLE_IMPORT',table=target,rows=rows,seconds=.1,
+            canonical_source=canonical,canonical_actual=canonical,physical_scan=proof(target,rows)))
+    plan={'spec':s,'schema_contract':{t:{'columns':[['id','integer']]} for t in ('dwdate','customer','supplier','part','lineorder')}}
+    snapshot=dict(status='PASS_LOCAL_LOCKED_FULL_INPUT_SNAPSHOT',original_fact_rows=0,loads=loads,schema=m.ops.expected_schema(plan),catalog={},
+        aux_accounting=[n,n/s['population_rows'],n/s['population_rows'],0,99],probability_hex=[m.ops.probability_hex(s)]*2,
+        partition_histogram=[[i,n//100+(i<n%100)] for i in range(100)],
+        metadata_size=[['public_verdict',s['sample_relation'].split('.')[1],n,s['population_rows']]],
+        metadata_name=[['public','lineorder','public_verdict',s['sample_relation'].split('.')[1],'uniform',n/s['population_rows'],'']],
+        protected_before=protected,protected_after=protected,aux_rows=dict(bytes=n*40,rows=n,sha256='c'*64,physical_scan=proof(s['sample_relation'],n,True)))
+    imported=dict(status='PASS_LOCAL_FULL_DIMENSIONS_RETAINED_FACT_IMPORT',loads=loads,population_rows=s['population_rows'],sample_rows=n,
+        original_fact_rows=0,original_queries_executed=0,dimension_policy=s['dimension_policy'])
+    files={'import.json':imported,'snapshot_before.json':snapshot,'snapshot_after.json':snapshot,'protected_before.json':protected,
+        'post_run.json':dict(status='PASS_LOCAL_SHARE_LOCKED_38_CALLS',share_lock_held_across_calls=38,before_sha256='b'*64,after_sha256='b'*64)}
+    for table in ('dwdate','customer','part','supplier','lineorder'):
+        target=s['sample_relation'] if table=='lineorder' else 'public.'+table
+        files['import_'+table+'.json']=next(row for row in loads if row['table']==target)
+    monkeypatch.setattr(m.contract,'read',lambda p:files[Path(p).name]);monkeypatch.setattr(m.contract,'digest',lambda p:'b'*64)
+    monkeypatch.setattr(m.ops,'validate_catalog',lambda *args:None)
+    m.validate_snapshots(plan,tmp_path)
+    aux=snapshot['aux_rows']['physical_scan']
+    if tamper=='missing':del snapshot['aux_rows']['physical_scan']
+    elif tamper=='sort':aux['explain'][0]['Plan']['Node Type']='Sort'
+    elif tamper=='keep_ctid':aux['keep_ctid']=False
+    elif tamper=='range':aux['last_ctid']=[0,1]
+    elif tamper=='restore':aux['restored_settings']=['off','0']
+    with pytest.raises(ValueError):m.validate_snapshots(plan,tmp_path)

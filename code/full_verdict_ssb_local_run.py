@@ -172,6 +172,7 @@ def validate_snapshots(plan,home):
         ops.validate_catalog(s,snap['catalog']);ops.validate_aux(s,snap['aux_accounting'],snap['partition_histogram'],snap['probability_hex']);ops.validate_metadata(s,snap['metadata_size'],snap['metadata_name'])
         contract.require(snap['protected_before']==snap['protected_after']==contract.read(home/'protected_before.json') and set(snap['protected_before'])==set(s['protected_databases']),'LOCAL protected3 catalog scope differs')
         contract.require(snap['aux_rows']['rows']==s['sample_rows'] and re.fullmatch('[0-9a-f]{64}',snap['aux_rows']['sha256']),'Complete LOCAL auxiliary snapshot missing')
+        ops.validate_physical_scan(snap['aux_rows'].get('physical_scan'),s['sample_relation'],s['sample_rows'],True)
         snapshot_loads=ops.validate_loads(s,snap['loads'])
         for load in imported['loads']:
             expected=snapshot_loads[load['table']]

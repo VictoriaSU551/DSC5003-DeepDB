@@ -15,7 +15,7 @@ def module():
 
 def test_explicit_local_spec_has_no_sf2_population_or_database_alias():
     m=module();s=m.local_spec()
-    assert s['database']=='deepdb_verdict_ssb_local500' and s['population_rows']==3000028242 and s['sample_rows']==9996946
+    assert s['database']=='deepdb_verdict_ssb_local500_v10' and s['population_rows']==3000028242 and s['sample_rows']==9996946
     assert s['protected_databases']==['deepdb_job','deepdb_verdict','deepdb_verdict_ssb']
     assert s['sampling_ratio']=={'numerator':9996946,'denominator':3000028242}
     old=m.load_frozen();assert old.DB=='deepdb_verdict_ssb' and old.LIMITS['total_new_bytes']==1024**3
