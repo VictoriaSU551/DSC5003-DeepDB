@@ -24,3 +24,7 @@ output/results/fullpaper_*.csv -text
 
 # The contributed evidence hashes bind literal bytes, including CRLF.
 output/results/guoao_experiments/** -text
+
+# Accepted sampling and DBEst closures pin these original CRLF input bytes.
+data/manifest.json -text
+code/benchmarks/flights/sql/aqp_queries.sql -text
