@@ -180,7 +180,11 @@ def main():
     if 'ssb_native_v2' in evidence:
         lines += ['SSB修正母体须匹配作者行数及13条SQL的2059项真值；这不证明作者全部原始行字节相同。',
                   '原失败母体另保留MISMATCH，五个单表模型受1M/table预算限制，CI仍只有一次样本。', '']
-    lines += ['只发布派生表图。原始数据、模型、运行环境、PDF和大输出保存在本地，不随仓库分发。', '',
+    lines += ['本页发布派生表图；原始数据、模型、运行环境和PDF不随仓库分发。',
+              '本地最终保留内容以根目录README和最终交付清单为准。',
+              '其他独立基线见[补充结果](fullpaper_additional_baselines.json)、'
+              '[Scalar](fullpaper_scalar_RESULTS.md)、[采样](fullpaper_sampling_RESULTS.md)及'
+              '[DBEst路由](fullpaper_dbest_routes_RESULTS.md)。', '',
               '## 表格和图', '']
     lines += ['- [' + item['path'].split('/')[-1] + '](' + item['path'].split('/')[-1] + ')' for item in outputs]
     lines += ['', '## 当前阶段状态', '', '| 阶段 | 状态 |', '| --- | --- |']

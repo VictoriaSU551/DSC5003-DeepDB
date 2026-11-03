@@ -1,12 +1,12 @@
 {
   "status": "VERIFIED_PARTIAL_COLLABORATION_SNAPSHOT",
   "full_paper_complete": false,
-  "source_updated_at_utc": "2026-10-30T18:15:21.736803+00:00",
-  "binding_sha256": "fa48b2cd373f56c47c036730fa183fb53d42ef493c4f03cf78ef80600e8375cc",
+  "source_updated_at_utc": "2026-11-03T14:44:58.354882+00:00",
+  "binding_sha256": "1fa4d9a940c4fa76666e3e937b895b12a19a17934ae45d471a8e994f8c2e9a2b",
   "exporter": {
     "path": "code/full_public_summary.py",
-    "bytes": 8052,
-    "sha256": "727ae0d5615a153dbe8b3894c0aab1e2c279736bd9211aa2eb7e88608730b095"
+    "bytes": 14986,
+    "sha256": "75bc7edffa7ec93e4510d023f3dd02d2a4986c3ce55abe7716d668b1b955e597"
   },
   "sources": {
     "cardinality": {
@@ -56,12 +56,36 @@
         "bytes": 2492,
         "sha256": "4ca1905afca9c56987ac3fb309f7fd12477074308ab9c35436099b3287742fac"
       }
+    },
+    "ssb_local_continuation": {
+      "pointer": {
+        "path": "output/full/results/ssb_local_continuation_tables_latest.json",
+        "bytes": 330,
+        "sha256": "fa49a08de58444a4e9ee779fb101b287301e42c2192b5082ad6f2b97ff35e87c"
+      },
+      "manifest": {
+        "path": "output/full/figures/aqp_ssb_local_continuation_82803cb6f9608f78/manifest.json",
+        "bytes": 10823,
+        "sha256": "bdcf3ad03a200d0c9cbf881428871c7f48586eccccf14f2490afdd1a07b36cf2"
+      }
+    },
+    "ssb_local_ci10m": {
+      "pointer": {
+        "path": "output/full/results/ssb_local_ci10m_tables_latest.json",
+        "bytes": 301,
+        "sha256": "3be7c27a18eca73f20d5c3cf7b2b53503205c30c6e747b638025a9d383d07b44"
+      },
+      "manifest": {
+        "path": "output/full/figures/aqp_ssb_local_ci10m_77f2351341dbd0c2/manifest.json",
+        "bytes": 7577390,
+        "sha256": "061a7d9a836fcbbec921a90913d7446f1a528a2869bf18a53147f0d6abd33597"
+      }
     }
   },
   "coverage_source": {
     "path": "output/full/completion_status.json",
-    "bytes": 29873,
-    "sha256": "3d1fed4cf107897756de1f0c665a9c41f8f6d730f474af89f8ad1003d24c8454"
+    "bytes": 39217,
+    "sha256": "d03a13484834450c0bdc978b329f8abb23053306179cf0413db5aeeb12cad762"
   },
   "coverage": {
     "paper_and_public_input_audit": {
@@ -284,6 +308,72 @@
       "status": "PENDING",
       "scope": "Actual retained fact sample for central90 reference; count<10 excluded; one sample, not coverage calibration"
     },
+    "ssb_native_v2_sf500_generated": {
+      "status": "FAILED_AUTHOR_POPULATION_GATE",
+      "generated_rows": 3000028242,
+      "requested_rows": 3000028242,
+      "scope": "Corrected native population: author row count and13 exact SQL truths; raw author byte identity unavailable. Historical MISMATCH remains separate."
+    },
+    "ssb_native_v2_rspn_aqp": {
+      "status": "PENDING",
+      "scope": "Corrected native SF500: five single-table RSPNs,1M/table cap; original n/p normalizer; exact author13 truths, no full raw byte identity claim."
+    },
+    "ssb_native_v2_confidence_intervals": {
+      "status": "PENDING",
+      "scope": "Central90 reference from retained fact sample; count<10 excluded; one sample, not repeated-sample calibration."
+    },
+    "ssb_local_sf500_rspn_aqp": {
+      "status": "FORMAL_COMPLETE_REPLAY_FAILURE_RECORDED",
+      "author_reproduction_complete": false,
+      "full_paper_reproduction_complete": false,
+      "author_different_groups": 1713,
+      "scope": "LOCAL SSB SF500: five single-table RSPNs,1M/table cap; original n/p normalizer; local exact truths.1713 author truth groups still differ."
+    },
+    "ssb_local_sf500_confidence_intervals": {
+      "status": "FORMAL_COMPLETE_REPLAY_FAILURE_RECORDED",
+      "author_reproduction_complete": false,
+      "full_paper_reproduction_complete": false,
+      "author_different_groups": 1713,
+      "model_training_cap_per_table": 1000000,
+      "scope": "LOCAL SSB1M/table model; Figure11 uses10M training, still separate pending. Author mismatch retained. Central90 reference from retained fact sample; count<10 excluded; one sample, not repeated-sample calibration."
+    },
+    "ssb_local_sf500_canonical_rspn_aqp": {
+      "status": "PASS_LOCAL_CONTINUATION_1M_AQP_WITH_AUTHOR_MISMATCH",
+      "author_reproduction_complete": false,
+      "full_paper_reproduction_complete": false,
+      "author_different_groups": 1713,
+      "evaluation_variant": "CANONICAL_DECODED_GROUP_PROTOTYPE_V1",
+      "historical_reverse_accepted": false,
+      "model_training_cap_per_table": 1000000,
+      "scope": "LOCAL_SSB_SF500_CANONICAL_CONTINUATION",
+      "execution_protocol": "ADOPT_ACCEPTED_FORWARD_FRESH_REVERSE_WITH_CONSUMED_CLOSURE_V1",
+      "adopted_forward": true,
+      "forward_reexecuted": false,
+      "queries": 13
+    },
+    "ssb_local_sf500_canonical_confidence_intervals": {
+      "status": "PASS_LOCAL_CONTINUATION_1M_CI_WITH_EXCLUSIONS",
+      "author_reproduction_complete": false,
+      "full_paper_reproduction_complete": false,
+      "author_different_groups": 1713,
+      "evaluation_variant": "CANONICAL_DECODED_GROUP_PROTOTYPE_V1",
+      "historical_reverse_accepted": false,
+      "model_training_cap_per_table": 1000000,
+      "scope": "LOCAL_SSB_SF500_CANONICAL_CONTINUATION",
+      "execution_protocol": "ADOPT_ACCEPTED_FORWARD_FRESH_REVERSE_WITH_CONSUMED_CLOSURE_V1",
+      "adopted_forward": true,
+      "forward_reexecuted": false,
+      "queries": 13
+    },
+    "ssb_local_sf500_10m_cap_confidence_intervals": {
+      "status": "PASS_LOCAL_10M_CAP_CI_WITH_EXCLUSIONS",
+      "author_reproduction_complete": false,
+      "full_paper_reproduction_complete": false,
+      "author_different_groups": 1713,
+      "model_training_cap_per_table": 10000000,
+      "evaluation_variant": "CANONICAL_DECODED_GROUP_PROTOTYPE_V1",
+      "scope": "Separate LOCAL Figure11 training-cap policy,10M/table; fact actually9996946. Reuses accepted prepared inputs and native moments, trains five new models; one sample and author1713 mismatch remain."
+    },
     "flights_original_baseline_comparisons": {
       "status": "PENDING"
     },
@@ -496,9 +586,109 @@
       }
     },
     {
+      "path": "output/results/fullpaper_ssb_local_continuation_query_summary.csv",
+      "bytes": 3379,
+      "sha256": "f5f0079c4962967e1ac73ff944db498d474e10ac505d5699eb12dfeb2eb22184",
+      "source": {
+        "path": "output/full/figures/aqp_ssb_local_continuation_82803cb6f9608f78/query_summary.csv",
+        "bytes": 3379,
+        "sha256": "f5f0079c4962967e1ac73ff944db498d474e10ac505d5699eb12dfeb2eb22184"
+      }
+    },
+    {
+      "path": "output/results/fullpaper_ssb_local_continuation_all_groups.csv",
+      "bytes": 546792,
+      "sha256": "bd4310124935c46210ba096815dadafb8bae16dcf5e4acab51a472b29871f538",
+      "source": {
+        "path": "output/full/figures/aqp_ssb_local_continuation_82803cb6f9608f78/all_groups.csv",
+        "bytes": 546792,
+        "sha256": "bd4310124935c46210ba096815dadafb8bae16dcf5e4acab51a472b29871f538"
+      }
+    },
+    {
+      "path": "output/results/fullpaper_ssb_local_continuation_training_tables.csv",
+      "bytes": 673,
+      "sha256": "b4940d8da768d815a8c22c721658dec444bb82160279028ae4c81aa7e7f79ab5",
+      "source": {
+        "path": "output/full/figures/aqp_ssb_local_continuation_82803cb6f9608f78/training_tables.csv",
+        "bytes": 673,
+        "sha256": "b4940d8da768d815a8c22c721658dec444bb82160279028ae4c81aa7e7f79ab5"
+      }
+    },
+    {
+      "path": "output/results/fullpaper_ssb_local_continuation_ssb_relative_error.png",
+      "bytes": 139261,
+      "sha256": "8f8782932133f7761390ba0702f33d1278b821a922552e43f920427b73a432e8",
+      "source": {
+        "path": "output/full/figures/aqp_ssb_local_continuation_82803cb6f9608f78/ssb_relative_error.png",
+        "bytes": 139261,
+        "sha256": "8f8782932133f7761390ba0702f33d1278b821a922552e43f920427b73a432e8"
+      }
+    },
+    {
+      "path": "output/results/fullpaper_ssb_local_continuation_ssb_ci_half_width.png",
+      "bytes": 143845,
+      "sha256": "e97031f5b6e255cd87574bee6c0d6df2be10a1fb61fdf824575e856896adb111",
+      "source": {
+        "path": "output/full/figures/aqp_ssb_local_continuation_82803cb6f9608f78/ssb_ci_half_width.png",
+        "bytes": 143845,
+        "sha256": "e97031f5b6e255cd87574bee6c0d6df2be10a1fb61fdf824575e856896adb111"
+      }
+    },
+    {
+      "path": "output/results/fullpaper_ssb_local_ci10m_query_summary.csv",
+      "bytes": 3111,
+      "sha256": "0e4053acf26d8ffcb05ababe3a88799b641089c71a9f99e657b2adcb3ec083cf",
+      "source": {
+        "path": "output/full/figures/aqp_ssb_local_ci10m_77f2351341dbd0c2/query_summary.csv",
+        "bytes": 3111,
+        "sha256": "0e4053acf26d8ffcb05ababe3a88799b641089c71a9f99e657b2adcb3ec083cf"
+      }
+    },
+    {
+      "path": "output/results/fullpaper_ssb_local_ci10m_all_groups.csv",
+      "bytes": 504121,
+      "sha256": "bf6bef9e37c3389f992bec9b366da6e2cf44ce537862700b88aefefa0638a0ca",
+      "source": {
+        "path": "output/full/figures/aqp_ssb_local_ci10m_77f2351341dbd0c2/all_groups.csv",
+        "bytes": 504121,
+        "sha256": "bf6bef9e37c3389f992bec9b366da6e2cf44ce537862700b88aefefa0638a0ca"
+      }
+    },
+    {
+      "path": "output/results/fullpaper_ssb_local_ci10m_training_tables.csv",
+      "bytes": 571,
+      "sha256": "eef00185e483b7674b3a3c8b80aafcd4e400724acff955207e276a23ac88fb7b",
+      "source": {
+        "path": "output/full/figures/aqp_ssb_local_ci10m_77f2351341dbd0c2/training_tables.csv",
+        "bytes": 571,
+        "sha256": "eef00185e483b7674b3a3c8b80aafcd4e400724acff955207e276a23ac88fb7b"
+      }
+    },
+    {
+      "path": "output/results/fullpaper_ssb_local_ci10m_ssb_relative_error.png",
+      "bytes": 137109,
+      "sha256": "0cf5573aefb45662f2c2495f4c2582b66a1c18e48bea585d69bf7f28af9fac64",
+      "source": {
+        "path": "output/full/figures/aqp_ssb_local_ci10m_77f2351341dbd0c2/ssb_relative_error.png",
+        "bytes": 137109,
+        "sha256": "0cf5573aefb45662f2c2495f4c2582b66a1c18e48bea585d69bf7f28af9fac64"
+      }
+    },
+    {
+      "path": "output/results/fullpaper_ssb_local_ci10m_ssb_ci_half_width.png",
+      "bytes": 144126,
+      "sha256": "b8827dc8f8d02bb107f48e3bc3fe7d4f320e65a9a722fc3c9e94199e08ae3156",
+      "source": {
+        "path": "output/full/figures/aqp_ssb_local_ci10m_77f2351341dbd0c2/ssb_ci_half_width.png",
+        "bytes": 144126,
+        "sha256": "b8827dc8f8d02bb107f48e3bc3fe7d4f320e65a9a722fc3c9e94199e08ae3156"
+      }
+    },
+    {
       "path": "output/results/FULL_PAPER_RESULTS.md",
-      "bytes": 6385,
-      "sha256": "4a9b87a90349288383c66e3d7186fbefa892e4c9e92a724718d4eb4e87165518"
+      "bytes": 8993,
+      "sha256": "6febb31b5dd1b3aa0a47e9336e8862e510a22a5bc2742a3490b7e4d614c0580c"
     }
   ],
   "scope": "Derived tables/plots only. Author-reported values and local results remain labelled. No raw rows, model files, environments, PDF or credentials are included."

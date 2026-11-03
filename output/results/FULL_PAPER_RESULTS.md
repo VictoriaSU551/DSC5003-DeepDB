@@ -2,17 +2,27 @@
 
 **整篇论文仍未完成。** 本页是已验证部分的协作快照。
 
-来源状态时间：2026-10-30T18:15:21.736803+00:00
+来源状态时间：2026-11-03T14:44:58.354882+00:00
 
 作者Table1数值与本地重跑各有evidence标签；配置、样本和尾部误差有差异，不能互相替代。
 公开工作负载为683条，其中4--6表413条；作者200条具体成员未找到。
-Flights为本地生成的1B母体；DBEst仅4类SQL/20K拟合，八类不支持，未做等预算或延迟排名。
+Flights为本地生成的1B母体；历史对照图中的DBEst只覆盖4类SQL/20K拟合，新路由另见fullpaper_additional_baselines.json，不混作等预算或延迟排名。
 CI仅一次样本，少于10行的组排除，不能解读为重复抽样覆盖率校准。
 
 Verdict仅执行已物化的同一样本：原F5.2错误和两个原SUM的外部差分适配分别列出；
 原生95%区间与DeepDB中央90%不同，不做覆盖率或耗时排名。
 
-只发布派生表图。原始数据、模型、运行环境、PDF和大输出保存在本地，不随仓库分发。
+SSB接续事务复用已独立验收的正向26次调用，并在新进程完成逆向26次调用；五个1M模型不重训。
+旧ROOT及旧逆向失败状态不改写。作者2059项真值中1713项不同，图表仅评价本地母体。
+训练上限1M/table，独立参考实际9,996,946行；Figure11的10M训练政策另列。
+
+SSB另训练五个10M/table上限模型，事实表实际9,996,946行；复用同一已封存预处理与独立样本统计。
+使用canonical配对分组顺序并经过独立逆序核验。这是Figure11训练上限政策的本地实验，
+作者1713项真值差异仍保留，不声称恰好10M事实行或作者母体完全复现。
+
+本页发布派生表图；原始数据、模型、运行环境和PDF不随仓库分发。
+本地最终保留内容以根目录README和最终交付清单为准。
+其他独立基线见[补充结果](fullpaper_additional_baselines.json)、[Scalar](fullpaper_scalar_RESULTS.md)、[采样](fullpaper_sampling_RESULTS.md)及[DBEst路由](fullpaper_dbest_routes_RESULTS.md)。
 
 ## 表格和图
 
@@ -36,6 +46,16 @@ Verdict仅执行已物化的同一样本：原F5.2错误和两个原SUM的外部
 - [fullpaper_flights_verdict_query_summary.csv](fullpaper_flights_verdict_query_summary.csv)
 - [fullpaper_flights_verdict_all_groups.csv](fullpaper_flights_verdict_all_groups.csv)
 - [fullpaper_flights_verdict_flights_verdict_comparison.png](fullpaper_flights_verdict_flights_verdict_comparison.png)
+- [fullpaper_ssb_local_continuation_query_summary.csv](fullpaper_ssb_local_continuation_query_summary.csv)
+- [fullpaper_ssb_local_continuation_all_groups.csv](fullpaper_ssb_local_continuation_all_groups.csv)
+- [fullpaper_ssb_local_continuation_training_tables.csv](fullpaper_ssb_local_continuation_training_tables.csv)
+- [fullpaper_ssb_local_continuation_ssb_relative_error.png](fullpaper_ssb_local_continuation_ssb_relative_error.png)
+- [fullpaper_ssb_local_continuation_ssb_ci_half_width.png](fullpaper_ssb_local_continuation_ssb_ci_half_width.png)
+- [fullpaper_ssb_local_ci10m_query_summary.csv](fullpaper_ssb_local_ci10m_query_summary.csv)
+- [fullpaper_ssb_local_ci10m_all_groups.csv](fullpaper_ssb_local_ci10m_all_groups.csv)
+- [fullpaper_ssb_local_ci10m_training_tables.csv](fullpaper_ssb_local_ci10m_training_tables.csv)
+- [fullpaper_ssb_local_ci10m_ssb_relative_error.png](fullpaper_ssb_local_ci10m_ssb_relative_error.png)
+- [fullpaper_ssb_local_ci10m_ssb_ci_half_width.png](fullpaper_ssb_local_ci10m_ssb_ci_half_width.png)
 
 ## 当前阶段状态
 
@@ -95,6 +115,14 @@ Verdict仅执行已物化的同一样本：原F5.2错误和两个原SUM的外部
 | independent_public_683_truths | PASS_LOCAL_COUNTS_WITH_PUBLISHED_INPUT_DIFFERENCES |
 | ssb_rspn_aqp | PENDING |
 | ssb_confidence_intervals | PENDING |
+| ssb_native_v2_sf500_generated | FAILED_AUTHOR_POPULATION_GATE |
+| ssb_native_v2_rspn_aqp | PENDING |
+| ssb_native_v2_confidence_intervals | PENDING |
+| ssb_local_sf500_rspn_aqp | FORMAL_COMPLETE_REPLAY_FAILURE_RECORDED |
+| ssb_local_sf500_confidence_intervals | FORMAL_COMPLETE_REPLAY_FAILURE_RECORDED |
+| ssb_local_sf500_canonical_rspn_aqp | PASS_LOCAL_CONTINUATION_1M_AQP_WITH_AUTHOR_MISMATCH |
+| ssb_local_sf500_canonical_confidence_intervals | PASS_LOCAL_CONTINUATION_1M_CI_WITH_EXCLUSIONS |
+| ssb_local_sf500_10m_cap_confidence_intervals | PASS_LOCAL_10M_CAP_CI_WITH_EXCLUSIONS |
 | flights_original_baseline_comparisons | PENDING |
 | ssb_aqp_and_baselines | PENDING |
 | dbest_wavelet_microbenchmarks | PENDING |
