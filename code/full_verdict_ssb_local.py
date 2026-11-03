@@ -83,12 +83,26 @@ def artifact(path):
     return dict(path=path.relative_to(ROOT).as_posix(),bytes=path.stat().st_size,sha256=digest(path))
 
 
-def verify_parent_descriptor(record):
-    """Keep only the two frozen direct-import exceptions, including scope."""
+def canonical_parent_descriptor(record):
+    """Normalize a declared file identity without hashing or changing evidence."""
     require(isinstance(record,dict) and {'path','bytes','sha256'}<=set(record),'Complete parent descriptor required')
-    actual=artifact(ROOT/record['path']);keys=set(actual)
-    require({k:record.get(k) for k in keys}==actual and ('external_scope' not in record or record['external_scope']==actual.get('external_scope')),
-        'Parent descriptor physical bytes/scope differ')
+    require(isinstance(record['path'],str) and bool(record['path']) and type(record['bytes']) is int and record['bytes']>=0
+        and isinstance(record['sha256'],str) and re.fullmatch('[0-9a-fA-F]{64}',record['sha256']) is not None,
+        'Exact integer parent bytes and 64-hex digest required')
+    root=ROOT.resolve();path=(root/record['path']).resolve()
+    if root in path.parents:
+        require('external_scope' not in record,'Project parent descriptor cannot have external scope')
+        return dict(path=path.relative_to(root).as_posix(),bytes=record['bytes'],sha256=record['sha256'])
+    allowed={Path('C:/Windows/System32')/name for name in ('KERNEL32.dll','msvcrt.dll')}
+    require(path in {p.resolve() for p in allowed} and record.get('external_scope')=='windows_direct_native_import',
+        'External parent descriptor must retain the exact allowed DLL scope')
+    return dict(path=str(path),bytes=record['bytes'],sha256=record['sha256'],external_scope=record['external_scope'])
+
+
+def verify_parent_descriptor(record):
+    """Keep exact physical bytes/digest and the two original DLL exceptions."""
+    expected=canonical_parent_descriptor(record);actual=artifact(ROOT/expected['path'])
+    require(expected==actual,'Parent descriptor physical bytes/scope differ')
     return actual
 
 
@@ -342,10 +356,10 @@ def collect_lineage(expected):
     def walk(value):
         if isinstance(value,dict):
             if set(('path','bytes','sha256'))<=set(value) and isinstance(value['path'],str):
-                previous=records.get(value['path'])
+                declared=canonical_parent_descriptor(value);previous=records.get(declared['path'])
                 if previous is None:
                     rec=verify_parent_descriptor(value);records[rec['path']]=rec
-                else:require(all(value.get(k)==v for k,v in previous.items()),'Conflicting repeated parent descriptor')
+                else:require(declared==previous,'Conflicting repeated parent descriptor')
             for child in value.values():walk(child)
         elif isinstance(value,list):
             for child in value:walk(child)

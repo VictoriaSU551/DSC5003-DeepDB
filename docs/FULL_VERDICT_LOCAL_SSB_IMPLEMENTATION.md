@@ -132,3 +132,42 @@ and all original core/process/OS/PG bans remain intact. Module import and defaul
 formula, resource value or accepted result changes. V8 evidence is 29 focused
 pure tests passing in 0.84s, with 56 unrelated tests deselected; no actual F,
 model, process constructor, PG/JVM, metadata pilot or plan was run.
+
+V9 fixes descriptor path representation after the complete v8 parent provider
+had returned successfully. The original model and continuation reports retain
+four dimension descriptors with absolute project paths. LOCAL `artifact()`
+returns canonical project-relative paths; comparing those strings rejected
+physically identical files. ROOT independently checked all four files' bytes
+and SHA and recorded the diagnosis in
+`audits/local_candidate_v8/root_actual_metadata_failure_diagnosis.json`
+(SHA256 `74ee0f321a9ea5439ae89b04d9789980ee568f56175046335bd4655868a2e37c`).
+Those data checks and the complete parent verification are not repeated while
+implementing this revision.
+
+The new pure `canonical_parent_descriptor` resolves legitimate relative,
+absolute and `..` aliases, then expresses project files relative to the project
+root. It does not hash or mutate a parent record. Bytes must be a non-boolean
+integer >=0 and the digest must contain exactly 64 hex characters. Physical
+acceptance still compares the declared bytes and SHA exactly with the current
+file. Any `external_scope` field on a project descriptor is rejected, including
+null. External files remain limited to the original KERNEL32.dll/msvcrt.dll
+whitelist and exact `windows_direct_native_import` scope.
+
+Only the recursive lineage walk indexes descriptors by that canonical identity
+before checking for duplicates. A repeated alias must declare identical bytes,
+SHA and scope; conflicts are rejected without a second walk hash. The first
+occurrence is still physically verified. This is an entry-local walk index,
+not a cross-entry cache or substitute for the fresh parent F. Initial parent
+publication checks and the tail `add` physical rechecks remain unchanged. Raw
+parent JSON, paths and seals are not edited; only the LOCAL derived `files`
+inventory uses canonical keys.
+
+TDD first observed three failures for absolute/`..` identities and a repeated
+walk alias. The corresponding descriptor/alias/drift/DLL suite then passed 19
+pure tests in 0.99s. After the interrupted session resumed, three additional
+project-scope negative cases and one original-lineage regression passed in
+0.48s; the already-passed 19 tests were not repeated. These checks use tiny
+fixtures and stub one parent call; no actual F, raw data scan, model, PG/JVM,
+metadata plan, deletion or commit occurs. Only the LOCAL contract, its tests,
+this protocol and a small v9 freeze manifest change; protected sources and
+all numerical and resource rules remain fixed.

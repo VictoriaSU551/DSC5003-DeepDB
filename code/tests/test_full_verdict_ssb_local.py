@@ -585,3 +585,77 @@ def test_windows_definition_is_bound_in_planning_source_closure_without_runtime_
     checked=m.dependency_snapshot()
     assert str(definition.__file__) in checked['source_files']
     assert checked['runtime']=={'fixture':'no runtime scan'}
+
+
+@pytest.mark.parametrize('form',['relative','absolute','dot_alias'])
+def test_parent_descriptor_path_forms_share_strict_physical_identity(tmp_path,monkeypatch,form):
+    m=module();monkeypatch.setattr(m,'ROOT',tmp_path)
+    p=tmp_path/'inputs/dimension.tbl';p.parent.mkdir();p.write_bytes(b'tiny exact dimension fixture')
+    (p.parent/'sub').mkdir();original=m.artifact(p)
+    path={'relative':original['path'],'absolute':str(p),'dot_alias':'inputs/sub/../dimension.tbl'}[form]
+    record=dict(original,path=path);before=copy.deepcopy(record)
+    assert m.verify_parent_descriptor(record)==original and record==before
+
+
+@pytest.mark.parametrize('change',['bytes','sha_same_size'])
+def test_canonical_parent_descriptor_still_rejects_real_file_drift(tmp_path,monkeypatch,change):
+    m=module();monkeypatch.setattr(m,'ROOT',tmp_path);p=tmp_path/'x';p.write_bytes(b'a')
+    record=m.artifact(p);record['path']=str(p)
+    p.write_bytes(b'bb' if change=='bytes' else b'b')
+    with pytest.raises(ValueError,match='physical'):m.verify_parent_descriptor(record)
+
+
+@pytest.mark.parametrize('field,value',[('bytes',True),('bytes',-1),('bytes',1.),('bytes','1'),
+    ('sha256','g'*64),('sha256','a'*63),('sha256',None)])
+def test_parent_descriptor_rejects_malformed_exact_size_or_digest(tmp_path,monkeypatch,field,value):
+    m=module();monkeypatch.setattr(m,'ROOT',tmp_path);p=tmp_path/'x';p.write_bytes(b'a');record=m.artifact(p)
+    record[field]=value
+    with pytest.raises(ValueError):m.verify_parent_descriptor(record)
+
+
+@pytest.mark.parametrize('scope',[None,'windows_direct_native_import','other'])
+def test_project_descriptor_cannot_claim_any_external_scope(tmp_path,monkeypatch,scope):
+    m=module();monkeypatch.setattr(m,'ROOT',tmp_path);p=tmp_path/'x';p.write_bytes(b'a')
+    record=dict(m.artifact(p),external_scope=scope)
+    with pytest.raises(ValueError,match='scope'):m.verify_parent_descriptor(record)
+
+
+def test_canonical_metadata_normalization_does_not_hash_or_allow_external_escape(tmp_path,monkeypatch):
+    import hashlib
+    m=module();root=tmp_path/'project';root.mkdir();monkeypatch.setattr(m,'ROOT',root)
+    p=root/'x';p.write_bytes(b'x');record=dict(path=str(p),bytes=1,sha256=hashlib.sha256(b'x').hexdigest())
+    monkeypatch.setattr(m,'artifact',lambda *a:pytest.fail('metadata normalizer must not hash'))
+    assert m.canonical_parent_descriptor(record)==dict(record,path='x')
+    for path in (tmp_path/'outside',root/'../outside',Path('C:/Windows/System32/user32.dll')):
+        with pytest.raises(ValueError):m.canonical_parent_descriptor(dict(record,path=str(path),external_scope='windows_direct_native_import'))
+
+
+def test_lineage_walk_hashes_relative_absolute_and_dot_alias_only_once(tmp_path,monkeypatch):
+    m,s,expected,p,calls,old,new=canonical_fixture(tmp_path,monkeypatch)
+    target=tmp_path/old['path'];(target.parent/'sub').mkdir()
+    absolute=dict(old,path=str(target));dot=dict(old,path='output/tmp/sub/../parent_asset.json')
+    p['parent_snapshot']['artifacts'].extend([absolute,dot]);p['artifacts'].append(absolute)
+    before=copy.deepcopy(p);digest=m.digest;seen=[]
+    def measured(path):
+        if Path(path).resolve()==target.resolve():seen.append('one physical hash')
+        return digest(path)
+    monkeypatch.setattr(m,'digest',measured)
+    lineage=m.collect_lineage(expected)
+    assert calls==['CANONICAL'] and seen==['one physical hash'] and p==before
+    assert lineage['files'][old['path']]==old and str(target) not in lineage['files']
+
+
+@pytest.mark.parametrize('damage',['bytes','sha256','scope'])
+def test_lineage_walk_rejects_conflicting_alias_without_second_hash(tmp_path,monkeypatch,damage):
+    m,s,expected,p,calls,old,new=canonical_fixture(tmp_path,monkeypatch);target=tmp_path/old['path']
+    conflicting=dict(old,path=str(target))
+    if damage=='bytes':conflicting['bytes']+=1
+    if damage=='sha256':conflicting['sha256']='0'*64
+    if damage=='scope':conflicting['external_scope']=None
+    p['parent_snapshot']['artifacts'].append(conflicting);digest=m.digest;seen=[]
+    def measured(path):
+        if Path(path).resolve()==target.resolve():seen.append('one physical hash')
+        return digest(path)
+    monkeypatch.setattr(m,'digest',measured)
+    with pytest.raises(ValueError):m.collect_lineage(expected)
+    assert calls==['CANONICAL'] and seen==['one physical hash']
