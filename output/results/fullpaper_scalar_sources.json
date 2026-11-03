@@ -1,0 +1,68 @@
+{
+  "author_configuration_recovered": false,
+  "binding_sha256": "ffc265042dee5ff1f6211d374422b9c66f72ec67c9cd7c85baa1ce3276d822df",
+  "full_paper_reproduction_complete": false,
+  "method": "scalar",
+  "method_scope": {
+    "author_Perfect_Selectivities_reproduction_complete": false,
+    "author_method_configuration_identified": false,
+    "cross_table_truth_used_for_prediction": false,
+    "full_paper_reproduction_complete": false,
+    "method": "LOCAL_SCALAR_ORACLE_UNIFORM_TITLE_KEY_V1",
+    "original_csv_current_database_full_value_identity_claimed": false,
+    "scalar_single_table_oracle": true
+  },
+  "metric_policy": {
+    "deepdb_existing_zero_estimate_policy": "ZERO_TO_INFINITY",
+    "floor_both_metric_operands_at": 1,
+    "name": "EVALUATION_ONLY_FLOOR1",
+    "quantiles": "LINEAR_INTERPOLATION_AT_(N_MINUS_1)_TIMES_P",
+    "raw_predictions_modified": false,
+    "shared_ranking": false
+  },
+  "outputs": [
+    {
+      "public": {
+        "bytes": 1000,
+        "path": "output/results/fullpaper_scalar_RESULTS.md",
+        "sha256": "9e21149c77a91c4da1db5cdeafd4db33ba732a616add26b49f8fc81f02fe4be1"
+      },
+      "source": {
+        "bytes": 1000,
+        "path": "output/full/figures/scalar_oracle_c0f8f6a31e91b8b68058/RESULTS.md",
+        "sha256": "9e21149c77a91c4da1db5cdeafd4db33ba732a616add26b49f8fc81f02fe4be1"
+      }
+    },
+    {
+      "public": {
+        "bytes": 26500,
+        "path": "output/results/fullpaper_scalar_predictions_scored.csv",
+        "sha256": "ae6e19e8fbb6b2a676f07aad9d47ace714194cec8caa1d56f785ab147a7d3fa9"
+      },
+      "source": {
+        "bytes": 26500,
+        "path": "output/full/figures/scalar_oracle_c0f8f6a31e91b8b68058/predictions_scored.csv",
+        "sha256": "ae6e19e8fbb6b2a676f07aad9d47ace714194cec8caa1d56f785ab147a7d3fa9"
+      }
+    }
+  ],
+  "schema": "deepdb_public_final_baseline_export_v1",
+  "scientific_calls_during_export": 0,
+  "scope": "Only byte-exact already-accepted derived tables and method notes; no raw data/model/environment or original scientific replay",
+  "source_manifest": {
+    "bytes": 8846,
+    "path": "output/full/figures/scalar_oracle_c0f8f6a31e91b8b68058/manifest.json",
+    "sha256": "b311bac24171b5976c23b588374016a048d4cf49ef83b497ff6fb98714eaf1b2"
+  },
+  "source_manifest_self_sha256": "c3d6c657c8991697a8cac4d65a4d2d9fcbfe337ea97f116c7fae521b08b80d02",
+  "source_status": "PASS_VERIFIED_LOCAL_SCALAR_ORACLE_DERIVED_TABLES",
+  "status": "PASS_BYTE_EXACT_DERIVED_EXPORT",
+  "summary": {
+    "max": 2104.157661583747,
+    "median": 8.739292441982204,
+    "p90": 161.81126635571508,
+    "p95": 818.6582862530514,
+    "queries": 70,
+    "raw_zero_estimates": 0
+  }
+}

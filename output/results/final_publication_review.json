@@ -1,0 +1,62 @@
+{
+  "findings": {
+    "additional_credentials_or_large_binary_blocker_identified": false,
+    "important_byte_identity_issue": "RESOLVED_ALL9_INPUT_SOURCE_BLOBS",
+    "minor_provenance_docs": "RESOLVED_BASELINE_ERA_PATCH_LABEL_AND_CURRENT_LINKS"
+  },
+  "full_paper_reproduction_complete": false,
+  "provenance_doc_fix_commit": "d4161563257c701eaac0e42e65ead34a617e4170",
+  "reviewed_head": "0fc0188ada6ea44e748beceac7ad95c5309acf45",
+  "reviewer": "independent final_public_review agent",
+  "root_rechecked_git_blob_identity": [
+    {
+      "bytes": 1502,
+      "path": "data/manifest.json",
+      "sha256": "ae6a5cef66340bae23325722f0f0d29ee616850851b99b6989ab1d5b6a6f3e13"
+    },
+    {
+      "bytes": 1217,
+      "path": "code/benchmarks/flights/sql/aqp_queries.sql",
+      "sha256": "5400031e656041bbe2d374d40a68b6817196c7ca777100dbfeaf666efa70c823"
+    },
+    {
+      "bytes": 13779,
+      "path": "code/benchmarks/job-light/sql/job_light_queries.sql",
+      "sha256": "e61da91710ce62d3669be70a8ded2499c6de1d759fcfac9a954b939465e76fdb"
+    },
+    {
+      "bytes": 3131,
+      "path": "code/benchmarks/ssb/setup-sql/schema.sql",
+      "sha256": "250abfbb28d74a8ded09110be6b16c2b472d6541691621b88e7a562ddb5a85dd"
+    },
+    {
+      "bytes": 4053,
+      "path": "code/benchmarks/ssb/sql/aqp_queries.sql",
+      "sha256": "37bf231b917f5c5995decb576566596acfc37722ed08e554252e68e91f839e32"
+    },
+    {
+      "bytes": 2893,
+      "path": "code/aqp_spn/code_generation/convert_conditions.py",
+      "sha256": "a1f5c0e2d3644b34a6ad5a19e39451f617b958a6fb993c08bd5aee55ecb9b255"
+    },
+    {
+      "bytes": 2893,
+      "path": "code/rspn/code_generation/convert_conditions.py",
+      "sha256": "a1f5c0e2d3644b34a6ad5a19e39451f617b958a6fb993c08bd5aee55ecb9b255"
+    },
+    {
+      "bytes": 2788,
+      "path": "code/aqp_spn/code_generation/templates/identity_leave.cpp",
+      "sha256": "1015d1d9e54bd39180a60fd7cc2a0a040690b44ab586d4ad450f511b9dbb6d59"
+    },
+    {
+      "bytes": 2874,
+      "path": "code/rspn/code_generation/templates/identity_leave.cpp",
+      "sha256": "ecc700ae2eee9b410dd06fdb3fee98f489ff7254bc7154f1f07355ae2de3aaee"
+    }
+  ],
+  "schema": "deepdb_static_publication_review_v1",
+  "scientific_execution_by_reviewer": false,
+  "scope": "Tracked public source/results diff vs10770d75a22319938dbbb53fe855ae6b6d29e5bd. No ignoredrawdata/runtime inspection, scientific correctness or operational acceptance claim.",
+  "status": "PASS_BOUNDED_STATIC_REVIEW_AFTER_BYTE_REPAIRS"
+}
