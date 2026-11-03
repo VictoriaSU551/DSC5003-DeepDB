@@ -239,7 +239,7 @@ def test_10m_projection_requires_new_group_replay_and_variant(tmp_path,monkeypat
         source_snapshot=dict(published_result=dict(sha256=status.file_sha256(tmp_path/name)),sample_rows=9996946),coverage=coverage)
     calls=[]
     def verify():calls.append('new-group-replay');return accepted
-    monkeypatch.setitem(sys.modules,'full_ssb_local_ci_group_replay',SimpleNamespace(verify=verify))
+    monkeypatch.setitem(sys.modules,'full_ssb_local_ci_acceptance',SimpleNamespace(verify=verify))
     monkeypatch.setitem(sys.modules,'full_ssb_local_ci_replay',SimpleNamespace(verify=lambda:pytest.fail('historical replay')))
     result=status.ci10m_stage()
     assert calls==['new-group-replay']

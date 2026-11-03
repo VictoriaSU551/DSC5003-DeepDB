@@ -20,6 +20,16 @@
 SF500约299.3GB。这只是原始文本外推，不是SF500实际dump或PostgreSQL空间实测。
 原始证据和逐列计算保存在`output/full/results/ssb_full_database_resource_bound_20261031.json`。
 因此当前机器无法直接建立原规模的普通PostgreSQL全表来运行TABLESAMPLE、原表建样本及完整join索引基线。
+
+2026-11-03补充一个更保守的普通heap容量推导，避免将108GB数值载荷误作可启动门限。
+[PostgreSQL11页布局](https://www.postgresql.org/docs/11/storage-page-layout.html)给出标准8KB页、24字节页头、
+每行4字节item指针及通常23字节固定行头；[11.5的页插入源码](https://github.com/postgres/postgres/blob/REL_11_5/src/backend/storage/page/bufpage.c#L283)
+还对行存储长度做MAXALIGN。对这里的9个非NULL int4列，即使完全忽略对齐填充、
+索引、WAL和维表，每行也至少需`23+36+4=63`字节，故每页至多
+`floor((8192-24)/63)=129`行，事实heap至少
+`ceil(3000028242/129)*8192=190,513,422,336`字节。
+这是标准页/行布局下的理论下界，未实际建立3B数据库，不是实测占用；实际对齐和其他开销会增加容量需求。
+清理工作目录的临时文件，不应据此把普通全表或XDB原规模基线改记为已执行。
 流式truth和保留样本仍可用于RSPN/CI及明确标注的sample-only方法；它们不提供原全表采样/建索引的端到端时间。
 本结论针对公开schema和当前磁盘，不声称所有压缩或其他数据库实现都不可能。
 

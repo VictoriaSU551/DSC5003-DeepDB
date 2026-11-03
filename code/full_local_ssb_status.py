@@ -195,7 +195,7 @@ def ci10m_stage():
     result['status']='FORMAL_COMPLETE_REPLAY_PENDING'
     if not (FULL/'ssb/local_sf500_ci10m_group_replay/verification.json').exists():return result
     try:
-        from full_ssb_local_ci_group_replay import verify
+        from full_ssb_local_ci_acceptance import verify
         accepted=verify();source=accepted['source_snapshot']
         if (accepted['status']!='PASS_LOCAL_SSB_10M_CI_REVERSE_REPLAY_WITH_AUTHOR_MISMATCH'
                 or accepted['scope']!='LOCAL_SSB_10M_CI' or accepted['author_reproduction_complete'] is not False
