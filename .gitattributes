@@ -28,3 +28,6 @@ output/results/guoao_experiments/** -text
 # Accepted sampling and DBEst closures pin these original CRLF input bytes.
 data/manifest.json -text
 code/benchmarks/flights/sql/aqp_queries.sql -text
+code/benchmarks/job-light/sql/job_light_queries.sql -text
+code/benchmarks/ssb/setup-sql/schema.sql -text
+code/benchmarks/ssb/sql/aqp_queries.sql -text
