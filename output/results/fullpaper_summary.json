@@ -1,0 +1,695 @@
+{
+  "status": "VERIFIED_PARTIAL_COLLABORATION_SNAPSHOT",
+  "full_paper_complete": false,
+  "source_updated_at_utc": "2026-11-03T14:44:58.354882+00:00",
+  "binding_sha256": "1fa4d9a940c4fa76666e3e937b895b12a19a17934ae45d471a8e994f8c2e9a2b",
+  "exporter": {
+    "path": "code/full_public_summary.py",
+    "bytes": 14986,
+    "sha256": "75bc7edffa7ec93e4510d023f3dd02d2a4986c3ce55abe7716d668b1b955e597"
+  },
+  "sources": {
+    "cardinality": {
+      "pointer": {
+        "path": "output/full/results/cardinality_tables_latest.json",
+        "bytes": 186,
+        "sha256": "b180409ae0e908c4db3ad5b89f07285d72c434a3e38db3ce9ab112b257e2bc58"
+      },
+      "manifest": {
+        "path": "output/full/figures/cardinality_61d7224ef23951eb/manifest.json",
+        "bytes": 224664,
+        "sha256": "163e78b5ce87f94164cdb84c5f5741e88bc84a75d86a17ce3bf0e92d674d720b"
+      }
+    },
+    "flights": {
+      "pointer": {
+        "path": "output/full/results/flights_tables_latest.json",
+        "bytes": 186,
+        "sha256": "96599422dbddb5bfc6f26bddde933838271c273496a52cd00ac14862fb2ee5a7"
+      },
+      "manifest": {
+        "path": "output/full/figures/aqp_flights_256fc053b7983353/manifest.json",
+        "bytes": 3432,
+        "sha256": "f7eb5cc7a6e292d501600ed0a020c3020b8421f2859a845f21f02c5049caa93a"
+      }
+    },
+    "flights_comparison": {
+      "pointer": {
+        "path": "output/full/results/flights_comparisons_latest.json",
+        "bytes": 198,
+        "sha256": "56c124fd78a8506bc2b8fb2082b8b6c32fe737b678d25dc55c02bcb222080fb5"
+      },
+      "manifest": {
+        "path": "output/full/figures/aqp_flights_comparisons_1d94f526466dde60/manifest.json",
+        "bytes": 2690,
+        "sha256": "98046aa7716d88e29e9fd6369e23035dfa4a83289cc9e44d28b1fea49f57e9ef"
+      }
+    },
+    "flights_verdict": {
+      "pointer": {
+        "path": "output/full/results/verdict_tables_latest.json",
+        "bytes": 194,
+        "sha256": "8435dde51c40888df3e066943ee859989f3970ffb4c62b7d65baea743ccb34c4"
+      },
+      "manifest": {
+        "path": "output/full/figures/aqp_flights_verdict_fb9beec9e2b4eb19/manifest.json",
+        "bytes": 2492,
+        "sha256": "4ca1905afca9c56987ac3fb309f7fd12477074308ab9c35436099b3287742fac"
+      }
+    },
+    "ssb_local_continuation": {
+      "pointer": {
+        "path": "output/full/results/ssb_local_continuation_tables_latest.json",
+        "bytes": 330,
+        "sha256": "fa49a08de58444a4e9ee779fb101b287301e42c2192b5082ad6f2b97ff35e87c"
+      },
+      "manifest": {
+        "path": "output/full/figures/aqp_ssb_local_continuation_82803cb6f9608f78/manifest.json",
+        "bytes": 10823,
+        "sha256": "bdcf3ad03a200d0c9cbf881428871c7f48586eccccf14f2490afdd1a07b36cf2"
+      }
+    },
+    "ssb_local_ci10m": {
+      "pointer": {
+        "path": "output/full/results/ssb_local_ci10m_tables_latest.json",
+        "bytes": 301,
+        "sha256": "3be7c27a18eca73f20d5c3cf7b2b53503205c30c6e747b638025a9d383d07b44"
+      },
+      "manifest": {
+        "path": "output/full/figures/aqp_ssb_local_ci10m_77f2351341dbd0c2/manifest.json",
+        "bytes": 7577390,
+        "sha256": "061a7d9a836fcbbec921a90913d7446f1a528a2869bf18a53147f0d6abd33597"
+      }
+    }
+  },
+  "coverage_source": {
+    "path": "output/full/completion_status.json",
+    "bytes": 39217,
+    "sha256": "d03a13484834450c0bdc978b329f8abb23053306179cf0413db5aeeb12cad762"
+  },
+  "coverage": {
+    "paper_and_public_input_audit": {
+      "status": "INPUT_AUDIT_PASS_WITH_GAPS"
+    },
+    "independent_70_truths_and_postgres_11_5": {
+      "status": "PASS"
+    },
+    "rdc_n100000_b0p0": {
+      "status": "PASS_LOCAL_VARIANT",
+      "queries": 70
+    },
+    "joblight_single_n10000000": {
+      "status": "PASS_LOCAL_VARIANT",
+      "queries": 70
+    },
+    "paper_proxy_joblight_rdc_n10000000_b0p5": {
+      "status": "PASS_LOCAL_VARIANT",
+      "queries": 70
+    },
+    "public_scale_rdc_n100000_b0p0": {
+      "status": "PASS_LOCAL_VARIANT",
+      "queries": 753
+    },
+    "public_scale_rdc_n10000000_b0p5": {
+      "status": "PASS_LOCAL_VARIANT",
+      "queries": 753
+    },
+    "sample_size_sweep_public_profile/1000": {
+      "status": "PASS_LOCAL_VARIANT",
+      "queries": 753
+    },
+    "sample_size_sweep_public_profile/10000": {
+      "status": "PASS_LOCAL_VARIANT",
+      "queries": 753
+    },
+    "sample_size_sweep_public_profile/100000": {
+      "status": "PASS_LOCAL_VARIANT",
+      "queries": 753
+    },
+    "sample_size_sweep_public_profile/1000000": {
+      "status": "PASS_LOCAL_VARIANT",
+      "queries": 753
+    },
+    "sample_size_sweep_public_profile/10000000": {
+      "status": "PASS_LOCAL_VARIANT",
+      "queries": 753
+    },
+    "budget_sweep_public_paper_cost_proxy/0.0": {
+      "status": "PASS_LOCAL_VARIANT",
+      "queries": 753
+    },
+    "budget_sweep_public_paper_cost_proxy/0.5": {
+      "status": "PASS_LOCAL_VARIANT",
+      "queries": 753
+    },
+    "budget_sweep_public_paper_cost_proxy/1.0": {
+      "status": "PASS_LOCAL_VARIANT",
+      "queries": 753
+    },
+    "budget_sweep_public_paper_cost_proxy/2.0": {
+      "status": "PASS_LOCAL_VARIANT",
+      "queries": 753
+    },
+    "budget_sweep_public_paper_cost_proxy/3.0": {
+      "status": "PASS_LOCAL_VARIANT",
+      "queries": 753
+    },
+    "temporal_10m_joblight/2019": {
+      "status": "PASS_LOCAL_VARIANT",
+      "queries": 70
+    },
+    "temporal_10m_joblight/2011": {
+      "status": "PASS_LOCAL_VARIANT",
+      "queries": 70
+    },
+    "temporal_10m_joblight/2009": {
+      "status": "PASS_LOCAL_VARIANT",
+      "queries": 70
+    },
+    "temporal_10m_joblight/2004": {
+      "status": "PASS_LOCAL_VARIANT",
+      "queries": 70
+    },
+    "temporal_10m_joblight/1991": {
+      "status": "PASS_LOCAL_VARIANT",
+      "queries": 70
+    },
+    "literal_point3_ensemble_threshold/joblight/0.0": {
+      "status": "PASS_LOCAL_VARIANT",
+      "queries": 70
+    },
+    "literal_point3_ensemble_threshold/joblight/0.5": {
+      "status": "PASS_LOCAL_VARIANT",
+      "queries": 70
+    },
+    "literal_point3_ensemble_threshold/joblight/1.0": {
+      "status": "PASS_LOCAL_VARIANT",
+      "queries": 70
+    },
+    "literal_point3_ensemble_threshold/joblight/2.0": {
+      "status": "PASS_LOCAL_VARIANT",
+      "queries": 70
+    },
+    "literal_point3_ensemble_threshold/joblight/3.0": {
+      "status": "PASS_LOCAL_VARIANT",
+      "queries": 70
+    },
+    "literal_point3_ensemble_threshold/public_scale/0.0": {
+      "status": "PASS_LOCAL_VARIANT",
+      "queries": 753
+    },
+    "literal_point3_ensemble_threshold/public_scale/0.5": {
+      "status": "PASS_LOCAL_VARIANT",
+      "queries": 753
+    },
+    "literal_point3_ensemble_threshold/public_scale/1.0": {
+      "status": "PASS_LOCAL_VARIANT",
+      "queries": 753
+    },
+    "literal_point3_ensemble_threshold/public_scale/2.0": {
+      "status": "PASS_LOCAL_VARIANT",
+      "queries": 753
+    },
+    "literal_point3_ensemble_threshold/public_scale/3.0": {
+      "status": "PASS_LOCAL_VARIANT",
+      "queries": 753
+    },
+    "all_relationships_joblight/100000": {
+      "status": "PASS_LOCAL_VARIANT",
+      "queries": 70
+    },
+    "all_relationships_joblight/10000000": {
+      "status": "PASS_LOCAL_VARIANT",
+      "queries": 70
+    },
+    "cpp_existing_model_correctness": {
+      "status": "PASS",
+      "scope": "Existing 1M model correctness and repeated JOB-light timing; not full Figure 8"
+    },
+    "flights_source_5m": {
+      "status": "PASS",
+      "scope": "Source inputs only; not generated 1B"
+    },
+    "flights_streaming_golden_200k": {
+      "status": "PASS",
+      "scope": "Adapter correctness at 200K, not full-size experiment"
+    },
+    "flights_1b_generated": {
+      "status": "PASS_ORIGINAL_SCALE_GENERATION",
+      "generated_rows": 1000000000,
+      "requested_rows": 1000000000,
+      "scope": "Streaming population traversal and own exact truth, no full population database retained"
+    },
+    "ssb_sf500_generated": {
+      "status": "FAILED_AUTHOR_POPULATION_GATE",
+      "generated_rows": 3000028334,
+      "requested_rows": 3000028242,
+      "scope": "Traversal completed but author row count/truth differs. Original formal model gate remains closed."
+    },
+    "mscn_100_epochs": {
+      "status": "PASS_LOCAL_TABLE1_RERUN",
+      "scope": "Official matched 100K input bitmaps; public 683 generalization bitmaps not recovered"
+    },
+    "mscn_rebuilt_consistent_sample_generalization": {
+      "status": "PASS_SEALED_REBUILT_100_EPOCHS_LOCAL_WORKLOAD",
+      "scope": "Separate rebuilt same-sample train/evaluation bitmaps; final 753-query and local-truth acceptance required",
+      "queries": 753
+    },
+    "cpp_5spn_public_workload": {
+      "status": "PASS",
+      "queries": 753,
+      "scope": "Same cold-cache path differential, separate from later model-aware v2 gate"
+    },
+    "cpp_6spn_paper_proxy_v2": {
+      "status": "PASS_SEALED_LOCAL_PUBLIC_WORKLOAD",
+      "queries": 753,
+      "scope": "Historical v2 selector. Sealed receipt checked; native assets exhaustively verified at sealing. Canonical v3 requires its separate differential gate."
+    },
+    "cpp_canonical_v3": {
+      "status": "PASS_READ_ONLY_CURRENT_CANONICAL_NATIVE_AUDIT",
+      "scope": "Canonical753x3, all15public Figure8 cells; complete physical native-call wall, shared host, not paper200/hardware",
+      "queries": 753
+    },
+    "dbest_1b_bounded_original_engine": {
+      "status": "PASS_WITH_GAPS",
+      "scope": "Original engine on own1B population;20K fit cap;4SQL classes and DE coverage gap. Not author configuration or full Figure13."
+    },
+    "verdict_original_existing_uniform_sample": {
+      "status": "PASS_SAMPLE_ONLY_WITH_GAPS",
+      "scope": "Original Verdict engine on existing uniform sample only; full1B table absent. Raw F5.2 incorrect; two-SUM adapter separate; native95% CI.",
+      "queries": 12
+    },
+    "paper_exact_200_query_binding": {
+      "status": "OPEN_SOURCE_GAP"
+    },
+    "figure5_original_synthetic_database": {
+      "status": "OPEN_SOURCE_GAP"
+    },
+    "all_original_comparison_implementations": {
+      "status": "OPEN_SOURCE_GAP"
+    },
+    "figure7_exact_author_config": {
+      "status": "OPEN_SOURCE_GAP"
+    },
+    "flights_1b_rspn_aqp_and_ci": {
+      "status": "PASS_SEALED_ORIGINAL_SCALE_LOCAL_EXPERIMENT",
+      "scope": "Own IDEBench population/seed; one-sample CI experiment, not repeated-sample calibration. Original baseline comparisons remain separate."
+    },
+    "independent_public_683_truths": {
+      "status": "PASS_LOCAL_COUNTS_WITH_PUBLISHED_INPUT_DIFFERENCES",
+      "queries": 683,
+      "scope": "Published CSVs remain unchanged; local exact counts are a separate input"
+    },
+    "ssb_rspn_aqp": {
+      "status": "PENDING",
+      "scope": "SF500, single-table RSPNs capped1M/table; exact population truth, original n/p model normalizer"
+    },
+    "ssb_confidence_intervals": {
+      "status": "PENDING",
+      "scope": "Actual retained fact sample for central90 reference; count<10 excluded; one sample, not coverage calibration"
+    },
+    "ssb_native_v2_sf500_generated": {
+      "status": "FAILED_AUTHOR_POPULATION_GATE",
+      "generated_rows": 3000028242,
+      "requested_rows": 3000028242,
+      "scope": "Corrected native population: author row count and13 exact SQL truths; raw author byte identity unavailable. Historical MISMATCH remains separate."
+    },
+    "ssb_native_v2_rspn_aqp": {
+      "status": "PENDING",
+      "scope": "Corrected native SF500: five single-table RSPNs,1M/table cap; original n/p normalizer; exact author13 truths, no full raw byte identity claim."
+    },
+    "ssb_native_v2_confidence_intervals": {
+      "status": "PENDING",
+      "scope": "Central90 reference from retained fact sample; count<10 excluded; one sample, not repeated-sample calibration."
+    },
+    "ssb_local_sf500_rspn_aqp": {
+      "status": "FORMAL_COMPLETE_REPLAY_FAILURE_RECORDED",
+      "author_reproduction_complete": false,
+      "full_paper_reproduction_complete": false,
+      "author_different_groups": 1713,
+      "scope": "LOCAL SSB SF500: five single-table RSPNs,1M/table cap; original n/p normalizer; local exact truths.1713 author truth groups still differ."
+    },
+    "ssb_local_sf500_confidence_intervals": {
+      "status": "FORMAL_COMPLETE_REPLAY_FAILURE_RECORDED",
+      "author_reproduction_complete": false,
+      "full_paper_reproduction_complete": false,
+      "author_different_groups": 1713,
+      "model_training_cap_per_table": 1000000,
+      "scope": "LOCAL SSB1M/table model; Figure11 uses10M training, still separate pending. Author mismatch retained. Central90 reference from retained fact sample; count<10 excluded; one sample, not repeated-sample calibration."
+    },
+    "ssb_local_sf500_canonical_rspn_aqp": {
+      "status": "PASS_LOCAL_CONTINUATION_1M_AQP_WITH_AUTHOR_MISMATCH",
+      "author_reproduction_complete": false,
+      "full_paper_reproduction_complete": false,
+      "author_different_groups": 1713,
+      "evaluation_variant": "CANONICAL_DECODED_GROUP_PROTOTYPE_V1",
+      "historical_reverse_accepted": false,
+      "model_training_cap_per_table": 1000000,
+      "scope": "LOCAL_SSB_SF500_CANONICAL_CONTINUATION",
+      "execution_protocol": "ADOPT_ACCEPTED_FORWARD_FRESH_REVERSE_WITH_CONSUMED_CLOSURE_V1",
+      "adopted_forward": true,
+      "forward_reexecuted": false,
+      "queries": 13
+    },
+    "ssb_local_sf500_canonical_confidence_intervals": {
+      "status": "PASS_LOCAL_CONTINUATION_1M_CI_WITH_EXCLUSIONS",
+      "author_reproduction_complete": false,
+      "full_paper_reproduction_complete": false,
+      "author_different_groups": 1713,
+      "evaluation_variant": "CANONICAL_DECODED_GROUP_PROTOTYPE_V1",
+      "historical_reverse_accepted": false,
+      "model_training_cap_per_table": 1000000,
+      "scope": "LOCAL_SSB_SF500_CANONICAL_CONTINUATION",
+      "execution_protocol": "ADOPT_ACCEPTED_FORWARD_FRESH_REVERSE_WITH_CONSUMED_CLOSURE_V1",
+      "adopted_forward": true,
+      "forward_reexecuted": false,
+      "queries": 13
+    },
+    "ssb_local_sf500_10m_cap_confidence_intervals": {
+      "status": "PASS_LOCAL_10M_CAP_CI_WITH_EXCLUSIONS",
+      "author_reproduction_complete": false,
+      "full_paper_reproduction_complete": false,
+      "author_different_groups": 1713,
+      "model_training_cap_per_table": 10000000,
+      "evaluation_variant": "CANONICAL_DECODED_GROUP_PROTOTYPE_V1",
+      "scope": "Separate LOCAL Figure11 training-cap policy,10M/table; fact actually9996946. Reuses accepted prepared inputs and native moments, trains five new models; one sample and author1713 mismatch remain."
+    },
+    "flights_original_baseline_comparisons": {
+      "status": "PENDING"
+    },
+    "ssb_aqp_and_baselines": {
+      "status": "PENDING"
+    },
+    "dbest_wavelet_microbenchmarks": {
+      "status": "PENDING"
+    }
+  },
+  "outputs": [
+    {
+      "path": "output/results/fullpaper_cardinality_table1.csv",
+      "bytes": 1574,
+      "sha256": "134cb7f7b0f4f586b6053c6c8f88fd8e82af46161f32bcd85ce2fafd05c1994a",
+      "source": {
+        "path": "output/full/figures/cardinality_61d7224ef23951eb/table1.csv",
+        "bytes": 1574,
+        "sha256": "134cb7f7b0f4f586b6053c6c8f88fd8e82af46161f32bcd85ce2fafd05c1994a"
+      }
+    },
+    {
+      "path": "output/results/fullpaper_cardinality_studies.csv",
+      "bytes": 18077,
+      "sha256": "df014a0cd098e9137119da44b3fd36d06721b23d4ef8c1459002216feeeeec93",
+      "source": {
+        "path": "output/full/figures/cardinality_61d7224ef23951eb/studies.csv",
+        "bytes": 18077,
+        "sha256": "df014a0cd098e9137119da44b3fd36d06721b23d4ef8c1459002216feeeeec93"
+      }
+    },
+    {
+      "path": "output/results/fullpaper_cardinality_groups.csv",
+      "bytes": 68650,
+      "sha256": "e9ed300f7f535f710240b32cf0c0a68fea6ce56c0367a1d7cae4be44eee57531",
+      "source": {
+        "path": "output/full/figures/cardinality_61d7224ef23951eb/groups.csv",
+        "bytes": 68650,
+        "sha256": "e9ed300f7f535f710240b32cf0c0a68fea6ce56c0367a1d7cae4be44eee57531"
+      }
+    },
+    {
+      "path": "output/results/fullpaper_cardinality_temporal_population_fractions.csv",
+      "bytes": 3415,
+      "sha256": "a1fe682824a6bfbf58667195b498cc148137210d08084568c4fc2ad11fcf2d85",
+      "source": {
+        "path": "output/full/figures/cardinality_61d7224ef23951eb/temporal_population_fractions.csv",
+        "bytes": 3415,
+        "sha256": "a1fe682824a6bfbf58667195b498cc148137210d08084568c4fc2ad11fcf2d85"
+      }
+    },
+    {
+      "path": "output/results/fullpaper_cardinality_inference_variant_changes.csv",
+      "bytes": 24979,
+      "sha256": "6292fab5e180a432129f4c78ddffa7df05420099e3cef0728ee42e36bc7af4ef",
+      "source": {
+        "path": "output/full/figures/cardinality_61d7224ef23951eb/inference_variant_changes.csv",
+        "bytes": 24979,
+        "sha256": "6292fab5e180a432129f4c78ddffa7df05420099e3cef0728ee42e36bc7af4ef"
+      }
+    },
+    {
+      "path": "output/results/fullpaper_cardinality_table1_comparison.png",
+      "bytes": 132719,
+      "sha256": "c5bf9066a305e95b2be3eab877747675e271047d228749beb222f1864901fed6",
+      "source": {
+        "path": "output/full/figures/cardinality_61d7224ef23951eb/table1_comparison.png",
+        "bytes": 132719,
+        "sha256": "c5bf9066a305e95b2be3eab877747675e271047d228749beb222f1864901fed6"
+      }
+    },
+    {
+      "path": "output/results/fullpaper_cardinality_sample_size_study.png",
+      "bytes": 114442,
+      "sha256": "8d32b59e52688d920b3b64ac504377d1a3197f4a5e254ef7ef807140813077b5",
+      "source": {
+        "path": "output/full/figures/cardinality_61d7224ef23951eb/sample_size_study.png",
+        "bytes": 114442,
+        "sha256": "8d32b59e52688d920b3b64ac504377d1a3197f4a5e254ef7ef807140813077b5"
+      }
+    },
+    {
+      "path": "output/results/fullpaper_cardinality_budget_study.png",
+      "bytes": 116815,
+      "sha256": "338d6412bdf9ee765ba1df38207126ab519a3778c7310e40f1882f6d7e8fdfef",
+      "source": {
+        "path": "output/full/figures/cardinality_61d7224ef23951eb/budget_study.png",
+        "bytes": 116815,
+        "sha256": "338d6412bdf9ee765ba1df38207126ab519a3778c7310e40f1882f6d7e8fdfef"
+      }
+    },
+    {
+      "path": "output/results/fullpaper_cardinality_generalization.png",
+      "bytes": 155580,
+      "sha256": "c0c2f4aa7f9690c08ee3f27608fa7ea9c9751f2200f627d58e458c7b69df6bc3",
+      "source": {
+        "path": "output/full/figures/cardinality_61d7224ef23951eb/generalization.png",
+        "bytes": 155580,
+        "sha256": "c0c2f4aa7f9690c08ee3f27608fa7ea9c9751f2200f627d58e458c7b69df6bc3"
+      }
+    },
+    {
+      "path": "output/results/fullpaper_cardinality_cpp_latency.png",
+      "bytes": 100919,
+      "sha256": "aed2410e2c6659c61213cce44193b26f75aa344e7fdd774c9aef2f19d5cfaaa4",
+      "source": {
+        "path": "output/full/figures/cardinality_61d7224ef23951eb/cpp_latency.png",
+        "bytes": 100919,
+        "sha256": "aed2410e2c6659c61213cce44193b26f75aa344e7fdd774c9aef2f19d5cfaaa4"
+      }
+    },
+    {
+      "path": "output/results/fullpaper_cardinality_temporal_updates.png",
+      "bytes": 153169,
+      "sha256": "955d9674ff7a80a621e82d552cb32e9c7d8a9e831a7c2738976ea532759ae670",
+      "source": {
+        "path": "output/full/figures/cardinality_61d7224ef23951eb/temporal_updates.png",
+        "bytes": 153169,
+        "sha256": "955d9674ff7a80a621e82d552cb32e9c7d8a9e831a7c2738976ea532759ae670"
+      }
+    },
+    {
+      "path": "output/results/fullpaper_flights_query_summary.csv",
+      "bytes": 1524,
+      "sha256": "0d26d4e692bb07e19097b83774819b84fc815bae13b1a2ed5e593c34889a522a",
+      "source": {
+        "path": "output/full/figures/aqp_flights_256fc053b7983353/query_summary.csv",
+        "bytes": 1524,
+        "sha256": "0d26d4e692bb07e19097b83774819b84fc815bae13b1a2ed5e593c34889a522a"
+      }
+    },
+    {
+      "path": "output/results/fullpaper_flights_all_groups.csv",
+      "bytes": 54397,
+      "sha256": "24f743f7e9aae2f67679c7dd5841e217805b00d230e38330e7b06a34ef2f2fc9",
+      "source": {
+        "path": "output/full/figures/aqp_flights_256fc053b7983353/all_groups.csv",
+        "bytes": 54397,
+        "sha256": "24f743f7e9aae2f67679c7dd5841e217805b00d230e38330e7b06a34ef2f2fc9"
+      }
+    },
+    {
+      "path": "output/results/fullpaper_flights_flights_relative_error.png",
+      "bytes": 90072,
+      "sha256": "38178e81429775aecca45e4503ca7e694b4a14b32fa3fa3b751dcde42aa32d4b",
+      "source": {
+        "path": "output/full/figures/aqp_flights_256fc053b7983353/flights_relative_error.png",
+        "bytes": 90072,
+        "sha256": "38178e81429775aecca45e4503ca7e694b4a14b32fa3fa3b751dcde42aa32d4b"
+      }
+    },
+    {
+      "path": "output/results/fullpaper_flights_flights_ci_half_width.png",
+      "bytes": 131458,
+      "sha256": "82cdfb76d8092db661b4baddce6f7520cbb8f299a60aefe216f20ecc65d58f1e",
+      "source": {
+        "path": "output/full/figures/aqp_flights_256fc053b7983353/flights_ci_half_width.png",
+        "bytes": 131458,
+        "sha256": "82cdfb76d8092db661b4baddce6f7520cbb8f299a60aefe216f20ecc65d58f1e"
+      }
+    },
+    {
+      "path": "output/results/fullpaper_flights_comparison_query_comparison.csv",
+      "bytes": 1552,
+      "sha256": "5c17598220aa1092a6cf08d81388aa5cdf52ee7b7ed364930acff2d4af0cb64a",
+      "source": {
+        "path": "output/full/figures/aqp_flights_comparisons_1d94f526466dde60/query_comparison.csv",
+        "bytes": 1552,
+        "sha256": "5c17598220aa1092a6cf08d81388aa5cdf52ee7b7ed364930acff2d4af0cb64a"
+      }
+    },
+    {
+      "path": "output/results/fullpaper_flights_comparison_flights_partial_baselines.png",
+      "bytes": 116953,
+      "sha256": "56ca584e6bead98ffd4d71f6487fd6be3304dd47cf71bb0b15a83fb840830dd3",
+      "source": {
+        "path": "output/full/figures/aqp_flights_comparisons_1d94f526466dde60/flights_partial_baselines.png",
+        "bytes": 116953,
+        "sha256": "56ca584e6bead98ffd4d71f6487fd6be3304dd47cf71bb0b15a83fb840830dd3"
+      }
+    },
+    {
+      "path": "output/results/fullpaper_flights_verdict_query_summary.csv",
+      "bytes": 2303,
+      "sha256": "008f48d1ae8c42fec2493d30ebd2d468305b11282c5e07ec85fefa949d4a0ee4",
+      "source": {
+        "path": "output/full/figures/aqp_flights_verdict_fb9beec9e2b4eb19/query_summary.csv",
+        "bytes": 2303,
+        "sha256": "008f48d1ae8c42fec2493d30ebd2d468305b11282c5e07ec85fefa949d4a0ee4"
+      }
+    },
+    {
+      "path": "output/results/fullpaper_flights_verdict_all_groups.csv",
+      "bytes": 64115,
+      "sha256": "c16c83bb3a2d12f2ffea834ba52e264e022e734ed22cb52d5fb9a87ca77422fd",
+      "source": {
+        "path": "output/full/figures/aqp_flights_verdict_fb9beec9e2b4eb19/all_groups.csv",
+        "bytes": 64115,
+        "sha256": "c16c83bb3a2d12f2ffea834ba52e264e022e734ed22cb52d5fb9a87ca77422fd"
+      }
+    },
+    {
+      "path": "output/results/fullpaper_flights_verdict_flights_verdict_comparison.png",
+      "bytes": 147717,
+      "sha256": "c1fe8d0cc1127c6a4af653e2a7c7c95b5a2a7096f633a86665c581ca8f900cf3",
+      "source": {
+        "path": "output/full/figures/aqp_flights_verdict_fb9beec9e2b4eb19/flights_verdict_comparison.png",
+        "bytes": 147717,
+        "sha256": "c1fe8d0cc1127c6a4af653e2a7c7c95b5a2a7096f633a86665c581ca8f900cf3"
+      }
+    },
+    {
+      "path": "output/results/fullpaper_ssb_local_continuation_query_summary.csv",
+      "bytes": 3379,
+      "sha256": "f5f0079c4962967e1ac73ff944db498d474e10ac505d5699eb12dfeb2eb22184",
+      "source": {
+        "path": "output/full/figures/aqp_ssb_local_continuation_82803cb6f9608f78/query_summary.csv",
+        "bytes": 3379,
+        "sha256": "f5f0079c4962967e1ac73ff944db498d474e10ac505d5699eb12dfeb2eb22184"
+      }
+    },
+    {
+      "path": "output/results/fullpaper_ssb_local_continuation_all_groups.csv",
+      "bytes": 546792,
+      "sha256": "bd4310124935c46210ba096815dadafb8bae16dcf5e4acab51a472b29871f538",
+      "source": {
+        "path": "output/full/figures/aqp_ssb_local_continuation_82803cb6f9608f78/all_groups.csv",
+        "bytes": 546792,
+        "sha256": "bd4310124935c46210ba096815dadafb8bae16dcf5e4acab51a472b29871f538"
+      }
+    },
+    {
+      "path": "output/results/fullpaper_ssb_local_continuation_training_tables.csv",
+      "bytes": 673,
+      "sha256": "b4940d8da768d815a8c22c721658dec444bb82160279028ae4c81aa7e7f79ab5",
+      "source": {
+        "path": "output/full/figures/aqp_ssb_local_continuation_82803cb6f9608f78/training_tables.csv",
+        "bytes": 673,
+        "sha256": "b4940d8da768d815a8c22c721658dec444bb82160279028ae4c81aa7e7f79ab5"
+      }
+    },
+    {
+      "path": "output/results/fullpaper_ssb_local_continuation_ssb_relative_error.png",
+      "bytes": 139261,
+      "sha256": "8f8782932133f7761390ba0702f33d1278b821a922552e43f920427b73a432e8",
+      "source": {
+        "path": "output/full/figures/aqp_ssb_local_continuation_82803cb6f9608f78/ssb_relative_error.png",
+        "bytes": 139261,
+        "sha256": "8f8782932133f7761390ba0702f33d1278b821a922552e43f920427b73a432e8"
+      }
+    },
+    {
+      "path": "output/results/fullpaper_ssb_local_continuation_ssb_ci_half_width.png",
+      "bytes": 143845,
+      "sha256": "e97031f5b6e255cd87574bee6c0d6df2be10a1fb61fdf824575e856896adb111",
+      "source": {
+        "path": "output/full/figures/aqp_ssb_local_continuation_82803cb6f9608f78/ssb_ci_half_width.png",
+        "bytes": 143845,
+        "sha256": "e97031f5b6e255cd87574bee6c0d6df2be10a1fb61fdf824575e856896adb111"
+      }
+    },
+    {
+      "path": "output/results/fullpaper_ssb_local_ci10m_query_summary.csv",
+      "bytes": 3111,
+      "sha256": "0e4053acf26d8ffcb05ababe3a88799b641089c71a9f99e657b2adcb3ec083cf",
+      "source": {
+        "path": "output/full/figures/aqp_ssb_local_ci10m_77f2351341dbd0c2/query_summary.csv",
+        "bytes": 3111,
+        "sha256": "0e4053acf26d8ffcb05ababe3a88799b641089c71a9f99e657b2adcb3ec083cf"
+      }
+    },
+    {
+      "path": "output/results/fullpaper_ssb_local_ci10m_all_groups.csv",
+      "bytes": 504121,
+      "sha256": "bf6bef9e37c3389f992bec9b366da6e2cf44ce537862700b88aefefa0638a0ca",
+      "source": {
+        "path": "output/full/figures/aqp_ssb_local_ci10m_77f2351341dbd0c2/all_groups.csv",
+        "bytes": 504121,
+        "sha256": "bf6bef9e37c3389f992bec9b366da6e2cf44ce537862700b88aefefa0638a0ca"
+      }
+    },
+    {
+      "path": "output/results/fullpaper_ssb_local_ci10m_training_tables.csv",
+      "bytes": 571,
+      "sha256": "eef00185e483b7674b3a3c8b80aafcd4e400724acff955207e276a23ac88fb7b",
+      "source": {
+        "path": "output/full/figures/aqp_ssb_local_ci10m_77f2351341dbd0c2/training_tables.csv",
+        "bytes": 571,
+        "sha256": "eef00185e483b7674b3a3c8b80aafcd4e400724acff955207e276a23ac88fb7b"
+      }
+    },
+    {
+      "path": "output/results/fullpaper_ssb_local_ci10m_ssb_relative_error.png",
+      "bytes": 137109,
+      "sha256": "0cf5573aefb45662f2c2495f4c2582b66a1c18e48bea585d69bf7f28af9fac64",
+      "source": {
+        "path": "output/full/figures/aqp_ssb_local_ci10m_77f2351341dbd0c2/ssb_relative_error.png",
+        "bytes": 137109,
+        "sha256": "0cf5573aefb45662f2c2495f4c2582b66a1c18e48bea585d69bf7f28af9fac64"
+      }
+    },
+    {
+      "path": "output/results/fullpaper_ssb_local_ci10m_ssb_ci_half_width.png",
+      "bytes": 144126,
+      "sha256": "b8827dc8f8d02bb107f48e3bc3fe7d4f320e65a9a722fc3c9e94199e08ae3156",
+      "source": {
+        "path": "output/full/figures/aqp_ssb_local_ci10m_77f2351341dbd0c2/ssb_ci_half_width.png",
+        "bytes": 144126,
+        "sha256": "b8827dc8f8d02bb107f48e3bc3fe7d4f320e65a9a722fc3c9e94199e08ae3156"
+      }
+    },
+    {
+      "path": "output/results/FULL_PAPER_RESULTS.md",
+      "bytes": 8993,
+      "sha256": "6febb31b5dd1b3aa0a47e9336e8862e510a22a5bc2742a3490b7e4d614c0580c"
+    }
+  ],
+  "scope": "Derived tables/plots only. Author-reported values and local results remain labelled. No raw rows, model files, environments, PDF or credentials are included."
+}

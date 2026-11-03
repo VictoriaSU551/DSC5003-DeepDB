@@ -1,0 +1,61 @@
+{
+  "schema": "public-local-job70-sampling-results-v1",
+  "source_manifest": {
+    "path": "output/full/figures/sampling_b23bd4bd6edb87315fe8/manifest.json",
+    "bytes": 102333,
+    "sha256": "be950e374c1e4672389ad1052d8a669249b70c29d9f6f22799604ccf6b72cde9"
+  },
+  "source_binding": "b23bd4bd6edb87315fe84e9a2e71c3fc65f6591473eebd2c221a34acde89de2f",
+  "full_paper_reproduction_complete": false,
+  "author_configuration_identified": false,
+  "shared_author_ranking": false,
+  "method_counts": {
+    "LOCAL_JOB70_IBJS_SQL_N1000_B100K": 70,
+    "LOCAL_JOB70_SRS_WOR_N1000": 70
+  },
+  "positive_truth_zero_policy": "Infinity; no floor and no zero exclusion",
+  "cost_scope": "Recorded client/online/metadata/COPY and controller costs are distinct; no end-to-end latency claim",
+  "policy": {
+    "finite_summary": "CONDITIONAL_WITH_EXPLICIT_COUNT",
+    "positive_truth_zero": "Infinity",
+    "quantiles": "LINEAR_EXTENDED_REAL;EXACT_ENDPOINT_BEFORE_INTERPOLATION;POSITIVE_WEIGHT_INFINITY_IS_INFINITY",
+    "raw_predictions_modified": false,
+    "scalar_floor1_policy_applied": false,
+    "shared_author_ranking": false,
+    "unfinished": "NULL_NOT_DROPPED",
+    "whole70": "ONLY_IF_ALL70_COMPLETED_INCLUDING_INFINITY"
+  },
+  "copied_files": [
+    {
+      "path": "output/results/fullpaper_sampling_predictions_scored.csv",
+      "bytes": 1199130,
+      "sha256": "0a53a852ca43994910fe00a100c5fd9cb1ebe18c5f92e19b2fb2f74e587e3c36",
+      "source": {
+        "path": "output/full/figures/sampling_b23bd4bd6edb87315fe8/predictions_scored.csv",
+        "bytes": 1199130,
+        "sha256": "0a53a852ca43994910fe00a100c5fd9cb1ebe18c5f92e19b2fb2f74e587e3c36"
+      }
+    },
+    {
+      "path": "output/results/fullpaper_sampling_method_costs.csv",
+      "bytes": 1309,
+      "sha256": "dbf08b8cf6914b6e399936a68a16c22a136ed605c4578ba9e28db6130e4782c4",
+      "source": {
+        "path": "output/full/figures/sampling_b23bd4bd6edb87315fe8/method_costs.csv",
+        "bytes": 1309,
+        "sha256": "dbf08b8cf6914b6e399936a68a16c22a136ed605c4578ba9e28db6130e4782c4"
+      }
+    },
+    {
+      "path": "output/results/fullpaper_sampling_RESULTS.md",
+      "bytes": 4327,
+      "sha256": "5c7ef0154e6fb17eba6ed1214fa12ca0acdcaaeb3cd6581acee1abc2e7a81395",
+      "source": {
+        "path": "output/full/figures/sampling_b23bd4bd6edb87315fe8/RESULTS.md",
+        "bytes": 4327,
+        "sha256": "5c7ef0154e6fb17eba6ed1214fa12ca0acdcaaeb3cd6581acee1abc2e7a81395"
+      }
+    }
+  ],
+  "reproduce_source_tables_command": ".venv/Scripts/python.exe -B code/full_job_sampling_tables.py --srs-run output/full/sampling/job70/runs/bfdbb8efeab95c9c1ba9 --ibjs-run output/full/sampling/job70_ibjs/runs/da6334a896570c01d792"
+}

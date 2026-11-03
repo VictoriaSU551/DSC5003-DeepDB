@@ -1,0 +1,25 @@
+{
+  "schema": "ssb_native_v2_sources_v1",
+  "upstream_commit": "219403ad7d1dd32ae1f97b5553abf92129fccd7f",
+  "upstream_url": "https://github.com/electrum/ssb-dbgen/tree/219403ad7d1dd32ae1f97b5553abf92129fccd7f",
+  "original_pins": "../ssb_dbgen/SOURCES.json",
+  "original_source_redistribution_license_established": false,
+  "original_sources_modified_in_place": false,
+  "author_exact_generator_version_established": false,
+  "compatibility_differences": [
+    "Two SSBM priority buffers11 to16 bytes; third TPCH buffer unchanged",
+    "Serialize priority first11 bytes, matching measured LP64 legacy output",
+    "Guard invalid usage counter index only; preserve UnifInt invalid-to0 value stream",
+    "MinGW only: convert bounds to double before subtraction/addition; LP64 keeps original expression"
+  ],
+  "cygwin_package_lock": "cygwin.lock.json",
+  "cygwin_package_lock_sha256": "335fba5f9eb8c2ad6c465f96bd55401811898c9d1a27ce730d9e24c350f65383",
+  "cygwin_rolling_setup_required": false,
+  "w64devkit": {
+    "version": "2.0.0",
+    "url": "https://github.com/skeeto/w64devkit/releases/download/v2.0.0/w64devkit-x64-2.0.0.exe",
+    "bytes": 36581551,
+    "sha256": "cea23fc56a5e61457492113a8377c8ab0c42ed82303fcc454ccd1963a46f8ce1",
+    "scope": "Observed fixed asset checksum, not an upstream signature claim; local extraction only"
+  }
+}

@@ -12,9 +12,10 @@
 保留 `aqp_spn`、`benchmarks`、`data_preparation`、`ensemble_compilation`、
 `ensemble_creation`、`evaluation`、`rspn`、`schemas`、`maqp.py`、作者 README、许可证与原始依赖清单。
 作者 `baselines` 目录包含 Windows 不合法的历史结果文件名，因此不检出该目录。
-本仓库没有重新运行或声称复现其中其他方法的历史结果。
+该目录的作者历史 CSV 不作为本项目新运行的结果。扩展阶段自行执行的基线、来源审计和适用范围见
+[实验状态](FULL_REPRODUCTION_STATUS.md)及[基线可执行性说明](FULL_BASELINE_FEASIBILITY.md)。
 
-## 三处算法源码适配
+## 最初 JOB-light 基础流程的三处适配
 
 1. `data_preparation/prepare_single_tables.py`：读取 CSV 时只载入原本就会保留的列；
    用分组计数计算一对多连接倍数，用外键集合识别无子记录的父行，避免展开大型连接。
@@ -24,7 +25,17 @@
 3. `maqp.py`：在原有 NumPy 种子之外补上 Python `random.seed(1)`。
 
 这些修改不改变 RSPN 的行列划分准则、概率叶节点、查询编译公式或官方查询真值。
-兼容性补丁相对于上述作者提交生成，见 `compatibility.patch`。
+兼容性补丁相对于上述作者提交生成，见 `compatibility.patch`；它是最初基础流程的历史补丁，
+不包含后续完整复现阶段的全部修改。
+
+扩展阶段还包括连接预处理的索引兼容、浮点 ensemble 预算入口和 C++ 数值叶边界修正。
+物理模型缓存隔离、确定性查询遍历及配对分组顺序适配分别在独立入口/上下文中应用，
+既有模型与历史结果保留。当前实现和验证边界见[推断修正](FULL_INFERENCE_CORRECTIONS.md)、
+[C++ 协议](FULL_CPP_PROTOCOL.md)、[完整复现协议](FULL_REPRODUCTION_PROTOCOL.md)及各阶段运行说明。
+这些适配不能据此证明作者原始样本、缺失生成配方或所有论文数值已恢复。
+
+Git 的字节保留规则见根目录 `.gitattributes`。已验收来源中含有 CRLF 的 SQL、manifest 和
+C++ 模板保留其原始字节，确保重新克隆后的 SHA256 与固定输入一致；规则修正不改写本地科学输入。
 
 ## 环境差异
 

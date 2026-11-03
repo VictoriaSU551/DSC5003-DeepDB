@@ -48,7 +48,7 @@ if __name__ == '__main__':
     parser.add_argument('--rdc_threshold', help='If RDC value is smaller independence is assumed', type=float,
                         default=0.3)
     parser.add_argument('--bloom_filters', help='Generates Bloom filters for grouping', action='store_true')
-    parser.add_argument('--ensemble_budget_factor', type=int, default=5)
+    parser.add_argument('--ensemble_budget_factor', type=float, default=5)
     parser.add_argument('--ensemble_max_no_joins', type=int, default=3)
     parser.add_argument('--incremental_learning_rate', type=int, default=0)
     parser.add_argument('--incremental_condition', type=str, default=None)

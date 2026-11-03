@@ -1,0 +1,163 @@
+{
+  "binding_sha256": "aa56f63914b4658ed0420565910f8de770c8c2272a860970a39b5aad215b93f0",
+  "full_paper_reproduction_complete": false,
+  "outputs": [
+    {
+      "public": {
+        "bytes": 3111,
+        "path": "output/results/fullpaper_ssb_local_ci10m_query_summary.csv",
+        "sha256": "0e4053acf26d8ffcb05ababe3a88799b641089c71a9f99e657b2adcb3ec083cf"
+      },
+      "source": {
+        "bytes": 3111,
+        "path": "output/full/figures/aqp_ssb_local_ci10m_77f2351341dbd0c2/query_summary.csv",
+        "sha256": "0e4053acf26d8ffcb05ababe3a88799b641089c71a9f99e657b2adcb3ec083cf"
+      }
+    },
+    {
+      "public": {
+        "bytes": 504121,
+        "path": "output/results/fullpaper_ssb_local_ci10m_all_groups.csv",
+        "sha256": "bf6bef9e37c3389f992bec9b366da6e2cf44ce537862700b88aefefa0638a0ca"
+      },
+      "source": {
+        "bytes": 504121,
+        "path": "output/full/figures/aqp_ssb_local_ci10m_77f2351341dbd0c2/all_groups.csv",
+        "sha256": "bf6bef9e37c3389f992bec9b366da6e2cf44ce537862700b88aefefa0638a0ca"
+      }
+    },
+    {
+      "public": {
+        "bytes": 571,
+        "path": "output/results/fullpaper_ssb_local_ci10m_training_tables.csv",
+        "sha256": "eef00185e483b7674b3a3c8b80aafcd4e400724acff955207e276a23ac88fb7b"
+      },
+      "source": {
+        "bytes": 571,
+        "path": "output/full/figures/aqp_ssb_local_ci10m_77f2351341dbd0c2/training_tables.csv",
+        "sha256": "eef00185e483b7674b3a3c8b80aafcd4e400724acff955207e276a23ac88fb7b"
+      }
+    },
+    {
+      "public": {
+        "bytes": 137109,
+        "path": "output/results/fullpaper_ssb_local_ci10m_ssb_relative_error.png",
+        "sha256": "0cf5573aefb45662f2c2495f4c2582b66a1c18e48bea585d69bf7f28af9fac64"
+      },
+      "source": {
+        "bytes": 137109,
+        "path": "output/full/figures/aqp_ssb_local_ci10m_77f2351341dbd0c2/ssb_relative_error.png",
+        "sha256": "0cf5573aefb45662f2c2495f4c2582b66a1c18e48bea585d69bf7f28af9fac64"
+      }
+    },
+    {
+      "public": {
+        "bytes": 144126,
+        "path": "output/results/fullpaper_ssb_local_ci10m_ssb_ci_half_width.png",
+        "sha256": "b8827dc8f8d02bb107f48e3bc3fe7d4f320e65a9a722fc3c9e94199e08ae3156"
+      },
+      "source": {
+        "bytes": 144126,
+        "path": "output/full/figures/aqp_ssb_local_ci10m_77f2351341dbd0c2/ssb_ci_half_width.png",
+        "sha256": "b8827dc8f8d02bb107f48e3bc3fe7d4f320e65a9a722fc3c9e94199e08ae3156"
+      }
+    }
+  ],
+  "schema": "deepdb_public_local_ci10m_derived_export_v1",
+  "scientific_calls_during_export": 0,
+  "source_receipts": {
+    "manifest": {
+      "bytes": 7577390,
+      "path": "output/full/figures/aqp_ssb_local_ci10m_77f2351341dbd0c2/manifest.json",
+      "sha256": "061a7d9a836fcbbec921a90913d7446f1a528a2869bf18a53147f0d6abd33597"
+    },
+    "pointer": {
+      "bytes": 301,
+      "path": "output/full/results/ssb_local_ci10m_tables_latest.json",
+      "sha256": "3be7c27a18eca73f20d5c3cf7b2b53503205c30c6e747b638025a9d383d07b44"
+    }
+  },
+  "status": "PASS_BYTE_EXACT_DERIVED_EXPORT",
+  "summary": {
+    "actual_fact_sample_rows": 9996946,
+    "actual_training_rows_per_table": {
+      "customer": 10000000,
+      "dwdate": 2556,
+      "lineorder": 9996946,
+      "part": 1800000,
+      "supplier": 1000000
+    },
+    "author_different_groups": 1713,
+    "author_reproduction_complete": false,
+    "coverage": {
+      "extra_model_groups_total": 0,
+      "missing_model_groups_total": 0,
+      "missing_or_nonfinite_model_interval_groups": 0,
+      "model_groups_total": 2059,
+      "nonfinite_original_ci_groups": 0,
+      "nonfinite_point_groups": 0,
+      "reference_ci_eligible_truth_groups": 1253,
+      "reference_ci_excluded_truth_groups": 806,
+      "reference_ci_status_counts_all_union": {
+        "ELIGIBLE": 1253,
+        "EXCLUDED_SAMPLE_COUNT_LT_10": 806
+      },
+      "truth_groups_total": 2059,
+      "zero_truth_groups": 0
+    },
+    "derived_export_scientific_calls": 0,
+    "derived_sources": {
+      "manifest": {
+        "bytes": 7577390,
+        "path": "output/full/figures/aqp_ssb_local_ci10m_77f2351341dbd0c2/manifest.json",
+        "sha256": "061a7d9a836fcbbec921a90913d7446f1a528a2869bf18a53147f0d6abd33597"
+      },
+      "pointer": {
+        "bytes": 301,
+        "path": "output/full/results/ssb_local_ci10m_tables_latest.json",
+        "sha256": "3be7c27a18eca73f20d5c3cf7b2b53503205c30c6e747b638025a9d383d07b44"
+      }
+    },
+    "derived_status": "PASS_VERIFIED_LOCAL_SSB_DERIVED_TABLES",
+    "evaluation_variant": "CANONICAL_DECODED_GROUP_PROTOTYPE_V1",
+    "exact10000000_fact_training_rows_claimed": false,
+    "external_walls_include_full_parent_verification": true,
+    "formal_external_whole_command_seconds": 3034.1524285,
+    "formal_model_accepted": true,
+    "formal_report": {
+      "bytes": 17021920,
+      "path": "output/full/results/ssb_local_sf500_ci10m.json",
+      "sha256": "cfdd8a8033a624505a5705d95e7b8fcb37af2151616922efa1f452094a53f6fd"
+    },
+    "formal_training_executed": true,
+    "full_paper_reproduction_complete": false,
+    "group_order_adapter_sha256": "48220a0474a838c8dc9a7cf3fef0e8a84459a05e3fa8e15405307acae430ae5c",
+    "interval_endpoints_compared": 4118,
+    "max_absolute_difference": 0.0,
+    "max_relative_difference": 0.0,
+    "model": {
+      "bytes": 121643968,
+      "path": "output/full/ssb/local_sf500_ci10m/runs/312e67c9c57acb3738ce/model/ensemble_single.pkl",
+      "sha256": "9be56efab84e50337f939034defba7284d877ab0be73d13f1cd20a6b99231fe2"
+    },
+    "model_training_cap_per_table": 10000000,
+    "new_trained_models": 5,
+    "one_sample_not_repeated_sampling_coverage_calibration": true,
+    "paper_figure11_training_budget_policy_applied": true,
+    "point_values_compared": 2059,
+    "population_rows": 3000028242,
+    "queries": 13,
+    "reverse_evaluator_calls": 26,
+    "reverse_external_whole_command_seconds": 3185.1382151,
+    "reverse_model_loads": 13,
+    "reverse_report": {
+      "bytes": 6943604,
+      "path": "output/full/ssb/local_sf500_ci10m_group_replay/verification.json",
+      "sha256": "29701ebec287bcd588e3a1b78034ba35243352c49ccb2a2206cf6b6fb88f2874"
+    },
+    "scope": "LOCAL_SSB_10M_CI",
+    "status": "PASS_VERIFIED_LOCAL_10M_CAP_CI_MODEL_REVERSE_AND_DERIVED_TABLES",
+    "training_or_inference_only_latency_claimed": false,
+    "two_pngs_visually_checked": true
+  }
+}

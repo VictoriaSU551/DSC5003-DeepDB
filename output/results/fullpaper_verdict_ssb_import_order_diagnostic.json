@@ -1,0 +1,276 @@
+{
+  "status": "PASS_BOUNDED_PG11_5_FRESH_CREATE_COPY_ORDER_DIAGNOSTIC",
+  "rows_per_case": 1000000,
+  "actual_cases": 4,
+  "model_or_benchmark_native_calls": 0,
+  "full_sf500_acceptance_claimed": false,
+  "diagnostic_source": {
+    "path": "output/full/verdict_ssb/audits/order_probe_v11/diagnostic.json",
+    "bytes": 10297,
+    "sha256": "d701abbac1bda35bd3d60faa12225450057905a86a2293203c4c168b774dd998"
+  },
+  "scope": "Actual1M-row customer prefix; exact per-key original byte equality and complete unique-key coverage in all four cases; compares physical ordering without changing value/hash/order guards",
+  "cases": [
+    {
+      "case": "old_committed_multi",
+      "fresh_create_in_same_transaction": false,
+      "copy_from_calls": 100,
+      "source_sha256": "e33e8d0ded89661a6cb73f45b2cd19be172882b57df9f5952c6e5d7948ecd251",
+      "actual_physical_sha256": "6ea27fe566d11764ff18f6d40b1bf1e5257280776e9bf8fc883ddffa187a9b1b",
+      "ordered_identity": false,
+      "values_equal_by_original_key": true,
+      "first_inversions": [
+        {
+          "ctid": [
+            2681,
+            1
+          ],
+          "key": 176094,
+          "position": 176095,
+          "previous_key": 176159
+        },
+        {
+          "ctid": [
+            2692,
+            1
+          ],
+          "key": 176817,
+          "position": 176818,
+          "previous_key": 176882
+        },
+        {
+          "ctid": [
+            3180,
+            1
+          ],
+          "key": 208874,
+          "position": 208875,
+          "previous_key": 208940
+        },
+        {
+          "ctid": [
+            3628,
+            1
+          ],
+          "key": 238306,
+          "position": 238307,
+          "previous_key": 238372
+        },
+        {
+          "ctid": [
+            3701,
+            1
+          ],
+          "key": 243099,
+          "position": 243100,
+          "previous_key": 243165
+        },
+        {
+          "ctid": [
+            4057,
+            1
+          ],
+          "key": 266505,
+          "position": 266506,
+          "previous_key": 266570
+        },
+        {
+          "ctid": [
+            4401,
+            1
+          ],
+          "key": 289104,
+          "position": 289105,
+          "previous_key": 289170
+        },
+        {
+          "ctid": [
+            4866,
+            1
+          ],
+          "key": 319675,
+          "position": 319676,
+          "previous_key": 319741
+        },
+        {
+          "ctid": [
+            5245,
+            1
+          ],
+          "key": 344582,
+          "position": 344583,
+          "previous_key": 344647
+        },
+        {
+          "ctid": [
+            5715,
+            1
+          ],
+          "key": 375458,
+          "position": 375459,
+          "previous_key": 375524
+        }
+      ],
+      "seconds": 22.32799999997951
+    },
+    {
+      "case": "old_committed_single",
+      "fresh_create_in_same_transaction": false,
+      "copy_from_calls": 1,
+      "source_sha256": "e33e8d0ded89661a6cb73f45b2cd19be172882b57df9f5952c6e5d7948ecd251",
+      "actual_physical_sha256": "6ea27fe566d11764ff18f6d40b1bf1e5257280776e9bf8fc883ddffa187a9b1b",
+      "ordered_identity": false,
+      "values_equal_by_original_key": true,
+      "first_inversions": [
+        {
+          "ctid": [
+            2681,
+            1
+          ],
+          "key": 176094,
+          "position": 176095,
+          "previous_key": 176159
+        },
+        {
+          "ctid": [
+            2692,
+            1
+          ],
+          "key": 176817,
+          "position": 176818,
+          "previous_key": 176882
+        },
+        {
+          "ctid": [
+            3180,
+            1
+          ],
+          "key": 208874,
+          "position": 208875,
+          "previous_key": 208940
+        },
+        {
+          "ctid": [
+            3628,
+            1
+          ],
+          "key": 238306,
+          "position": 238307,
+          "previous_key": 238372
+        },
+        {
+          "ctid": [
+            3701,
+            1
+          ],
+          "key": 243099,
+          "position": 243100,
+          "previous_key": 243165
+        },
+        {
+          "ctid": [
+            4057,
+            1
+          ],
+          "key": 266505,
+          "position": 266506,
+          "previous_key": 266570
+        },
+        {
+          "ctid": [
+            4401,
+            1
+          ],
+          "key": 289104,
+          "position": 289105,
+          "previous_key": 289170
+        },
+        {
+          "ctid": [
+            4866,
+            1
+          ],
+          "key": 319675,
+          "position": 319676,
+          "previous_key": 319741
+        },
+        {
+          "ctid": [
+            5245,
+            1
+          ],
+          "key": 344582,
+          "position": 344583,
+          "previous_key": 344647
+        },
+        {
+          "ctid": [
+            5715,
+            1
+          ],
+          "key": 375458,
+          "position": 375459,
+          "previous_key": 375524
+        }
+      ],
+      "seconds": 13.28100000001723
+    },
+    {
+      "case": "new_fresh_multi",
+      "fresh_create_in_same_transaction": true,
+      "copy_from_calls": 100,
+      "source_sha256": "e33e8d0ded89661a6cb73f45b2cd19be172882b57df9f5952c6e5d7948ecd251",
+      "actual_physical_sha256": "e33e8d0ded89661a6cb73f45b2cd19be172882b57df9f5952c6e5d7948ecd251",
+      "ordered_identity": true,
+      "values_equal_by_original_key": true,
+      "first_inversions": [],
+      "seconds": 26.54700000002049
+    },
+    {
+      "case": "new_fresh_single",
+      "fresh_create_in_same_transaction": true,
+      "copy_from_calls": 1,
+      "source_sha256": "e33e8d0ded89661a6cb73f45b2cd19be172882b57df9f5952c6e5d7948ecd251",
+      "actual_physical_sha256": "e33e8d0ded89661a6cb73f45b2cd19be172882b57df9f5952c6e5d7948ecd251",
+      "ordered_identity": true,
+      "values_equal_by_original_key": true,
+      "first_inversions": [],
+      "seconds": 13.952999999979511
+    }
+  ],
+  "protected_catalogs_unchanged": true,
+  "project_postgres_stopped_by_owner": true,
+  "whole_command_seconds": 112.4611061,
+  "primary_sources": [
+    "https://github.com/postgres/postgres/blob/REL_11_5/src/backend/commands/copy.c",
+    "https://github.com/postgres/postgres/blob/REL_11_5/src/backend/access/heap/hio.c"
+  ],
+  "full_paper_reproduction_complete": false,
+  "production_adapter_integration": {
+    "status": "PASS_ACTUAL_FROZEN_V11_PRODUCTION_COPY_ADAPTERS",
+    "rows": 1000000,
+    "copy_from_calls": 1,
+    "source_eof": true,
+    "source": {
+      "bytes": 94774977,
+      "rows": 1000000,
+      "sha256": "e33e8d0ded89661a6cb73f45b2cd19be172882b57df9f5952c6e5d7948ecd251"
+    },
+    "physical": {
+      "bytes": 94774977,
+      "rows": 1000000,
+      "sha256": "e33e8d0ded89661a6cb73f45b2cd19be172882b57df9f5952c6e5d7948ecd251"
+    },
+    "same_transaction_create": true,
+    "source_set_freeze_sha256": "2e0ac7d0ac986ec54dfe5af7f6dba78cab45476c737d6e450bc2e1967006c3e3",
+    "validation": {
+      "path": "output/full/verdict_ssb/audits/production_reader_probe_v11/validation.json",
+      "bytes": 1827,
+      "sha256": "416a73b176e4e9ed7d831f4cbda5110678498cd477c722975705c96c31c8fa72"
+    },
+    "whole_command_seconds": 38.2249954,
+    "project_postgres_stopped_by_owner": true,
+    "benchmark_calls": 0,
+    "full_sf500_acceptance_claimed": false
+  }
+}

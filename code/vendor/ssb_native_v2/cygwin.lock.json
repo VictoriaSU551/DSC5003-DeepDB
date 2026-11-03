@@ -1,0 +1,135 @@
+{
+  "extraction_policy": 1,
+  "metadata_sha256": "6918096fd57391735aa034f2717c12fcd50325e57da3a503293a8b69c35b8875",
+  "mirror": "https://mirrors.kernel.org/sourceware/cygwin/",
+  "packages": {
+    "bash": {
+      "depends2": "cygwin, libiconv2, libintl8, libreadline7",
+      "install": "x86_64/release/bash/bash-5.2.21-1.tar.xz 1650932 c3a5594f1c248dd27a3b5aa10c31fb1651072eae878479d3d8cab09c28354ce4509a2fe230f176ad200a6484a561bc10c2dc9c74c4e9f03164190dac2e683d65",
+      "version": "5.2.21-1"
+    },
+    "binutils": {
+      "depends2": "cygwin, libgcc1, libintl8, libzstd1, zlib0",
+      "install": "x86_64/release/binutils/binutils-2.47-1-x86_64.tar.zst 9267975 25cf6a54f9a085e62d8cd0d37afa0d7b5e913e502d8d14c8bbe1cfffd2451dba5adee65602d57f158f03312bfcc3871fc40307e8096270acc888848f29738121",
+      "version": "2.47-1"
+    },
+    "cygwin": {
+      "depends2": "_windows ( >= 6.3 ), bash, libgcc1, libintl8, libzstd1, zlib0",
+      "install": "x86_64/release/cygwin/cygwin-3.6.12-1-x86_64.tar.xz 1621132 c2ceaed3f6fb6c52c30c3fc06fe0ace4b5d9c452dc0a20fd31ffbeb46fd3f98cdea82136ff2feb6d889cb56731336808925f93b85bd9315f5fd544848a2bc582",
+      "version": "3.6.12-1"
+    },
+    "cygwin-devel": {
+      "install": "x86_64/release/cygwin/cygwin-devel/cygwin-devel-3.6.12-1-x86_64.tar.xz 320264 923b4b3215f4432a444d1e77170eaea4cbfb08b537942cc2df29f6137c7bc49543131fd09a6d49c874bf4b4dec06fb2b3f55b203df5842dbc81505181af4bf8a",
+      "version": "3.6.12-1"
+    },
+    "gcc-core": {
+      "depends2": "bash, binutils, cygwin, cygwin-devel, libatomic1, libgcc1, libgmp10, libgomp1, libiconv-devel, libiconv2, libintl-devel, libintl8, libisl23, libmpc3, libmpfr6, libquadmath0, libzstd1, w32api-headers, w32api-runtime, windows-default-manifest, zlib0",
+      "install": "x86_64/release/gcc/gcc-core/gcc-core-14.4.0-1-x86_64.tar.zst 39606756 c463f27075353dbbbb05878a3695c2651a81da0032f75b71f121dece745aa3d646b7f03180618844aa5372be358d5dc2e0efc0fffde80f9216eae3ef5b3d963e",
+      "version": "14.4.0-1"
+    },
+    "libatomic1": {
+      "depends2": "cygwin",
+      "install": "x86_64/release/gcc/libatomic1/libatomic1-14.4.0-1-x86_64.tar.zst 6589 c8a034dd05167576a80cf006c84e41e1f34f735dea32923a4241a62288a13312afc659a4bbb8ca7a8fda9a2df535834acf98a6442f4aa65464a06fa64fbb638a",
+      "version": "14.4.0-1"
+    },
+    "libcharset1": {
+      "depends2": "cygwin",
+      "install": "x86_64/release/libiconv/libcharset1/libcharset1-1.19-2-x86_64.tar.xz 2100 a3271ab0eb182ad37e53c39964194f0af37a449fd445ac8aea36c2f5ede2a1701dc9572e567f63686973824c0d271f47ca3e6e948ae1f8f6fe996cde2c206c24",
+      "version": "1.19-2"
+    },
+    "libgcc1": {
+      "depends2": "cygwin",
+      "install": "x86_64/release/gcc/libgcc1/libgcc1-14.4.0-1-x86_64.tar.zst 59166 5ac8a56e5eee285efcd6dbd05a473e795e181021d7194b8a98dfe2fa201a71f0abe2908e0b4c81490eb5ef472efaeac8e56a61a5f289eee4ad6e90e52a844ff8",
+      "version": "14.4.0-1"
+    },
+    "libgmp10": {
+      "depends2": "cygwin",
+      "install": "x86_64/release/gmp/libgmp10/libgmp10-6.3.0-1.tar.zst 254680 947cd56e1945ddf180622b453f17e6655b4ee3e79fcc91238370a8826b88cd07c31d939f1ed7b87d91344d46fee90af2560105267a9207dcca800cba72459191",
+      "version": "6.3.0-1"
+    },
+    "libgomp1": {
+      "depends2": "cygwin, libgcc1",
+      "install": "x86_64/release/gcc/libgomp1/libgomp1-14.4.0-1-x86_64.tar.zst 112610 dbc36b7182d25ca655f23105997a5d1f0d3e1a9e82dbf38928750dff00e1af411af1c9c6f2020d828dbb676e984a17444c8ff5cddfd0769f96ea6a85100ddb8d",
+      "version": "14.4.0-1"
+    },
+    "libiconv-devel": {
+      "depends2": "libcharset1, libiconv2",
+      "install": "x86_64/release/libiconv/libiconv-devel/libiconv-devel-1.19-2-x86_64.tar.xz 751764 c9e68c5b333a23ad5c81922ccd189ff02658f185ea9aa68e78495b1d07ca5f80524c1bc1ff2035f13c7ea7b593d42ad9c54c66526aacdab5ce1d824828146440",
+      "version": "1.19-2"
+    },
+    "libiconv2": {
+      "depends2": "cygwin",
+      "install": "x86_64/release/libiconv/libiconv2/libiconv2-1.19-2-x86_64.tar.xz 555664 a1b23e24e0a495e7163923bcf40a4b933403e0826cfc0d9bde785bc92c909b8c4fb94b1e6b2c0242f4328a723855e72ff3baab9f557ef855b7fe7a7d901b0943",
+      "version": "1.19-2"
+    },
+    "libintl-devel": {
+      "depends2": "libintl8",
+      "install": "x86_64/release/gettext/libintl-devel/libintl-devel-0.22.5-1.tar.xz 221432 610161b0cd5cef34ef36554b4d6a658c069a01f0f45770514aa1a520681d4db24a7fc629f033a634a1ed36bd727b3c44152d03133c177f15db46803eb1120ce6",
+      "version": "0.22.5-1"
+    },
+    "libintl8": {
+      "depends2": "cygwin, libiconv2",
+      "install": "x86_64/release/gettext/libintl8/libintl8-0.22.5-1.tar.xz 43256 370a19af888bc7c9ed95cf8ade0d36d5e7cdb634abdebcba260cad61fa9a4cc05b5e748e315c9709f66861e8756b227d6757d529846591189e19ee2b2d00002d",
+      "version": "0.22.5-1"
+    },
+    "libisl23": {
+      "depends2": "cygwin, libgmp10",
+      "install": "x86_64/release/isl/libisl23/libisl23-0.28-1-x86_64.tar.zst 628562 d96e2b9b20dbc7b110bb9457c2156849fad6f415077142bdcca61a326ecfad1c6ca3e1801a909e92928f62be69127b526120897158904986780898cab3266ddb",
+      "version": "0.28-1"
+    },
+    "libmpc3": {
+      "depends2": "cygwin, libgmp10, libmpfr6",
+      "install": "x86_64/release/mpclib/libmpc3/libmpc3-1.4.1-1-x86_64.tar.zst 51914 f99f877aed04b5c732805dc154505dc9530c77010f88e25e249c953f9eec0b7d8c03d26f2d5ec3b3a7a169978484017ba59ab88d9866564e935127cd6348b843",
+      "version": "1.4.1-1"
+    },
+    "libmpfr6": {
+      "depends2": "cygwin, libgcc1, libgmp10",
+      "install": "x86_64/release/mpfr/libmpfr6/libmpfr6-4.2.2-1.tar.zst 284416 8203dc61bf646041c71f7fece9fe59422ded96ac28dd24826ffb00a9607f274f3226673f9bee441f32b424a7e26c2f178281bd7836db26b0253d37da208d06a8",
+      "version": "4.2.2-1"
+    },
+    "libncursesw10": {
+      "depends2": "cygwin, terminfo",
+      "install": "x86_64/release/ncurses/libncursesw10/libncursesw10-6.5+20240427-1.tar.xz 393928 08102f7a7083cb5663fecc46d819f2ece4123444a8f94c42300f03f7eebd40395f556c44b22ab58bf57321b44d9b8fb8b19358e535c7500d36e52d48b05dcca8",
+      "version": "6.5+20240427-1"
+    },
+    "libquadmath0": {
+      "depends2": "cygwin, libgcc1",
+      "install": "x86_64/release/gcc/libquadmath0/libquadmath0-14.4.0-1-x86_64.tar.zst 159401 ec6dcea72ccd9cbb5a5c7572d98d624e6564199929b019bb19ca06c2394ad606efa0a620a7da21ccc3290c99a5d5a7959a4d6e00306c22675fa1eefee0835e44",
+      "version": "14.4.0-1"
+    },
+    "libreadline7": {
+      "depends2": "cygwin, libncursesw10",
+      "install": "x86_64/release/readline/libreadline7/libreadline7-8.2-2.tar.xz 113340 1d27576cf49b056f35f90ad933e39c5d946bc271ddcd109daa98f95b97123b428256827889ff45ca8a76409cdb1afd0146e99c9b70150b302538356512acfe38",
+      "version": "8.2-2"
+    },
+    "libzstd1": {
+      "depends2": "cygwin",
+      "install": "x86_64/release/zstd/libzstd1/libzstd1-1.5.7-1.tar.zst 253786 f89cdaa004487ec8c4796b8f56887c81f6f497873c1495b9cb585ffe6c8d6e6b8ad4b52617d5238075f965f1fe001da287d9a00d121590274b2d87672b415a0f",
+      "version": "1.5.7-1"
+    },
+    "terminfo": {
+      "install": "x86_64/release/ncurses/terminfo/terminfo-6.5+20240427-1.tar.xz 94760 128fb04f188bbf2af3060416193c9879a9cbbf7e5486febf851f35c3d9d00b9d61a0e2bf4be575d2308fd665a224ce5674485dcfd071125c3a8d199a4b88a042",
+      "version": "6.5+20240427-1"
+    },
+    "w32api-headers": {
+      "install": "x86_64/release/w32api-headers/w32api-headers-14.0.0-1-x86_64.tar.xz 6178248 b2b6ecd2a17cbfe42593d92eb067bff56a0870d7c601ec7b0aeb9511b91e0557f07a939e57b337f0ab1da5fdf97980e705ba8ba0520994362060bd2a89925edf",
+      "version": "14.0.0-1"
+    },
+    "w32api-runtime": {
+      "depends2": "w32api-headers",
+      "install": "x86_64/release/w32api-runtime/w32api-runtime-14.0.0-1-x86_64.tar.xz 3484152 d06e35dfeb4cf86faf59bd512d192870f8711ee581bae127beecd8be82800dca84c0f69e27921317ea6db217864dd942bd777d72efd43a47720f0e507c7cb253",
+      "version": "14.0.0-1"
+    },
+    "windows-default-manifest": {
+      "install": "x86_64/release/windows-default-manifest/windows-default-manifest-6.5-1-x86_64.tar.xz 1244 ab99a93fb744c7be84fbd3d0f81cb4429b5e784655e4b8e02f436c36378dbd7688f8ea74ac646354c1f7ba9dc6cdeba05d109b76cd455c1a75791a93e1b9e08d",
+      "version": "6.5-1"
+    },
+    "zlib0": {
+      "depends2": "cygwin",
+      "install": "x86_64/release/zlib/zlib0/zlib0-1.3.2-1-x86_64.tar.zst 46254 d79ba6098cadf6bf2f32f35d9cd54729293c64b3c9daabb9d080f52861a19db71544d5710fdbd61ff45e7c2ae4eecb3f2e3b8a1e3bc05695b8cfe01c7639c53a",
+      "version": "1.3.2-1"
+    }
+  },
+  "provenance": "Official Cygwin mirror metadata snapshot; no rolling setup dependency",
+  "schema": "official_cygwin_lp64_lock_v1"
+}

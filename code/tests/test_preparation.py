@@ -48,3 +48,18 @@ def test_multipliers_and_parent_without_children(tmp_path, sample_rate):
     assert pd.read_hdf(meta[edge]['path'])['parent.id'].tolist() == [3]
     child_meta = prepare_single_table(schema, 'child', str(tmp_path / 'child.hdf'))
     assert child_meta[edge]['length'] == 1 / sample_rate
+
+
+def test_sampled_hdfs_handle_named_indices(tmp_path):
+    import pickle
+    from data_preparation.prepare_single_tables import prepare_all_tables
+    from data_preparation.join_data_preparation import prepare_sample_hdf
+    schema = make_schema(tmp_path)
+    prepare_all_tables(schema, str(tmp_path))
+    prepare_sample_hdf(schema, str(tmp_path), 100000000, 3)
+    with (tmp_path / 'meta_data_sampled.pkl').open('rb') as source:
+        metadata = pickle.load(source)
+    assert set(metadata) == {'parent', 'child'}
+    child = pd.read_hdf(metadata['child']['hdf_path'])
+    assert len(child) == 3
+    assert child['child.parent_id'].isin([1, 2]).all()

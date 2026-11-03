@@ -1,0 +1,291 @@
+{
+  "audit_date": "2026-11-03",
+  "binding_sha256": "7baeea00b5c4f7a21f01485b1dec21157fad5425508202bbfef2da89565b8321",
+  "current_document": {
+    "bytes": 8692,
+    "path": "docs/FINAL_PUBLIC_INPUT_GAPS.md",
+    "sha256": "f269d70cd3ca9ad6a512c5fb31edb5ea0949d4d313dc2f255c363c1258cbe4d4"
+  },
+  "historical_audit_file_sha256": "84a3bda8938e684b1c15d5e16415b08a255d7f57ea29aeddedcf0dffe4678109",
+  "historical_snapshot": {
+    "audit_date": "2026-11-03",
+    "delivery_limits": [
+      "Keep group contribution separate from original-author reproduction",
+      "HistoricalCSV redraws are historical reconstructions only",
+      "Remaining runnableCI/replay/baseline engineering is outside this four-gap impossibility conclusion",
+      "If oldrecursiveFdependencies retire, finalREADME/results alone do not support oldfullreplay; deliverymanifest must state retirement"
+    ],
+    "document": {
+      "bytes": 8639,
+      "path": "docs/FINAL_PUBLIC_INPUT_GAPS.md",
+      "sha256": "fb4b5e7948cc3cc0872e77dc7cf74583f6fd7fba2577eea5ae4a42d98693ec8f"
+    },
+    "gaps": [
+      {
+        "closed_by_new_package": false,
+        "existing": "Public20files contain683 queries,413for4..6tables; package contains same70JOB-light only",
+        "id": "AUTHOR_200_QUERY_MEMBERS",
+        "missing": [
+          "Exact200orderedSQL/IDs or a uniquely reproducible versioned selection rule and seed"
+        ],
+        "not_a_substitute": [
+          "Any newly chosen200",
+          "public683/413evaluation",
+          "500scale or5000synthetic queries",
+          "multiple predictions of the same70"
+        ],
+        "original_rerun_ready": false,
+        "paper": "Section6.1; current deepdb.txt newline-based lines623-627,794-796"
+      },
+      {
+        "closed_by_new_package": false,
+        "existing": "Uniform independence,Zipf2/3/4,20..100percent correlated attributes and original70nonzero-query mean are described; no unique recipe",
+        "id": "FIGURE5_SYNTHETIC_DATABASE_RECIPE",
+        "missing": [
+          "Generator/exactalgorithm",
+          "Table sizes and key/FK generation",
+          "Column domain/distribution and correlation coupling mapping",
+          "Seeds",
+          "Each generated population truth and zero-query exclusion set"
+        ],
+        "not_a_substitute": [
+          "RealIMDb70truth",
+          "synthetic_queries.sql",
+          "NewLOCALgenerator",
+          "Historical curves"
+        ],
+        "original_rerun_ready": false,
+        "paper": "Section6.1 SyntheticData; lines658,672-675,714-726"
+      },
+      {
+        "closed_by_new_package": false,
+        "existing": "18historicalCSV:5cardinality+13AQP;12curse_of_dim files contain112rows; dimension/coefficient metadata partially present",
+        "id": "WAVELET_BASELINE_AND_FIGURE12_RIGHT",
+        "metadata_limit": "Table1paper20Kcoefficients differs curse_of_dim30000;sample_percentage1 is a literal,not a proved probability",
+        "missing": [
+          "Fixedlicensed original relational multidimensional Haar executor",
+          "Extra column order/domain/bin/NULL encoding",
+          "Coefficient normalization/selection/ties",
+          "Per-table versus per-query synopsis and relational select/join/aggregate driver",
+          "Training selection/seed and plot aggregation mapping"
+        ],
+        "not_a_substitute": [
+          "GenericPyWavelets",
+          "NewHaarimplementation",
+          "HistoricalCSVaslocalrerun"
+        ],
+        "original_rerun_ready": false,
+        "paper": "Sections6.1and6.2; lines627,634-638,1060,1243-1254"
+      },
+      {
+        "closed_by_new_package": false,
+        "existing": "PinnedDBEstPy2220a937; historicalSSBtimes1D/2D/3D each9queryIDs; actual2Dconstructor failure already recorded",
+        "id": "FIGURE12_DBEST_ORIGINAL_EXECUTION",
+        "missing": [
+          "Exactplot-to-query/materializationdriver",
+          "Authortrainingbytes/selection/n and per-groupNsource",
+          "Exactdimensionalcode/options/bandwidth/normalization",
+          "Effectiveintegration tolerances and hardware/timingprotocol"
+        ],
+        "native_blockers": [
+          "Existing2Dmin/maxndarray constructor failure",
+          "Staticd>1read afterdensitydeletes training_data",
+          "Noindependentmulti-predicate rectangle entry point"
+        ],
+        "not_a_substitute": [
+          "Original1DFlightsroutes",
+          "Constructor-onlyrepair",
+          "Newrectangleintegrationadapter",
+          "SPNleaf/vectorizationmicrobenchmark",
+          "Historical27timingsasnewruns"
+        ],
+        "original_rerun_ready": false,
+        "paper": "Section6.2; Fig12left latency versus numericfilterdimensions,not SPNleaf/batch/SIMD; lines1060,1293-1298"
+      }
+    ],
+    "inputs": [
+      {
+        "bytes": 159834,
+        "path": "output/full/paper/deepdb.txt",
+        "sha256": "ca7151926d06c3a888b8f696524a755725f890006cd47b5d12d392707d623687"
+      },
+      {
+        "bytes": 11570,
+        "path": "docs/FULL_SOURCE_AUDIT.md",
+        "sha256": "f1faff597473335d1a3ccdf7683286e1e216bcb42eadc37b15e7e06466b83339"
+      },
+      {
+        "bytes": 13300,
+        "path": "docs/FULL_REPRODUCTION_STATUS.md",
+        "sha256": "14af35bd5fa4f12e9abc69aa99382a25962805c12bf68320ff7d88be415271d0"
+      },
+      {
+        "bytes": 19361,
+        "path": "docs/FULL_BASELINE_FEASIBILITY.md",
+        "sha256": "e8f74fcc912c30d29eeea8ce11f1f8833558ed274c0a14c46e0b08ba1a366996"
+      },
+      {
+        "bytes": 9511,
+        "path": "output/full/reviews/figure12_dbest_multidim_v1.json",
+        "sha256": "fc7377a155706cbb90a13ad611094e893e8343876c602b2b35f01db073fd20ee"
+      },
+      {
+        "bytes": 19164,
+        "path": "output/full/reviews/figure12_wavelet_inputs_v1/memo.json",
+        "sha256": "7ad1f96a95ffb114f7d02dd330158b056dba70feabb01155df9bb288c830fbdf"
+      },
+      {
+        "bytes": 13779,
+        "path": "code/benchmarks/job-light/sql/job_light_queries.sql",
+        "sha256": "e61da91710ce62d3669be70a8ded2499c6de1d759fcfac9a954b939465e76fdb"
+      },
+      {
+        "bytes": 14693,
+        "path": "code/benchmarks/job-light/sql/job_light_true_cardinalities.csv",
+        "sha256": "87e66a3a5977d38a5e32db43451f7213776d1046f57ea2f85da854c04ba79acc"
+      },
+      {
+        "bytes": 10610,
+        "path": "output/results/guoao_experiments/README.md",
+        "sha256": "df0fdf4f0470d18f27be4f15cd744979473f8957f8c11c58a02f54724fe35fe8"
+      },
+      {
+        "bytes": 5074,
+        "path": "output/results/guoao_experiments/DELIVERY_MAP.md",
+        "sha256": "607559d034c93501b78204a60e92c2a36ce91bed008cda00da53d95ebefa309a"
+      },
+      {
+        "bytes": 3396,
+        "path": "output/results/guoao_experiments/settings.json",
+        "sha256": "7cd01648680f6ccc56c6a6e10bbf5218ecfad08a446c6dc792c1ce0729809f82"
+      },
+      {
+        "bytes": 9605,
+        "path": "output/results/guoao_experiments/evidence/protocol_audit.json",
+        "sha256": "42b56efb37b5861c0951280e0114474a11ca20c9fa4eee34b626a60a423f9bee"
+      },
+      {
+        "bytes": 50772,
+        "path": "output/results/guoao_experiments/evidence/source_manifest.json",
+        "sha256": "01c48523a96db06e06cf667df56b1255d0bf0ff444b3ff6312f17e86522c12ee"
+      },
+      {
+        "bytes": 33562,
+        "path": "output/results/guoao_experiments/evidence/source_snapshots.zip",
+        "sha256": "ba74fc17b49ba64eacbf4c05a4d4d1a6477ff0ff87b6e85240380d3fd995faf7"
+      },
+      {
+        "bytes": 22849,
+        "path": "output/results/guoao_experiments/predictions.csv",
+        "sha256": "801aadbc2fe45acc942a09723d4daf9e820f1b14773b3628f05e9af0f387709f"
+      }
+    ],
+    "network": {
+      "current_http_availability_rechecked": false,
+      "downloads": 0,
+      "reason": "Package URLs onlypoint to already-reviewedDeepDB/IMDb/archive/paper sources; bounded existing primary audits suffice",
+      "search_rounds": 0,
+      "unreviewed_primary_links_found": false
+    },
+    "new_local_approximation_proposed": false,
+    "new_source_bound_original_experiments_ready_within_these_gaps": 0,
+    "operations": {
+      "JVM": 0,
+      "PG": 0,
+      "commits": 0,
+      "deletions": 0,
+      "integration": 0,
+      "prediction": 0,
+      "pushes": 0,
+      "raw_database_scans": 0,
+      "source_copies": 0,
+      "source_verifier_F": 0,
+      "training": 0,
+      "verifier_scripts_executed": 0,
+      "zip_extraction": 0
+    },
+    "package": {
+      "all70_query_hashes_and_original_imdb_labels_match": true,
+      "bytes": 2871252,
+      "declared_end_to_end_retraining_scripts_included": false,
+      "declared_model_training_runs": 13,
+      "declared_public_files": 35,
+      "file_count": 36,
+      "inventory_sha256": "008fb1e7f1ea4ad6f5e3aedd2ee5fedea74f91063a8ba645d0096c5e3935a4f9",
+      "main_commit": "10770d75a22319938dbbb53fe855ae6b6d29e5bd",
+      "manifest_plus_self_exact": true,
+      "model_or_training_replay_performed": false,
+      "observed_estimation_columns": 14,
+      "observed_metric_rows": 14,
+      "observed_prediction_rows": 70,
+      "observed_truth_rows": 70,
+      "path": "output/results/guoao_experiments",
+      "public_file_hash_mismatches": 0,
+      "reproduction_merge_commit": "1d7e44aca7394652c1487810cc30139f642073f7",
+      "zip_manifest_identity": true,
+      "zip_members": [
+        {
+          "bytes": 14461,
+          "path": "DeepDB/code/maqp.py",
+          "sha256": "3bc0e84a3883ea20689f6397b595b73a314799bf19dd127f2cdcb61963f26548"
+        },
+        {
+          "bytes": 4541,
+          "path": "DeepDB/code/repeat_seeds.py",
+          "sha256": "7c4542e90dae0d47d0b7e8812d5d2bf6267a234675734d2b864eb8ffc16144a4"
+        },
+        {
+          "bytes": 2963,
+          "path": "DeepDB/code/joblight_exact_count.py",
+          "sha256": "f35cdbf63fae427f0feb013b19d41af9b2072b75fe53cf1b11b527d1fee65d7d"
+        },
+        {
+          "bytes": 23184,
+          "path": "DeepDB/code/recompute_joblight_truth.py",
+          "sha256": "59c64a4863d047cf0d9138176623c6525f4aa4c47590a9ff67b5ed6bed40f9ed"
+        },
+        {
+          "bytes": 13069,
+          "path": "DeepDB/code/postgres_baseline.py",
+          "sha256": "04d4e8041e156513c79ee67a629fa6d492813ba801fb303fe8347981f7cd89b2"
+        },
+        {
+          "bytes": 4123,
+          "path": "DeepDB/code/verify_results.py",
+          "sha256": "c49800c43c55b88fa1897c3a6a3063c038afd0e430d18b35903556225914cb8d"
+        },
+        {
+          "bytes": 23720,
+          "path": "tools/run_rdc_visible.py",
+          "sha256": "f0fd4c903ee1eb5c26610b54a97519cf4e8464d91bd7844699e9dc04aaba5963"
+        },
+        {
+          "bytes": 1097,
+          "path": "DeepDB/code/LICENSE",
+          "sha256": "fd56c419f12408bd308540fe2c9caa79d0a680d6393cc083b42d13e8904755d2"
+        },
+        {
+          "bytes": 2208,
+          "path": "DeepDB/docs/UPSTREAM.md",
+          "sha256": "6fbf43947d9d5516f11d45dc4a6b9c6d182806a91e837ea33cb387948063c03c"
+        }
+      ]
+    },
+    "primary_urls": {
+      "dbest_source": "https://github.com/qingzma/DBEstPy/tree/2220a937b5eef358eb42a715da328915048b7250",
+      "deepdb_paper": "https://www.vldb.org/pvldb/vol13/p992-hilprecht.pdf",
+      "fixed_deepdb_tree": "https://github.com/DataManagementLab/deepdb-public/tree/655ada13a043a4226a239b0c0a65bcdefef87a02",
+      "wavelet_author_journal": "https://minosng.github.io/Abstracts/vldbj01-abs.html",
+      "wavelet_msresearch": "https://www.microsoft.com/en-us/research/publication/approximate-query-processing-using-wavelets-3/",
+      "wavelet_paper": "https://www.vldb.org/conf/2000/P111.pdf"
+    },
+    "schema": "final_public_input_gaps_20261103_v1",
+    "scope": "Only whether newguoao package closes author200members/Fig5recipe/Wavelet/Fig12inputs; not full-project operational acceptance",
+    "self_sha256": "07e16154109d269a50541b4a8e2ded168c6abd5bd79f9bfa5be509ee588a1a81",
+    "status": "BOUNDED_READ_ONLY_REVIEW_COMPLETE_FOUR_AUTHOR_INPUT_GAPS_REMAIN"
+  },
+  "input_snapshot_git_commit": "b4dea1b",
+  "schema": "final_public_input_gaps_public_snapshot_v1",
+  "scope_note": "Dated read-only source audit. Input hashes describe the audited snapshot, not future edited documentation. This export does not accept later scientific stages.",
+  "status": "BOUNDED_READ_ONLY_REVIEW_COMPLETE_FOUR_AUTHOR_INPUT_GAPS_REMAIN"
+}

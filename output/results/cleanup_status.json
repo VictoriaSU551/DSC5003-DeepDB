@@ -1,0 +1,22 @@
+{
+  "schema": "deepdb_cleanup_status_public_v2",
+  "updated_at_utc": "2026-11-03T21:43:11.842760+00:00",
+  "status": "FINAL_MAIN_PUBLICATION_AND_PROTECTED_PACKAGE_REQUIRED",
+  "cleanup_complete": false,
+  "model_weights_protected": true,
+  "logical_models": 221,
+  "physical_model_files": 220,
+  "protected_model_bytes": 2128498224,
+  "small_support_files": 49,
+  "target": "Root README.md and results/ only; final weights included",
+  "current_cleanup_deletion_attempted": false,
+  "current_cleanup_deleted_files": 0,
+  "original_recursive_closures_retired": false,
+  "previous_automatic_deletion_rejection": {
+    "reason": "blocked by policy",
+    "historical_only": true,
+    "bypass_attempted": false
+  },
+  "actual_cleanup_state_must_be_updated_after_review": true,
+  "full_paper_reproduction_complete": false
+}

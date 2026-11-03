@@ -35,12 +35,12 @@ if (relevantScope[{node_scope}]) {{
         }}
 
         // left value should not be included in interval
-        if (!leftIncluded{node_scope} && !leftMinusInf{node_scope} && leftCondition{node_scope} == uniqueVals{node_id}[leftIdx{node_id}]) {{
+        if (!leftIncluded{node_scope} && !leftMinusInf{node_scope} && leftIdx{node_id} < static_cast<int>(uniqueVals{node_id}.size()) && leftCondition{node_scope} == uniqueVals{node_id}[leftIdx{node_id}]) {{
             nodeIntermediateResult[{node_id}] -= probSum{node_id}[leftIdx{node_id} + 1] - probSum{node_id}[leftIdx{node_id}];
         }}
 
         //same for right
-        if (!rightIncluded{node_scope} && !rightMinusInf{node_scope} && rightCondition{node_scope} == uniqueVals{node_id}[rightIdx{node_id}-{node_id}] && leftCondition{node_scope} != rightCondition{node_scope}) {{
+        if (!rightIncluded{node_scope} && !rightMinusInf{node_scope} && rightIdx{node_id} > 0 && rightCondition{node_scope} == uniqueVals{node_id}[rightIdx{node_id}-1] && leftCondition{node_scope} != rightCondition{node_scope}) {{
             nodeIntermediateResult[{node_id}] -= probSum{node_id}[rightIdx{node_id}] - probSum{node_id}[rightIdx{node_id} - 1];
         }}
     }}

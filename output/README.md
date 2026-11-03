@@ -1,28 +1,28 @@
-# 实验输出
+# 实验输出与交付
 
-公开结果和本地大文件分开保存，数据及模型本体不随GitHub分发。
+[全部扩展结果](results/FULL_PAPER_RESULTS.md)是表图和阶段状态入口；[公开摘要](results/fullpaper_summary.json)记录来源与SHA256。2026-11-03快照含31项派生交付文件，没有EVIDENCE_INVALID；**整篇论文仍未完成**，PENDING、作者母体失败与来源缺口保留。
 
-| 目录或文件 | 内容 | GitHub交付 |
+| 路径 | 内容及适用范围 | GitHub交付 |
 |---|---|---|
-| `results/guoao_experiments/` | guoao的JOB-light实验表格、16张中英文图、2份报告、配置、37段选定压缩日志和历史源码取证 | 已同步，保留原贡献文件字节 |
-| `results/guoao_integration_audit.json` | 2026-11-03同步核验：来源提交、36文件指纹、14组设置/980预测、核验边界 | 可公开 |
-| `results/RESULTS.md`及原JOB-light结果 | 最初1M关系基础模型的结果和重放记录 | 小型结果可公开，原记录保留 |
-| `models/` | 本地已训练模型，供重评和重放 | 不上传 |
-| `hdf/` | 最终使用的预处理数据 | 保留在本地，仅清理确认不再引用的旧版本 |
-| `logs/` | 本地正式运行日志 | 默认不上传；经脱敏、筛选和指纹绑定的组员交付日志单列在上述证据包 |
-| `full/` | 扩展复现的本地模型、最终处理数据、运行证据和派生图表 | 大文件不上传；相应代码/小型导出见扩展分支 |
-| `tmp/` | 有界测试夹具和临时产物 | 不上传；完成后按实际可执行的清理规则处理 |
+| `results/fullpaper_cardinality_*` | JOB-light配置、参数、增量、公开泛化及C++；作者值和本地值分别标注。 | CSV/PNG可公开 |
+| `results/fullpaper_flights_*` | 实际1B本地母体AQP/CI、部分DBEst及已有样本Verdict，缺组和不支持项明确。 | CSV/PNG可公开 |
+| `results/fullpaper_ssb_local_continuation_*` | LOCAL1M/table：复用已验收正向、新逆向及表图。 | CSV/PNG/来源JSON可公开 |
+| `results/fullpaper_ssb_local_ci10m_*` | 五个新10M/table cap模型、逆序13载入/26调用、2,059点/4,118端点最大差0；事实样本9,996,946行，CI1,253可用/806排除。 | CSV/PNG/来源JSON可公开 |
+| `results/fullpaper_additional_baselines.json`及Scalar/采样/DBEst报告 | 实际调用、覆盖、零估计、条件分母及计分政策。 | 可公开 |
+| `results/guoao_experiments/` | guoao/breck1016的14组JOB-light、980预测、报告、选定压缩日志和来源取证。 | 原贡献字节、署名和协议保留 |
+| `results/RESULTS.md`及原JOB-light结果 | 最初1M关系基础模型及重放记录。 | 小型结果可公开 |
+| `full/` | 本地运行闭包、来源、正式工件、模型和派生表图。 | 不整体上传；只导出白名单到 `results/` |
+| `models/`、`hdf/`、`logs/`、`tmp/` | 本地模型、预处理、日志和测试夹具。 | 默认不上传；组员审查后日志在其证据包单列 |
 
-先读[组员中文报告](results/guoao_experiments/report_zh.md)及[详细汇总](../docs/TEAM_EXPERIMENTS.md)。证据包按SHA256保存原字节，`.gitattributes`对该目录关闭换行符转换，避免Windows/Linux检出改变哈希。后续新增运行另建目录，不覆盖原包。
+SSB的1,713项作者customer连接真值差异保留，LOCAL结果不替代作者母体。LOCAL Verdict SF500五表导入、注册及38次物理调用、独立完整只读验收已完成；RAW、外部点适配和缺组/错误分开，见[最终交付](results/FINAL_DELIVERY.md)。完整3B数据库、原表建样本和XDB等未执行比较不计完成。
 
-离线复核无需下载原数据或模型：
+组员包维护见 [TEAM_EXPERIMENTS.md](../docs/TEAM_EXPERIMENTS.md)，标准库离线复核无需数据/模型：
 
 ```powershell
 python -B output/results/guoao_experiments/verify_results.py --repo-root .
 python -B output/results/guoao_experiments/verify_evidence.py
 ```
 
-`PASS`表示相应核验范围通过，不表示本次重训、重新执行数据库或完整论文复现。
-13个组员模型本体不在包中，清单核对不能代替模型加载重放。
+PASS只表示保存数值与对应证据范围通过，不代表本次重训或重新执行数据库。模型清单不是13个模型本体随包交付。`.gitattributes`关闭原证据包换行转换；新增结果另建目录，不覆盖原包。
 
-扩展结果 `results/fullpaper_*` 及完整协议在[reproduction/full-paper分支](https://github.com/VictoriaSU551/DSC5003-DeepDB/tree/reproduction/full-paper)，与本批70查询结果分别保留。其本地历史清理与运行状态见该分支记录；本文件不宣称本地临时产物已经全部删除。
+GitHub最终在 `main`交付源码和审查后共享结果；数据、模型本体、环境、数据库、PDF和凭据不上传。本地最终目标为根 `README.md`加 `results/`，实际保留集合以最终清单为准，实际精简与清理状态见[清理凭据](results/cleanup_status.json)。若历史来源闭包移除，fullF及其传递依赖入口须明确退役，摘要不能冒充现场完整验收。用户已确认最终模型作为结果保留，221个逻辑条目对应220个去重权重文件，按最终清单逐项核SHA。

@@ -20,6 +20,8 @@ output/results/*
 *.log
 .DS_Store
 .env
+# Local final delivery package; source and reviewed public exports stay in Git.
+/results/
 # No redistribution license was found for these original SSB mirror sources.
 # Fetch their pinned archive locally; retain only our adapter and source notices.
 code/vendor/ssb_dbgen/*
