@@ -188,7 +188,9 @@ def test_offline_snapshot_requires_the_auxiliary_physical_scan_proof(monkeypatch
     for target,rows in [('public.'+t,r) for t,r in s['dimension_rows'].items()]+[(s['sample_relation'],n)]:
         canonical=dict(bytes=rows*20,rows=rows,sha256='a'*64)
         loads.append(dict(status='PASS_COMMITTED_TABLE_IMPORT',table=target,rows=rows,seconds=.1,
-            canonical_source=canonical,canonical_actual=canonical,physical_scan=proof(target,rows)))
+            canonical_source=canonical,canonical_actual=canonical,physical_scan=proof(target,rows),
+            import_protocol='FRESH_CREATE_SINGLE_COPY_SAME_TRANSACTION_V1',created_and_copied_same_transaction=True,
+            copy_from_calls=1,source_eof=True,source_normalized_rows=rows))
     plan={'spec':s,'schema_contract':{t:{'columns':[['id','integer']]} for t in ('dwdate','customer','supplier','part','lineorder')}}
     snapshot=dict(status='PASS_LOCAL_LOCKED_FULL_INPUT_SNAPSHOT',original_fact_rows=0,loads=loads,schema=m.ops.expected_schema(plan),catalog={},
         aux_accounting=[n,n/s['population_rows'],n/s['population_rows'],0,99],probability_hex=[m.ops.probability_hex(s)]*2,

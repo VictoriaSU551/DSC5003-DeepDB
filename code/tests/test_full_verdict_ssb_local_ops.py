@@ -36,7 +36,9 @@ def load_fixture(m,committed=False):
         proof=dict(status='PASS_SERIAL_SEQSCAN_MONOTONIC_CTID',table=table,rows=count,keep_ctid=False,
             first_ctid=[0,1],last_ctid=[count//100,1+count%100],explain=_scan_plan(table),settings=['off','0'],previous_settings=['on','2'],restored_settings=['on','2'])
         row=dict(table=table,rows=count,canonical_actual=canonical,physical_scan=proof)
-        if committed:row.update(status='PASS_COMMITTED_TABLE_IMPORT',canonical_source=canonical,seconds=.5)
+        if committed:row.update(status='PASS_COMMITTED_TABLE_IMPORT',canonical_source=canonical,seconds=.5,
+            import_protocol='FRESH_CREATE_SINGLE_COPY_SAME_TRANSACTION_V1',created_and_copied_same_transaction=True,
+            copy_from_calls=1,source_eof=True,source_normalized_rows=count)
         rows.append(row)
     return rows
 
@@ -67,7 +69,7 @@ def test_connection_uses_local_database_and_never_changes_frozen_sf2_globals(mon
         @staticmethod
         def connect(**kw):calls.append(kw);return type('Connection',(),{})()
     monkeypatch.setitem(sys.modules,'psycopg2',Driver)
-    db.connect();assert calls[0]['dbname']=='deepdb_verdict_ssb_local500_v10'
+    db.connect();assert calls[0]['dbname']=='deepdb_verdict_ssb_local500_v11'
     assert 'extra_float_digits=3' in calls[0]['options'] and 'temp_file_limit=1048576' in calls[0]['options']
     assert db.core.DB=='deepdb_verdict_ssb' and db.core.LIMITS['total_new_bytes']==1024**3
     with pytest.raises(ValueError):db.connect('unowned')
@@ -208,9 +210,9 @@ def test_physical_copy_record_and_fragment_memory_bounds_fail_closed():
         with pytest.raises(ValueError):m.copy_physical(_CopyCursor(fragments),'public.customer','"id"',core,None)
 
 
-def test_v10_database_namespace_matches_java_and_preserves_fixed_resource_caps():
+def test_v11_database_namespace_matches_java_and_preserves_fixed_resource_caps():
     m=module();s=m.contract.local_spec()
-    assert s['database']=='deepdb_verdict_ssb_local500_v10'
+    assert s['database']=='deepdb_verdict_ssb_local500_v11'
     java=(ROOT/s['java_source']).read_text(encoding='utf-8')
     assert 'static final String DATABASE="'+s['database']+'";' in java
     assert s['limits']['python_rss_bytes']==512*1024**2 and s['limits']['work_mem_kib']==16384
@@ -247,9 +249,14 @@ def test_all_five_import_roundtrips_use_one_linear_physical_copy_each(monkeypatc
             if sql.startswith('SELECT 1 FROM pg_database'):return None
             if sql=='SELECT COUNT(*) FROM public.lineorder':return (0,)
             return super().fetchone()
-        def copy_expert(self,sql,sink):
+        def copy_expert(self,sql,sink,**kwargs):
             if ' FROM STDIN ' in sql:
-                assert isinstance(sink,io.StringIO);self.tables[sql.split()[1]]=sink.read().encode('utf-8');return
+                chunks=[]
+                while True:
+                    value=sink.read(65536)
+                    if not value:break
+                    chunks.append(value.encode('utf-8') if isinstance(value,str) else value)
+                self.tables[sql.split()[1]]=b''.join(chunks);return
             target=sql.split(' FROM ONLY ',1)[1].split(')',1)[0]
             assert self.tables[target]==payload
             self.fragments=[b'(0,1)|'+self.tables[target]];super().copy_expert(sql,sink)
@@ -282,3 +289,112 @@ def test_locked_snapshot_delegates_full_field_readback_to_the_same_physical_guar
     monkeypatch.setattr(m,'copy_physical',guard)
     with pytest.raises(ReachedPhysicalGuard):db.locked_snapshot({'schema_contract':{'customer':{'columns':[['id','int']]}}},tmp_path,c,budget)
     assert calls==[(c,'public.customer','"id"',db.core,budget)]
+
+
+@pytest.mark.parametrize('size',[1,3,17,65536])
+def test_single_copy_reader_is_bounded_exact_and_requires_complete_eof(size):
+    m=module();source=_HashSink();payload='1|""|中文\n2|"\\N"|"a""b"\n'.encode('utf-8')
+    chunks=iter([(1,[],'1|""|中文\n'),(1,[],'2|"\\N"|"a""b"\n')])
+    reader=m.NormalizedCopyReader(chunks,source)
+    with pytest.raises(ValueError):reader.finish(2)
+    result=[]
+    while True:
+        block=reader.read(size)
+        if not block:break
+        assert isinstance(block,bytes) and len(block)<=size;result.append(block)
+    reader.finish(2);assert b''.join(result)==payload and source.rows==reader.normalized_rows==2
+    expected=_HashSink();expected.write(payload);assert source.result()==expected.result()
+    for bad in (-1,65537,True):
+        with pytest.raises(ValueError):reader.read(bad)
+    with pytest.raises(ValueError):reader.finish(3)
+    reader.close()
+    with pytest.raises(ValueError):reader.read(1)
+
+
+@pytest.mark.parametrize('chunk',[(True,[],'x\n'),(2,[],'x\n'),(1,[],b'x\n'),(0,[],''),(1,[],'x'*(8*1024**2+1)),(1,[],'x\ntrailing')])
+def test_single_copy_reader_rejects_malformed_or_oversized_normalized_chunks(chunk):
+    m=module();reader=m.NormalizedCopyReader(iter([chunk]),_HashSink())
+    with pytest.raises(ValueError):reader.read(65536)
+    reader.close()
+
+
+def test_single_copy_reader_resource_denial_precedes_source_consumption():
+    from types import SimpleNamespace
+    m=module();started=[];source=_HashSink()
+    def chunks():started.append(True);yield 1,[],'1|value\n'
+    def deny():raise ValueError('resource window closed')
+    reader=m.NormalizedCopyReader(chunks(),source,SimpleNamespace(tick=deny))
+    with pytest.raises(ValueError,match='resource window'):reader.read(65536)
+    assert not started and source.bytes==source.rows==0 and not reader.eof
+    reader.close()
+
+
+@pytest.mark.parametrize('failure',[None,'COPY_FROM','EARLY_RETURN','READBACK_HASH','SOURCE_CLOSE','COPY_FROM_CLOSE'])
+def test_import_creates_each_target_in_its_single_copy_transaction_and_keeps_failure_stats(monkeypatch,tmp_path,failure):
+    from types import SimpleNamespace
+    m=module();saved={};state={'tx':0,'created':{},'copies':0};original=['1|alpha\n','2|beta\n'];target='public.customer'
+    budget=SimpleNamespace(tick=lambda **kw:None)
+    class Cursor:
+        def __enter__(self):return self
+        def __exit__(self,*unused):pass
+        def execute(self,sql,args=None):
+            self.sql=sql
+            if sql.startswith('CREATE TABLE '):state['created'][sql.split()[2]]=state['tx']
+        def fetchone(self):
+            if self.sql=='SHOW server_version':return ('11.5',)
+            if self.sql=='SHOW data_directory':return (str(tmp_path),)
+            if self.sql.startswith('SELECT 1 FROM pg_database'):return None
+            if self.sql=='SELECT COUNT(*) FROM public.lineorder':return (0,)
+            raise AssertionError(self.sql)
+        def copy_expert(self,sql,reader,**kwargs):
+            assert state['created'][target]==state['tx'],'COPY target was committed before import'
+            state['copies']+=1;assert state['copies']==1,'Each target must have exactly one COPY FROM'
+            assert kwargs.get('size')==65536
+            if failure=='EARLY_RETURN':reader.read(4);return
+            blocks=[]
+            while True:
+                data=reader.read(65536)
+                if not data:break
+                blocks.append(data)
+                if failure in ('COPY_FROM','COPY_FROM_CLOSE'):raise RuntimeError('simulated backend COPY failure')
+            assert b''.join(blocks)==''.join(original).encode('utf-8')
+    c=Cursor()
+    def commit():state['tx']+=1
+    connection=SimpleNamespace(cursor=lambda:c,commit=commit,close=lambda:None)
+    db=m.LocalDatabase.__new__(m.LocalDatabase);db.spec=m.contract.local_spec()
+    class Chunks:
+        def __init__(self):self.items=iter([(1,[],text) for text in original])
+        def __iter__(self):return self
+        def __next__(self):return next(self.items)
+        def close(self):
+            if failure in ('SOURCE_CLOSE','COPY_FROM_CLOSE'):raise RuntimeError('simulated source close failure')
+    db.core=SimpleNamespace(CLUSTER=tmp_path,CopyHashSink=_HashSink,atomic_json=lambda p,v:saved.__setitem__(Path(p).name,v),
+        raw_chunks=lambda *a:Chunks(),create_table_sql=lambda t,s,k:'CREATE TABLE public.'+t)
+    monkeypatch.setattr(db,'connect',lambda *a:connection);monkeypatch.setattr(db,'no_external_clients',lambda:None)
+    monkeypatch.setattr(db,'protected',lambda:{k:{} for k in db.spec['protected_databases']})
+    monkeypatch.setattr(m,'assert_no_science_processes',lambda:None)
+    monkeypatch.setattr(m,'expected_inputs',lambda p:[('customer',tmp_path/'not_actual_data',True,2)])
+    def readback(*args):
+        sink=_HashSink();sink.write(''.join(original) if failure!='READBACK_HASH' else '9|alpha\n2|beta\n')
+        sink.physical_scan={'fixture':True};return sink
+    monkeypatch.setattr(m,'copy_physical',readback)
+    plan={'schema_contract':{t:{'columns':[['id','integer'],['value','text']]} for t in ('dwdate','customer','part','supplier','lineorder')}}
+    if failure is None:
+        result=db.import_data(plan,tmp_path,budget);row=result['loads'][0]
+        assert row['copy_from_calls']==1 and row['created_and_copied_same_transaction'] is True and row['source_eof'] is True
+        assert row['source_normalized_rows']==row['rows']==2 and not any('failure' in n for n in saved)
+    else:
+        with pytest.raises((ValueError,RuntimeError)) as raised:db.import_data(plan,tmp_path,budget)
+        if failure in ('COPY_FROM','COPY_FROM_CLOSE'):assert 'backend COPY failure' in str(raised.value)
+        diag=saved['import_customer_failure.json']
+        assert diag['table']==target and diag['expected_rows']==2 and diag['copy_from_calls']==1
+        assert diag['source']['bytes']>0 and diag['source']['sha256'] and diag['error']
+        assert diag['actual'] is None if failure!='READBACK_HASH' else diag['source']!=diag['actual']
+        assert diag['source_eof'] is (failure!='EARLY_RETURN')
+        if failure=='SOURCE_CLOSE':assert diag['stage']=='SOURCE_CLOSE'
+
+
+@pytest.mark.parametrize('field,value',[('import_protocol','other'),('created_and_copied_same_transaction',False),('copy_from_calls',2),('copy_from_calls',True),('source_eof',False),('source_normalized_rows',1)])
+def test_committed_import_protocol_cannot_be_self_resealed_as_multi_copy_or_early_eof(field,value):
+    m=module();rows=load_fixture(m,True);rows[0][field]=value
+    with pytest.raises(ValueError):m.validate_loads(m.contract.local_spec(),rows,True)

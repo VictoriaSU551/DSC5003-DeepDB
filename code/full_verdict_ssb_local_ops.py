@@ -3,7 +3,6 @@
 Only DB-independent frozen utilities and same-cluster process ownership are
 composed. No frozen global DB, LIMITS, sample count or operation is replaced.
 """
-import io
 import json
 import math
 import os
@@ -162,6 +161,39 @@ def copy_physical(c,target,columns,core,budget,keep_ctid=False):
     validate_physical_scan(sink.physical_scan,target,sink.rows,keep_ctid);return sink
 
 
+class NormalizedCopyReader:
+    """One COPY consumes frozen normalized chunks, without materializing a table."""
+    def __init__(self,chunks,source,budget=None):
+        self.chunks=iter(chunks);self.source=source;self.budget=budget;self.buffer=b'';self.position=0
+        self.normalized_rows=0;self.eof=False;self.closed=False
+    def read(self,size):
+        contract.require(not self.closed and type(size) is int and 0<size<=65536,'Bounded open COPY reader required')
+        if self.budget is not None:self.budget.tick()
+        parts=[];remaining=size
+        while remaining and not self.eof:
+            if self.position==len(self.buffer):
+                try:n,unused,text=next(self.chunks)
+                except StopIteration:self.eof=True;self.buffer=b'';self.position=0;break
+                contract.require(type(n) is int and n>0 and isinstance(text,str) and len(text)<=8*1024**2 and text.endswith('\n') and text.count('\n')==n,
+                    'Invalid frozen normalized COPY chunk accounting')
+                self.buffer=text.encode('utf-8');self.position=0
+                contract.require(len(self.buffer)<=8*1024**2,'Normalized COPY chunk exceeds memory bound')
+                self.normalized_rows+=n
+            take=min(remaining,len(self.buffer)-self.position)
+            parts.append(self.buffer[self.position:self.position+take]);self.position+=take;remaining-=take
+        data=b''.join(parts)
+        if data:self.source.write(data)
+        return data
+    def finish(self,expected):
+        contract.require(self.eof and self.position==len(self.buffer) and type(expected) is int and
+            self.source.rows==self.normalized_rows==expected>0,'COPY source must reach complete exact-row EOF')
+    def close(self):
+        if self.closed:return
+        self.closed=True;self.buffer=b'';self.position=0
+        close=getattr(self.chunks,'close',None)
+        if close is not None:close()
+
+
 def validate_loads(spec,loads,committed=False):
     expected={'public.'+table:rows for table,rows in spec['dimension_rows'].items()}
     expected[spec['sample_relation']]=spec['sample_rows']
@@ -176,6 +208,9 @@ def validate_loads(spec,loads,committed=False):
         validate_physical_scan(row.get('physical_scan'),row['table'],count)
         if committed:
             contract.require(row.get('status')=='PASS_COMMITTED_TABLE_IMPORT' and row.get('canonical_source')==canonical and
+                row.get('import_protocol')=='FRESH_CREATE_SINGLE_COPY_SAME_TRANSACTION_V1' and row.get('created_and_copied_same_transaction') is True and
+                type(row.get('copy_from_calls')) is int and row['copy_from_calls']==1 and row.get('source_eof') is True and
+                type(row.get('source_normalized_rows')) is int and row['source_normalized_rows']==count and
                 type(row.get('seconds')) in (int,float) and math.isfinite(row['seconds']) and row['seconds']>=0,'Committed LOCAL source/value import proof differs')
     return {row['table']:row for row in loads}
 
@@ -262,23 +297,45 @@ class LocalDatabase:
         try:
             with connection.cursor() as c:
                 c.execute('CREATE SCHEMA public_verdict')
-                for table,schema in plan['schema_contract'].items():c.execute(self.core.create_table_sql(table,schema,'postgres'))
-                c.execute('CREATE TABLE '+self.spec['sample_relation']+' (LIKE public.lineorder INCLUDING DEFAULTS)')
-                c.execute('ALTER TABLE '+self.spec['sample_relation']+' ADD COLUMN verdict_vprob double precision NOT NULL DEFAULT ({}::double precision/{}::double precision), ADD COLUMN verdict_vpart integer NOT NULL DEFAULT mod(cast(round(random()*100) as integer),100)'.format(self.spec['sample_rows'],self.spec['population_rows']))
-                c.execute('SELECT setseed(%s)',(self.spec['partition_seed'],))
+                c.execute(self.core.create_table_sql('lineorder',plan['schema_contract']['lineorder'],'postgres'))
                 connection.commit()
                 for table,path,terminal,expected in expected_inputs(plan):
                     assert_no_science_processes()
                     started=time.monotonic();target=self.spec['sample_relation'] if table=='lineorder' else 'public.'+table
                     columns=','.join('"'+name+'"' for name,kind in plan['schema_contract'][table]['columns'])
-                    source=self.core.CopyHashSink();count=0
-                    for n,unused,text in self.core.raw_chunks(path,len(plan['schema_contract'][table]['columns']),terminal):
-                        source.write(text);c.copy_expert('COPY '+target+' ('+columns+") FROM STDIN WITH(FORMAT CSV,DELIMITER '|',NULL E'\\\\N')",io.StringIO(text));count+=n;budget.tick()
-                    actual=copy_physical(c,target,columns,self.core,budget)
-                    contract.require(count==expected and source.result()==actual.result(),'LOCAL complete imported field/order/duplicate accounting differs')
-                    connection.commit()
-                    loads.append(dict(status='PASS_COMMITTED_TABLE_IMPORT',table=target,rows=count,canonical_source=source.result(),canonical_actual=actual.result(),physical_scan=actual.physical_scan,seconds=time.monotonic()-started))
-                    self.core.atomic_json(home/('import_'+table+'.json'),loads[-1])
+                    source=self.core.CopyHashSink();reader=None;actual=None;copy_calls=0;copy_completed=False;failed=False;stage='CREATE_TARGET'
+                    try:
+                        # PG11.5 skips FSM only when this target is new in this transaction.
+                        if table=='lineorder':
+                            c.execute('CREATE TABLE '+target+' (LIKE public.lineorder INCLUDING DEFAULTS)')
+                            c.execute('ALTER TABLE '+target+' ADD COLUMN verdict_vprob double precision NOT NULL DEFAULT ({}::double precision/{}::double precision), ADD COLUMN verdict_vpart integer NOT NULL DEFAULT mod(cast(round(random()*100) as integer),100)'.format(self.spec['sample_rows'],self.spec['population_rows']))
+                            c.execute('SELECT setseed(%s)',(self.spec['partition_seed'],))
+                        else:c.execute(self.core.create_table_sql(table,plan['schema_contract'][table],'postgres'))
+                        reader=NormalizedCopyReader(self.core.raw_chunks(path,len(plan['schema_contract'][table]['columns']),terminal),source,budget)
+                        stage='COPY_FROM';copy_calls+=1
+                        c.copy_expert('COPY '+target+' ('+columns+") FROM STDIN WITH(FORMAT CSV,DELIMITER '|',NULL E'\\\\N',ENCODING 'UTF8')",reader,size=65536)
+                        copy_completed=True;stage='SOURCE_EOF';reader.finish(expected);count=reader.normalized_rows
+                        stage='SOURCE_CLOSE';reader.close()
+                        stage='READBACK';actual=copy_physical(c,target,columns,self.core,budget)
+                        stage='COMPARE';contract.require(source.result()==actual.result(),'LOCAL complete imported field/order/duplicate accounting differs')
+                        stage='COMMIT';connection.commit()
+                        loads.append(dict(status='PASS_COMMITTED_TABLE_IMPORT',table=target,rows=count,canonical_source=source.result(),canonical_actual=actual.result(),
+                            physical_scan=actual.physical_scan,seconds=time.monotonic()-started,import_protocol='FRESH_CREATE_SINGLE_COPY_SAME_TRANSACTION_V1',
+                            created_and_copied_same_transaction=True,copy_from_calls=copy_calls,source_eof=reader.eof,source_normalized_rows=reader.normalized_rows))
+                        stage='RECEIPT';self.core.atomic_json(home/('import_'+table+'.json'),loads[-1])
+                    except BaseException as error:
+                        failed=True
+                        failure=dict(status='FAILED_LOCAL_TABLE_IMPORT',table=target,stage=stage,expected_rows=expected,copy_from_calls=copy_calls,copy_from_completed=copy_completed,
+                            source=source.result(),source_eof=reader is not None and reader.eof,source_normalized_rows=0 if reader is None else reader.normalized_rows,
+                            actual=None if actual is None else actual.result(),physical_scan=None if actual is None else actual.physical_scan,error=repr(error))
+                        try:self.core.atomic_json(home/('import_'+table+'_failure.json'),failure)
+                        except BaseException:pass # Preserve the first import error if diagnostics cannot be written.
+                        raise
+                    finally:
+                        if reader is not None:
+                            try:reader.close()
+                            except BaseException:
+                                if not failed:raise
                 c.execute('SELECT COUNT(*) FROM public.lineorder');contract.require(c.fetchone()[0]==0,'Original LOCAL fact skeleton must remain empty')
                 connection.commit()
             with connection.cursor() as c:
