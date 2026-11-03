@@ -141,6 +141,8 @@ def approval(path,sha,status,binding):
 
 def validate_budget(plan,budget,start):
     s=plan['spec'];limits=s['limits'];samples=budget['samples']
+    ops.validate_resource_scan(budget.get('resource_scan_baseline'),('wal','temp'))
+    contract.require('resource_scan_failure' in budget and budget['resource_scan_failure'] is None,'Failed resource scan cannot be accepted')
     scan=start['model_scan'];ops.validate_science_scan(scan)
     contract.require(start['limits']==limits and type(start.get('available_ram_bytes')) is int and type(start.get('free_disk_bytes')) is int and
         start['available_ram_bytes']>=limits['minimum_available_ram_bytes'] and start['free_disk_bytes']>=limits['minimum_free_disk_bytes'] and
@@ -282,7 +284,7 @@ def run(plan_path,review_path,review_sha,name,start_project_postgres):
         core.atomic_json(home/'final.json',final);core.atomic_json(home/'final.seal.json',{'sha256':contract.digest(home/'final.json')});core.atomic_json(home/'lifecycle.json',{'status':'PASS','final_sha256':contract.digest(home/'final.json')})
         return _verify_from_boundary(home,exit_boundary)
     except BaseException as error:
-        if budget is not None:core.atomic_json(home/'failed_budget.json',budget.report() if budget.samples else {'samples':[]})
+        if budget is not None:core.atomic_json(home/'failed_budget.json',budget.report())
         core.atomic_json(home/'lifecycle.json',{'status':'TAINTED','error':repr(error)});raise
     finally:
         if budget is not None:budget.close()
@@ -405,7 +407,7 @@ def pilot(plan_path,review_path,review_sha,name,start_project_postgres):
         core.atomic_json(home/'lifecycle.json',{'status':'PASS','final_sha256':contract.digest(home/'final.json')})
         return _verify_pilot_from_boundary(home/'final.json',exit_boundary)
     except BaseException as error:
-        if budget is not None:core.atomic_json(home/'failed_budget.json',budget.report() if budget.samples else {'samples':[]})
+        if budget is not None:core.atomic_json(home/'failed_budget.json',budget.report())
         core.atomic_json(home/'lifecycle.json',{'status':'TAINTED','error':repr(error)});raise
     finally:
         if budget is not None:budget.close()

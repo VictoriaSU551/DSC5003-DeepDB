@@ -16,7 +16,7 @@ Files and interfaces:
 - `code/full_verdict_ssb_local_bridge.java`: new fixed LOCAL DB/n/N context, retaining original JAR/public APIs and one execute per call. Do not modify the SF2 Java source/class.
 - New `code/tests/test_full_verdict_ssb_local*.py`: pure/micro fixtures only in this phase.
 
-Fixed invariants: LOCAL N=3,000,028,242; n=9,996,946; source ID a574cd95f8ba184c809c66e438c88f69ddb1ddcc7b984c9ea99bcbb4c476dcf9; 1,713 author differences; fresh V11 DB deepdb_verdict_ssb_local500_v11; three protected prior databases; full four dimensions; zero-row fact skeleton; fact-only n/N metadata and 100 partitions; 13 raw + six child SUMs per mode = 38 calls; exact13 signed-integer moment oracles; two-SUM difference only, no child population truth or adapter CI. Original p and DeepDB n/p stay separate.
+Fixed invariants: LOCAL N=3,000,028,242; n=9,996,946; source ID a574cd95f8ba184c809c66e438c88f69ddb1ddcc7b984c9ea99bcbb4c476dcf9; 1,713 author differences; fresh V12 DB deepdb_verdict_ssb_local500_v12; three protected prior databases; full four dimensions; zero-row fact skeleton; fact-only n/N metadata and 100 partitions; 13 raw + six child SUMs per mode = 38 calls; exact13 signed-integer moment oracles; two-SUM difference only, no child population truth or adapter CI. Original p and DeepDB n/p stay separate.
 
 Implementation sequence:
 
@@ -38,7 +38,7 @@ Within forbidden DB/process/science and verified native-platform contexts, the c
 
 Single-entry verification cost is explicit: `pilot-plan`, `build_plan`, public `verify_pilot` and public `verify` each call the full parent verifier **once** through frozen replay. A private fresh boundary proof carries this complete evidence through nested pilot/plan checks. Public APIs accept no skip flag or proof/cache. A new public entry always verifies afresh. `pilot` and `run` have two separate fresh boundaries (entry and exit); only final output validation reuses the just-completed exit proof. No result or artifact cache crosses these boundaries. Unique repeated descriptors are checked once within a collector, while conflicting repeats fail. This avoids four full parent validations per public plan/verify without weakening before/after checks. It is a code/fixture count, not a measured runtime promise.
 
-Database and resource behavior is explicit. The LOCAL operation alone creates `deepdb_verdict_ssb_local500_v11`; it refuses an existing database and never adopts/reimports/replaces any prior database, including the failed V9 `deepdb_verdict_ssb_local500` and V10 `deepdb_verdict_ssb_local500_v10`. The three prior databases are protected by catalog identities, not a claim of per-row protected-data hashing. Only a proven controller-owned stopped project cluster may be started; pg_ctl uses the already reviewed file-handle logging and ownership cleanup. PG11.5 and fixed sealed JDK paths/JAR are verified. Python/Java connections request `extra_float_digits=3`, 16MiB work memory, 1GiB per-backend temp-file limit and 600s statement timeout; JVM heap is384MiB, metaspace192MiB, process RSS cap1GiB, timeout660s. The original shared cluster startup options remain bound in e141; connection-specific values override work memory for these sessions. No global database/system settings are changed.
+Database and resource behavior is explicit. The LOCAL operation alone creates `deepdb_verdict_ssb_local500_v12`; it refuses an existing database and never adopts/reimports/replaces any prior database, including failed V9/V10/V11 LOCAL databases. The three prior databases are protected by catalog identities, not a claim of per-row protected-data hashing. Only a proven controller-owned stopped project cluster may be started; pg_ctl uses the already reviewed file-handle logging and ownership cleanup. PG11.5 and fixed sealed JDK paths/JAR are verified. Python/Java connections request `extra_float_digits=3`, 16MiB work memory, 1GiB per-backend temp-file limit and 600s statement timeout; JVM heap is384MiB, metaspace192MiB, process RSS cap1GiB, timeout660s. The original shared cluster startup options remain bound in e141; connection-specific values override work memory for these sessions. No global database/system settings are changed.
 
 Full four dimensions and the existing fact sample are copied in bounded10000-row chunks. Each committed table has an individual receipt, exact target row count and canonical all-field COPY bytes/row-count/SHA, preserving duplicate rows and string/NULL serialization. The complete import requires the five unique targets (15M customer,1M supplier,1.8M part,2556 dates,9996946 fact rows). The original fact relation remains empty. Only the fact has original uniform sample metadata and100 `verdict_vpart` partitions; dimensions have neither metadata nor auxiliary partition columns. Exact native float8 bits validate n/N. A SHARE lock covers the fact, full dimensions and both metadata tables through all38 serial original calls; before/after all-field and auxiliary COPY, schema, own catalog, partition histograms and protected catalogs must match. These checks are not replaced by an OID or COUNT-only assertion.
 
@@ -284,3 +284,52 @@ resource review and ROOT approval remain mandatory. Implementation validation
 is pure/mock; the actual1M probe was run separately by ROOT, not by this code
 editing task. No implementer F, PG/JVM, model, science, plan, deletion or commit
 is performed for V11.
+
+V12 fixes only concurrent resource-file counting. Actual V11 committed all four
+dimensions after exact same-transaction/single-COPY source/readback equality,
+then a frozen `tree_bytes(pg_wal)` walk observed a segment between enumeration
+and stat after PostgreSQL had rotated it away. That `FileNotFoundError` escaped
+from the source reader's budget check, canceled the fact COPY at line1280184
+and rolled that table back. Its failure receipt retains emitted1280183 rows,
+normalized1290000 rows and the partial source digest. The TAINTED run is not
+accepted or resumed; those dimension checks are evidence of the V11 import
+mechanism, not a completed38-call baseline.
+
+The LOCAL budget alone uses `resource_tree_bytes` for owned home, owned staging,
+WAL and temporary resources. Each complete scan may restart at most3 extra
+times (4 total attempts), only for `FileNotFoundError` with an explicit absolute
+filename canonically and strictly below the controlled scan root. Temp is a
+complete re-enumeration and recount of all `base/pgsql_tmp` and
+`base/*/pgsql_tmp` roots on every attempt; an incomplete subtotal is discarded.
+Only those temp subtrees qualify for temp retries. Missing required roots,
+absent/relative filenames, path escapes, non-temp base files, permission/I/O
+errors and exhausted retries all propagate. No individual file is ignored,
+no exception substitutes zero, and no old total is reused. A genuinely absent
+optional temp directory still has the frozen complete-scan zero semantics.
+All non-resource `tree_bytes`, scientific hashes and strict source checks remain
+unchanged.
+
+`resource_scan_baseline` records actual WAL/temp retries; every sample records
+home/staging/WAL/temp retries with fixed method
+`WHOLE_RESOURCE_RESCAN_ON_IN_ROOT_FILENOTFOUND_V1` and bound3. Offline validation
+requires the exact key set, method/bound and non-boolean integer counters0..3.
+A failed in-progress scan records its scope, extra-rescan count and original error
+in `resource_scan_failure` for the failed budget report; a completed acceptance
+requires that field to be null. Baselines, WAL LSN arithmetic, peak and component
+caps are still recomputed by the original checks. The existing polling interval
+is unchanged; there is no cache across rescans.
+Both controller failure branches preserve the complete failed-budget report
+even if the first sample failed. With no completed samples, its empty-history
+peak is0; this is not a zero filesystem count or an accepted resource sample.
+Offline acceptance still requires nonempty samples. Reporting itself performs
+no rescan and cannot raise the former `max(empty)` error over the first error.
+
+Only the spec/Java database literal advances to
+`deepdb_verdict_ssb_local500_v12`; V11 reader, same-transaction CREATE/COPY,
+physical-order/value equality, schema,38 SQLs and all resource limits remain
+identical. The V11 freeze and Git
+`6d3c8f8faf912c46b19c6a9ce6dc70f005b76205` preserve its9-source/23-parent
+identities. New source-bound pilot, plan and ROOT approval are required. Pure
+fixtures cover rotating/renamed resource files, fresh whole-group totals,
+retry exhaustion and strict unrelated-error propagation; no new PG import,
+parent F, model, JVM or actual scientific operation is run by this revision.

@@ -120,7 +120,9 @@ def budget_fixture(m):
     start=dict(limits=limits,available_ram_bytes=5*1024**3,free_disk_bytes=20*1024**3,model_scan=scan_fixture(m))
     sample=core.budget_total(100,200,110,100,15,10)
     sample.update(monotonic=10.,python_rss_bytes=1000,wal_lsn='0/2',wal_generated_bytes=1,wal_lsn_observed_monotonic=9.,monitor_connection_live=False)
-    budget=dict(spec_limits=limits,samples=[sample],peak_total_bytes=sample['total_bytes'],wal_lsn_before='0/1')
+    sample['resource_scan']=m.ops.resource_scan_receipt(dict(home=0,staging=0,wal=1,temp=0))
+    budget=dict(spec_limits=limits,samples=[sample],peak_total_bytes=sample['total_bytes'],wal_lsn_before='0/1',
+        resource_scan_baseline=m.ops.resource_scan_receipt(dict(wal=0,temp=0)),resource_scan_failure=None)
     return {'spec':s},start,budget
 
 
@@ -136,6 +138,47 @@ def test_readonly_resource_semantics_refuse_undersized_start_corrupt_wal_and_ove
         if kind=='negative_raw_wal':
             b['samples'][0].update(wal_now_bytes=-1,positive_wal_bytes=0,total_bytes=305);b['peak_total_bytes']=305
         with pytest.raises(ValueError):m.validate_budget(plan,b,s)
+
+
+@pytest.mark.parametrize('kind',['method','bound','bool_retry','negative','too_many','missing','failure'])
+def test_offline_resource_audit_cannot_self_reseal_wrong_baseline_method_or_retry_evidence(kind):
+    m=module();plan,start,budget=budget_fixture(m);m.validate_budget(plan,budget,start)
+    if kind=='method':budget['resource_scan_baseline']['method']='IGNORE_SINGLE_MISSING_FILE'
+    if kind=='bound':budget['resource_scan_baseline']['max_additional_rescans']=4
+    if kind=='bool_retry':budget['resource_scan_baseline']['retries']['wal']=True
+    if kind=='negative':budget['resource_scan_baseline']['retries']['wal']=-1
+    if kind=='too_many':budget['resource_scan_baseline']['retries']['wal']=4
+    if kind=='missing':del budget['resource_scan_baseline']
+    if kind=='failure':budget['resource_scan_failure']={'scope':'wal','error':'failed scan'}
+    with pytest.raises(ValueError):m.validate_budget(plan,budget,start)
+
+
+@pytest.mark.parametrize('action',['run','pilot'])
+def test_first_budget_failure_is_logged_by_both_controllers_without_replacing_original_error(tmp_path,monkeypatch,action):
+    from types import SimpleNamespace
+    m=module();s=m.contract.local_spec();short=tmp_path.parent/('first_'+action);short.mkdir()
+    monkeypatch.setattr(m.contract,'ROOT',short)
+    error=FileNotFoundError(2,'first sampler exhausted','owned_resource_segment');reports=[]
+    failure={'samples':[],'peak_total_bytes':0,'resource_scan_failure':{'scope':'wal','scan':m.ops.resource_scan_receipt({'wal':3}),'error':repr(error)}}
+    class Budget:
+        samples=[]
+        def attach(self,db):raise error
+        def close(self):pass
+        def report(self):reports.append(True);return failure
+    core=SimpleNamespace(available_ram=lambda:5*1024**3,atomic_json=lambda p,v:write_json(m,p,v),pg_control=lambda *a:{'exit_code':3},start_owned_server=lambda *a:{'exit_code':0})
+    monkeypatch.setattr(m.contract,'load_frozen',lambda:core)
+    monkeypatch.setattr(m.ops,'LocalBudget',lambda *a:Budget());monkeypatch.setattr(m.ops,'LocalDatabase',lambda *a:SimpleNamespace(no_external_clients=lambda:None))
+    monkeypatch.setattr(m.ops,'assert_no_science_processes',lambda:scan_fixture(m));monkeypatch.setattr(m.shutil,'disk_usage',lambda p:SimpleNamespace(free=20*1024**3))
+    plan=dict(spec=s,binding_sha256='a'*64,parent_expected={},lineage={'oracle':[]},queries=[])
+    monkeypatch.setattr(m,'revalidate_plan',lambda p:p);monkeypatch.setattr(m.contract,'build_pilot_plan',lambda p:plan)
+    plan_path=short/'plan.json';review=short/'review.json';write_json(m,plan_path,plan)
+    status='APPROVED_LOCAL_VERDICT_EXECUTION' if action=='run' else 'APPROVED_LOCAL_VERDICT_SF2_MEASUREMENT'
+    write_json(m,review,dict(status=status,binding_sha256='a'*64,limits=s['limits']))
+    call=m.run if action=='run' else m.pilot
+    with pytest.raises(FileNotFoundError) as raised:call(plan_path,review,m.contract.digest(review),'first',True)
+    assert raised.value is error and reports==[True]
+    home=short/s['output']/('runs' if action=='run' else 'measurements')/'first'
+    assert m.contract.read(home/'failed_budget.json')==failure and m.contract.read(home/'lifecycle.json')['status']=='TAINTED'
 
 
 def test_empty_self_resealed_final_map_still_fails_under_forbidden_operations(tmp_path,monkeypatch):

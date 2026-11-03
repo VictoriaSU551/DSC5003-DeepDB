@@ -69,7 +69,7 @@ def test_connection_uses_local_database_and_never_changes_frozen_sf2_globals(mon
         @staticmethod
         def connect(**kw):calls.append(kw);return type('Connection',(),{})()
     monkeypatch.setitem(sys.modules,'psycopg2',Driver)
-    db.connect();assert calls[0]['dbname']=='deepdb_verdict_ssb_local500_v11'
+    db.connect();assert calls[0]['dbname']=='deepdb_verdict_ssb_local500_v12'
     assert 'extra_float_digits=3' in calls[0]['options'] and 'temp_file_limit=1048576' in calls[0]['options']
     assert db.core.DB=='deepdb_verdict_ssb' and db.core.LIMITS['total_new_bytes']==1024**3
     with pytest.raises(ValueError):db.connect('unowned')
@@ -84,7 +84,7 @@ def test_local_metadata_requires_actual_n_over_N_and_full_dimensions_unregistere
 
 
 def test_independent_12gib_budget_rejects_component_cap_even_if_total_is_below_cap():
-    m=module();s=m.contract.local_spec();base=dict(owned_files_bytes=1,owned_database_bytes=1,positive_wal_bytes=0,positive_temp_bytes=0,total_bytes=2,python_rss_bytes=1)
+    m=module();s=m.contract.local_spec();base=dict(owned_files_bytes=1,owned_database_bytes=1,positive_wal_bytes=0,positive_temp_bytes=0,total_bytes=2,python_rss_bytes=1,resource_scan=_scan_receipt())
     m.validate_budget_sample(s,base)
     bad=dict(base,positive_temp_bytes=2*1024**3,total_bytes=2+2*1024**3)
     with pytest.raises(ValueError):m.validate_budget_sample(s,bad)
@@ -100,13 +100,12 @@ def test_local_aux_probability_native_bits_differ_from_sf2_and_partition_coverag
 
 
 def test_stopped_budget_samples_keep_last_live_lsn_without_a_new_database_call(monkeypatch,tmp_path):
-    from types import SimpleNamespace
     m=module();core=m.contract.load_frozen()
-    fake=SimpleNamespace(CLUSTER=tmp_path,budget_total=core.budget_total,lsn_integer=core.lsn_integer,tree_bytes=lambda p:0,process_rss=lambda p:100)
+    fake,home,stage=_resource_roots(m,tmp_path,monkeypatch)
+    fake.budget_total=core.budget_total;fake.lsn_integer=core.lsn_integer;fake.tree_bytes=lambda p:0;fake.process_rss=lambda p:100
     b=m.LocalBudget.__new__(m.LocalBudget)
-    b.spec=m.contract.local_spec();b.home=tmp_path;b.stage=tmp_path;b.core=fake;b.connection=None;b.samples=[]
+    b.spec=m.contract.local_spec();b.home=home;b.stage=stage;b.core=fake;b.connection=None;b.samples=[]
     b.last_database_bytes=200;b.wal_before=0;b.temp_before=0;b.wal_lsn_before='0/1';b.last_wal_lsn='0/3';b.last_lsn_observed=0.
-    monkeypatch.setattr(b,'temp_bytes',lambda:0)
     last=b.tick(force=True)
     assert last['wal_generated_bytes']==2 and last['wal_lsn']=='0/3' and last['monitor_connection_live'] is False
     assert last['wal_lsn_observed_monotonic']==0. and last['owned_database_bytes']==200
@@ -210,9 +209,9 @@ def test_physical_copy_record_and_fragment_memory_bounds_fail_closed():
         with pytest.raises(ValueError):m.copy_physical(_CopyCursor(fragments),'public.customer','"id"',core,None)
 
 
-def test_v11_database_namespace_matches_java_and_preserves_fixed_resource_caps():
+def test_v12_database_namespace_matches_java_and_preserves_fixed_resource_caps():
     m=module();s=m.contract.local_spec()
-    assert s['database']=='deepdb_verdict_ssb_local500_v11'
+    assert s['database']=='deepdb_verdict_ssb_local500_v12'
     java=(ROOT/s['java_source']).read_text(encoding='utf-8')
     assert 'static final String DATABASE="'+s['database']+'";' in java
     assert s['limits']['python_rss_bytes']==512*1024**2 and s['limits']['work_mem_kib']==16384
@@ -398,3 +397,156 @@ def test_import_creates_each_target_in_its_single_copy_transaction_and_keeps_fai
 def test_committed_import_protocol_cannot_be_self_resealed_as_multi_copy_or_early_eof(field,value):
     m=module();rows=load_fixture(m,True);rows[0][field]=value
     with pytest.raises(ValueError):m.validate_loads(m.contract.local_spec(),rows,True)
+
+
+def _scan_receipt(kinds=('home','staging','wal','temp'),**retries):
+    return dict(method='WHOLE_RESOURCE_RESCAN_ON_IN_ROOT_FILENOTFOUND_V1',max_additional_rescans=3,retries={k:retries.get(k,0) for k in kinds})
+
+
+def _resource_roots(m,tmp_path,monkeypatch):
+    from types import SimpleNamespace
+    monkeypatch.setattr(m.contract,'ROOT',tmp_path)
+    cluster=tmp_path/'cluster';home=tmp_path/'owned_home';stage=tmp_path/'owned_stage'
+    for path in (cluster/'pg_wal',cluster/'base',home,stage):path.mkdir(parents=True,exist_ok=True)
+    return SimpleNamespace(CLUSTER=cluster),home,stage
+
+
+@pytest.mark.parametrize('kind',['home','staging','wal'])
+def test_whole_resource_scan_discards_raced_walk_and_returns_only_complete_fresh_count(tmp_path,monkeypatch,kind):
+    m=module();core,home,stage=_resource_roots(m,tmp_path,monkeypatch)
+    root={'home':home,'staging':stage,'wal':core.CLUSTER/'pg_wal'}[kind];calls=[]
+    def count(path):
+        calls.append(Path(path))
+        if len(calls)==1:raise FileNotFoundError(2,'raced rename/rotation',str(root/'rolling.tmp'))
+        return 73
+    core.tree_bytes=count;trace={}
+    assert m.resource_tree_bytes(core,kind,home,stage,trace)==(73,1)
+    assert calls==[root,root] and trace['retries']==1
+
+
+def test_temp_resource_race_reenumerates_and_recounts_the_entire_group(tmp_path,monkeypatch):
+    m=module();core,home,stage=_resource_roots(m,tmp_path,monkeypatch)
+    top=core.CLUSTER/'base/pgsql_tmp';db=core.CLUSTER/'base/16384/pgsql_tmp';top.mkdir();db.mkdir(parents=True)
+    calls=[]
+    def count(path):
+        path=Path(path);calls.append(path)
+        if len(calls)==2:raise FileNotFoundError(2,'temporary segment removed',str(db/'temp.tmp'))
+        return {1:11,3:101,4:202}[len(calls)]
+    core.tree_bytes=count
+    assert m.resource_tree_bytes(core,'temp',home,stage)==(303,1)
+    assert calls==[top,db,top,db] # The first incomplete11 is never retained.
+
+
+@pytest.mark.parametrize('succeed',[False,True])
+def test_resource_race_has_exactly_three_extra_whole_attempts_and_never_uses_old_value(tmp_path,monkeypatch,succeed):
+    m=module();core,home,stage=_resource_roots(m,tmp_path,monkeypatch);calls=[];root=core.CLUSTER/'pg_wal'
+    def count(path):
+        calls.append(path)
+        if not succeed or len(calls)<4:raise FileNotFoundError(2,'continues to rotate',str(root/'segment'))
+        return 91
+    core.tree_bytes=count;trace={}
+    if succeed:assert m.resource_tree_bytes(core,'wal',home,stage,trace)==(91,3)
+    else:
+        with pytest.raises(FileNotFoundError):m.resource_tree_bytes(core,'wal',home,stage,trace)
+    assert len(calls)==4 and trace['retries']==3
+
+
+@pytest.mark.parametrize('kind',['permission','oserror','no_filename','relative','outside','dot_escape','root_itself','non_temp','unknown_scope'])
+def test_resource_scan_never_retries_unrelated_or_uninspectable_errors(tmp_path,monkeypatch,kind):
+    m=module();core,home,stage=_resource_roots(m,tmp_path,monkeypatch);root=core.CLUSTER/'pg_wal';scope='wal';calls=[]
+    if kind=='permission':error=PermissionError(13,'denied',str(root/'segment'))
+    elif kind=='oserror':error=OSError(5,'I/O error',str(root/'segment'))
+    elif kind=='no_filename':error=FileNotFoundError('filename absent')
+    elif kind=='relative':error=FileNotFoundError(2,'not absolute','segment')
+    elif kind=='outside':error=FileNotFoundError(2,'outside',str(tmp_path/'other/segment'))
+    elif kind=='dot_escape':error=FileNotFoundError(2,'escaped',str(root/'../other/segment'))
+    elif kind=='root_itself':error=FileNotFoundError(2,'root gone',str(root))
+    elif kind=='non_temp':scope='temp';error=FileNotFoundError(2,'not temp',str(core.CLUSTER/'base/16384/12345'))
+    else:scope='source_data';error=AssertionError('Unrecognized scope reached filesystem')
+    def count(path):calls.append(path);raise error
+    core.tree_bytes=count
+    if kind=='unknown_scope':
+        with pytest.raises(ValueError):m.resource_tree_bytes(core,scope,home,stage)
+        assert not calls
+    else:
+        with pytest.raises(type(error)) as raised:m.resource_tree_bytes(core,scope,home,stage)
+        assert raised.value is error and len(calls)==1
+
+
+def test_resource_scan_rejects_project_escape_and_missing_required_root_without_zero(tmp_path,monkeypatch):
+    m=module();core,home,stage=_resource_roots(m,tmp_path,monkeypatch);calls=[]
+    core.tree_bytes=lambda p:calls.append(p) or 0
+    core.CLUSTER=tmp_path.parent/'outside_project'
+    with pytest.raises(ValueError):m.resource_tree_bytes(core,'wal',home,stage)
+    core.CLUSTER=tmp_path/'never_created_cluster'
+    with pytest.raises(FileNotFoundError):m.resource_tree_bytes(core,'wal',home,stage)
+    assert not calls
+
+
+@pytest.mark.parametrize('kind',['method','bound','bool_bound','bool_retry','negative','too_many','missing','extra'])
+def test_resource_scan_receipt_requires_fixed_method_bound_and_exact_integer_counters(kind):
+    m=module();good=_scan_receipt(wal=2);m.validate_resource_scan(good,('home','staging','wal','temp'))
+    if kind=='method':good['method']='IGNORE_MISSING_FILE'
+    if kind=='bound':good['max_additional_rescans']=4
+    if kind=='bool_bound':good['max_additional_rescans']=True
+    if kind=='bool_retry':good['retries']['wal']=True
+    if kind=='negative':good['retries']['wal']=-1
+    if kind=='too_many':good['retries']['wal']=4
+    if kind=='missing':del good['retries']['wal']
+    if kind=='extra':good['retries']['source_data']=0
+    with pytest.raises(ValueError):m.validate_resource_scan(good,('home','staging','wal','temp'))
+
+
+def test_budget_records_actual_baseline_and_sample_retries_and_exhaustion_without_cached_bytes(tmp_path,monkeypatch):
+    m=module();frozen=m.contract.load_frozen();core,home,stage=_resource_roots(m,tmp_path,monkeypatch)
+    counts={'wal':0,'home':0};mode={'sampling':False,'exhaust':False}
+    def count(path):
+        path=Path(path)
+        if path==core.CLUSTER/'pg_wal':
+            counts['wal']+=1
+            if mode['exhaust'] or counts['wal'] in (1,3,4):raise FileNotFoundError(2,'rotated segment',str(path/'segment'))
+            return 100 if not mode['sampling'] else 160
+        if path==home:
+            counts['home']+=1
+            if counts['home']==1:raise FileNotFoundError(2,'atomic rename',str(path/'result.json.tmp'))
+            return 12
+        if path==stage:return 13
+        return 0 if not mode['sampling'] else 4
+    core.tree_bytes=count;core.budget_total=frozen.budget_total;core.lsn_integer=frozen.lsn_integer;core.process_rss=lambda p:100
+    monkeypatch.setattr(m.contract,'load_frozen',lambda:core)
+    b=m.LocalBudget(m.contract.local_spec(),home,stage);assert b.resource_scan_baseline==_scan_receipt(('wal','temp'),wal=1)
+    mode['sampling']=True;sample=b.tick(force=True)
+    assert sample['resource_scan']==_scan_receipt(home=1,wal=2) and sample['wal_now_bytes']==160 and sample['owned_files_bytes']==25
+    assert b.report()['resource_scan_failure'] is None
+    mode['exhaust']=True
+    with pytest.raises(FileNotFoundError):b.tick(force=True)
+    report=b.report();assert len(report['samples'])==1
+    assert report['resource_scan_failure']['scope']=='wal' and report['resource_scan_failure']['scan']==_scan_receipt(('wal',),wal=3)
+
+
+def test_resource_scan_permission_error_after_one_race_still_propagates_immediately(tmp_path,monkeypatch):
+    m=module();core,home,stage=_resource_roots(m,tmp_path,monkeypatch);calls=[];root=core.CLUSTER/'pg_wal'
+    error=PermissionError(13,'denied',str(root/'segment'))
+    def count(path):
+        calls.append(path)
+        if len(calls)==1:raise FileNotFoundError(2,'race',str(root/'previous'))
+        raise error
+    core.tree_bytes=count;trace={}
+    with pytest.raises(PermissionError) as raised:m.resource_tree_bytes(core,'wal',home,stage,trace)
+    assert raised.value is error and len(calls)==2 and trace['retries']==1
+
+
+def test_first_sample_exhaustion_report_preserves_failure_without_a_secondary_empty_peak_error(tmp_path,monkeypatch):
+    m=module();frozen=m.contract.load_frozen();core,home,stage=_resource_roots(m,tmp_path,monkeypatch);mode={'fail':False}
+    first=FileNotFoundError(2,'resource rotation exhausted',str(core.CLUSTER/'pg_wal/segment'))
+    def count(path):
+        if mode['fail'] and Path(path)==core.CLUSTER/'pg_wal':raise first
+        return 1
+    core.tree_bytes=count;core.budget_total=frozen.budget_total;core.process_rss=lambda p:100
+    monkeypatch.setattr(m.contract,'load_frozen',lambda:core)
+    budget=m.LocalBudget(m.contract.local_spec(),home,stage);mode['fail']=True
+    with pytest.raises(FileNotFoundError) as raised:budget.tick(force=True)
+    assert raised.value is first
+    report=budget.report()
+    assert report['samples']==[] and report['peak_total_bytes']==0
+    assert report['resource_scan_failure']['scan']['retries']=={'wal':3} and 'rotation exhausted' in report['resource_scan_failure']['error']

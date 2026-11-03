@@ -15,6 +15,8 @@ import full_verdict_ssb_local as contract
 
 SCIENCE_SCAN_COMMAND=['powershell.exe','-NoProfile','-Command',
     '[Console]::OutputEncoding=New-Object System.Text.UTF8Encoding($false); Get-CimInstance Win32_Process -Filter "Name LIKE \'python%.exe\'" | Select-Object Name,ProcessId,CommandLine | ConvertTo-Json -Compress']
+RESOURCE_SCAN_METHOD='WHOLE_RESOURCE_RESCAN_ON_IN_ROOT_FILENOTFOUND_V1'
+RESOURCE_SCAN_MAX_RETRIES=3
 
 
 def check_science_processes(rows):
@@ -68,6 +70,46 @@ def validate_budget_sample(spec,sample):
     contract.require(all(type(sample.get(k)) is int and sample[k]>=0 for k in keys+('total_bytes','python_rss_bytes')),'LOCAL resource counts must be nonnegative integers')
     contract.require(sample['total_bytes']==sum(sample[k] for k in keys) and sample['total_bytes']<=limits['total_new_bytes'] and
         all(sample[k]<=limits[k] for k in keys) and sample['python_rss_bytes']<=limits['python_rss_bytes'],'LOCAL component/total/RSS budget exceeded')
+    validate_resource_scan(sample.get('resource_scan'),('home','staging','wal','temp'))
+
+
+def resource_scan_receipt(retries):
+    return dict(method=RESOURCE_SCAN_METHOD,max_additional_rescans=RESOURCE_SCAN_MAX_RETRIES,retries=dict(retries))
+
+
+def validate_resource_scan(record,kinds):
+    contract.require(isinstance(record,dict) and set(record)=={'method','max_additional_rescans','retries'} and
+        record['method']==RESOURCE_SCAN_METHOD and type(record['max_additional_rescans']) is int and record['max_additional_rescans']==RESOURCE_SCAN_MAX_RETRIES and
+        isinstance(record['retries'],dict) and set(record['retries'])==set(kinds) and
+        all(type(n) is int and 0<=n<=RESOURCE_SCAN_MAX_RETRIES for n in record['retries'].values()),
+        'Exact bounded whole-resource scan receipt required')
+
+
+def resource_tree_bytes(core,kind,home,stage,trace=None):
+    """Retry only a complete owned-resource scan after an in-root disappearance."""
+    contract.require(kind in ('home','staging','wal','temp'),'Unknown resource scan scope')
+    root={'home':Path(home),'staging':Path(stage),'wal':core.CLUSTER/'pg_wal','temp':core.CLUSTER/'base'}[kind].resolve()
+    contract.require(contract.ROOT.resolve() in root.parents,'Resource scan outside project root')
+    trace={} if trace is None else trace
+    for retry in range(RESOURCE_SCAN_MAX_RETRIES+1):
+        trace['retries']=retry
+        try:
+            if not root.is_dir():raise FileNotFoundError(2,'Required resource root missing',str(root))
+            if kind=='temp':
+                # Re-enumerate and recount every temp directory on each attempt.
+                total=core.tree_bytes(root/'pgsql_tmp')+sum(core.tree_bytes(p) for p in root.glob('*/pgsql_tmp'))
+            else:total=core.tree_bytes(root)
+            contract.require(type(total) is int and total>=0,'Invalid complete resource byte count')
+            return total,retry
+        except FileNotFoundError as error:
+            name=error.filename
+            if not isinstance(name,(str,os.PathLike)) or not name or not Path(name).is_absolute():raise
+            missing=Path(name).resolve()
+            if root not in missing.parents:raise
+            if kind=='temp':
+                parts=missing.relative_to(root).parts
+                if not (parts[0]=='pgsql_tmp' or len(parts)>1 and parts[1]=='pgsql_tmp'):raise
+            if retry==RESOURCE_SCAN_MAX_RETRIES:raise
 
 
 def expected_schema(plan):
@@ -219,10 +261,17 @@ class LocalBudget:
     def __init__(self,spec,home,stage):
         self.spec=spec;self.home=Path(home);self.stage=Path(stage);self.core=contract.load_frozen()
         self.connection=None;self.samples=[];self.last_database_bytes=0
-        self.wal_before=self.core.tree_bytes(self.core.CLUSTER/'pg_wal');self.temp_before=self.temp_bytes();self.wal_lsn_before=None;self.last_wal_lsn=None;self.last_lsn_observed=None
+        self.resource_scan_failure=None
+        self.wal_before,wal_retries=self._resource_count('wal');self.temp_before,temp_retries=self._resource_count('temp')
+        self.resource_scan_baseline=resource_scan_receipt(dict(wal=wal_retries,temp=temp_retries))
+        self.wal_lsn_before=None;self.last_wal_lsn=None;self.last_lsn_observed=None
+    def _resource_count(self,kind):
+        trace={}
+        try:return resource_tree_bytes(self.core,kind,self.home,self.stage,trace)
+        except BaseException as error:
+            self.resource_scan_failure=dict(scope=kind,scan=resource_scan_receipt({kind:trace.get('retries',0)}),error=repr(error));raise
     def temp_bytes(self):
-        root=self.core.CLUSTER/'base'
-        return self.core.tree_bytes(root/'pgsql_tmp')+sum(self.core.tree_bytes(p) for p in root.glob('*/pgsql_tmp'))
+        return self._resource_count('temp')[0]
     def attach(self,db):
         self.connection=db.connect('postgres',True)
         with self.connection.cursor() as c:c.execute('SELECT pg_current_wal_lsn()::text');self.wal_lsn_before=c.fetchone()[0]
@@ -238,14 +287,17 @@ class LocalBudget:
                 self.last_database_bytes=0 if r is None else int(r[0])
                 c.execute('SELECT pg_current_wal_lsn()::text');lsn=c.fetchone()[0]
                 self.last_wal_lsn=lsn;self.last_lsn_observed=time.monotonic()
-        sample=self.core.budget_total(self.core.tree_bytes(self.home)+self.core.tree_bytes(self.stage),self.last_database_bytes,
-            self.core.tree_bytes(self.core.CLUSTER/'pg_wal'),self.wal_before,self.temp_bytes(),self.temp_before)
-        sample.update(monotonic=time.monotonic(),python_rss_bytes=self.core.process_rss(os.getpid()))
+        home_bytes,home_retries=self._resource_count('home');stage_bytes,stage_retries=self._resource_count('staging')
+        wal_bytes,wal_retries=self._resource_count('wal');temp_bytes,temp_retries=self._resource_count('temp')
+        sample=self.core.budget_total(home_bytes+stage_bytes,self.last_database_bytes,wal_bytes,self.wal_before,temp_bytes,self.temp_before)
+        sample.update(monotonic=time.monotonic(),python_rss_bytes=self.core.process_rss(os.getpid()),
+            resource_scan=resource_scan_receipt(dict(home=home_retries,staging=stage_retries,wal=wal_retries,temp=temp_retries)))
         if self.wal_lsn_before is not None and lsn is not None:sample.update(wal_lsn=lsn,wal_generated_bytes=self.core.lsn_integer(lsn)-self.core.lsn_integer(self.wal_lsn_before),
             wal_lsn_observed_monotonic=self.last_lsn_observed,monitor_connection_live=self.connection is not None)
         self.samples.append(sample);validate_budget_sample(self.spec,sample);return sample
     def report(self):
-        return dict(spec_limits=self.spec['limits'],samples=self.samples,peak_total_bytes=max(x['total_bytes'] for x in self.samples),wal_lsn_before=self.wal_lsn_before,
+        return dict(spec_limits=self.spec['limits'],samples=self.samples,peak_total_bytes=max((x['total_bytes'] for x in self.samples),default=0),wal_lsn_before=self.wal_lsn_before,
+            resource_scan_baseline=self.resource_scan_baseline,resource_scan_failure=self.resource_scan_failure,
             scope='LOCAL own DB/files + positive physical cluster WAL/temp; no whole-drive delta; finite polling window',
             wal_lsn_scope='First live PG monitor before import through last live monitor before owned shutdown; stopped samples retain the last observed LSN with its timestamp')
 

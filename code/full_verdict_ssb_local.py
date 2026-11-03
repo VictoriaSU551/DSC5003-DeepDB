@@ -137,7 +137,7 @@ def verify_delegate_sources():
 
 def local_spec():
     gib=1024**3
-    return dict(scope='LOCAL_SSB_SF500_VERDICT_EXISTING_SAMPLE',database='deepdb_verdict_ssb_local500_v11',
+    return dict(scope='LOCAL_SSB_SF500_VERDICT_EXISTING_SAMPLE',database='deepdb_verdict_ssb_local500_v12',
         protected_databases=['deepdb_job','deepdb_verdict','deepdb_verdict_ssb'],
         population_rows=3000028242,sample_rows=9996946,
         source_id='a574cd95f8ba184c809c66e438c88f69ddb1ddcc7b984c9ea99bcbb4c476dcf9',
