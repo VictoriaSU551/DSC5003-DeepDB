@@ -244,6 +244,16 @@ def validate_registration(spec,text):
     contract.require(math.isfinite(ratio) and ratio==spec['sample_rows']/spec['population_rows'],'Original LOCAL n/N registration result differs')
 
 
+def _record_failed_science_scan(core,home,error):
+    """Private owned-run evidence; diagnostic I/O never replaces the first error."""
+    diagnostic=getattr(error,'scan_diagnostics',None)
+    if isinstance(diagnostic,dict):
+        try:core.atomic_json(home/'failed_science_scan.json',diagnostic)
+        except BaseException as write_error:
+            try:error.science_scan_diagnostic_write_failed=type(write_error).__name__
+            except BaseException:pass
+
+
 def run(plan_path,review_path,review_sha,name,start_project_postgres):
     # Approval bytes are checked before even reading an untrusted plan.
     contract.require(review_path and review_sha and Path(review_path).is_file() and contract.digest(review_path)==review_sha,'Exact root approval bytes required before LOCAL operation')
@@ -284,6 +294,7 @@ def run(plan_path,review_path,review_sha,name,start_project_postgres):
         core.atomic_json(home/'final.json',final);core.atomic_json(home/'final.seal.json',{'sha256':contract.digest(home/'final.json')});core.atomic_json(home/'lifecycle.json',{'status':'PASS','final_sha256':contract.digest(home/'final.json')})
         return _verify_from_boundary(home,exit_boundary)
     except BaseException as error:
+        _record_failed_science_scan(core,home,error)
         if budget is not None:core.atomic_json(home/'failed_budget.json',budget.report())
         core.atomic_json(home/'lifecycle.json',{'status':'TAINTED','error':repr(error)});raise
     finally:
@@ -407,6 +418,7 @@ def pilot(plan_path,review_path,review_sha,name,start_project_postgres):
         core.atomic_json(home/'lifecycle.json',{'status':'PASS','final_sha256':contract.digest(home/'final.json')})
         return _verify_pilot_from_boundary(home/'final.json',exit_boundary)
     except BaseException as error:
+        _record_failed_science_scan(core,home,error)
         if budget is not None:core.atomic_json(home/'failed_budget.json',budget.report())
         core.atomic_json(home/'lifecycle.json',{'status':'TAINTED','error':repr(error)});raise
     finally:

@@ -15,38 +15,87 @@ import full_verdict_ssb_local as contract
 
 SCIENCE_SCAN_COMMAND=['powershell.exe','-NoProfile','-Command',
     '[Console]::OutputEncoding=New-Object System.Text.UTF8Encoding($false); Get-CimInstance Win32_Process -Filter "Name LIKE \'python%.exe\'" | Select-Object Name,ProcessId,CommandLine | ConvertTo-Json -Compress']
+SCIENCE_SCAN_METHOD='WHOLE_CIM_RESCAN_ON_UNINSPECTABLE_COMMANDLINE_V1'
+SCIENCE_SCAN_MAX_RETRIES=3
 RESOURCE_SCAN_METHOD='WHOLE_RESOURCE_RESCAN_ON_IN_ROOT_FILENOTFOUND_V1'
 RESOURCE_SCAN_MAX_RETRIES=3
 
 
-def check_science_processes(rows):
+def inspect_science_processes(rows):
+    """Check every header and known command; return only temporarily unreadable IDs."""
     contract.require(isinstance(rows,list),'Complete Python process rows required')
-    ids=[]
+    ids=[];uninspectable=[]
     for row in rows:
         contract.require(isinstance(row,dict) and set(row)=={'Name','ProcessId','CommandLine'} and
             isinstance(row['Name'],str) and row['Name'].lower().startswith('python') and
-            type(row['ProcessId']) is int and row['ProcessId']>0 and isinstance(row['CommandLine'],str) and bool(row['CommandLine']),
-            'Uninspectable Python process closes LOCAL science resource window')
+            type(row['ProcessId']) is int and row['ProcessId']>0 and (row['CommandLine'] is None or isinstance(row['CommandLine'],str)),
+            'Malformed Python process header closes LOCAL science resource window')
         ids.append(row['ProcessId'])
+    contract.require(len(ids)==len(set(ids)),'Duplicate process identities in resource scan')
+    for row in rows:
+        if row['CommandLine'] is None or row['CommandLine']=='':
+            uninspectable.append(row['ProcessId']);continue
         # Match entrypoint basenames in quoted Windows paths and -m forms.
         # In particular *_ci_run.py/_worker and *_ci_replay.py lack "model".
         if re.search(r'(?:full_ssb[^\s\\/\"\']*(?:model|ci|replay|canonical|continuation)[^\s\\/\"\']*|full_training[^\s\\/\"\']*)(?:\.py)?(?:\s|[\"\']|$)',row['CommandLine'],re.I):
             raise ValueError('Conflicting science/model/CI/replay active; LOCAL resource window closed: '+str(row['ProcessId']))
-    contract.require(len(ids)==len(set(ids)),'Duplicate process identities in resource scan')
+    return uninspectable
+
+
+def check_science_processes(rows):
+    missing=inspect_science_processes(rows)
+    contract.require(not missing,'Uninspectable Python process closes LOCAL science resource window; PIDs='+str(missing))
 
 
 def validate_science_scan(value):
-    contract.require(value.get('status')=='NO_CONFLICTING_SCIENCE_ACTIVE' and value.get('command')==SCIENCE_SCAN_COMMAND,'Explicit LOCAL science scanner evidence required')
-    rows=value.get('processes');check_science_processes(rows)
-    contract.require(value.get('python_processes_checked')==len(rows) and value.get('process_ids')==[r['ProcessId'] for r in rows],'Complete science process accounting differs')
+    contract.require(isinstance(value,dict) and set(value)=={'status','command','scan_method','max_additional_rescans','additional_rescans','attempts','processes','python_processes_checked','process_ids'} and
+        value['status']=='NO_CONFLICTING_SCIENCE_ACTIVE' and value['command']==SCIENCE_SCAN_COMMAND and
+        value['scan_method']==SCIENCE_SCAN_METHOD and type(value['max_additional_rescans']) is int and value['max_additional_rescans']==SCIENCE_SCAN_MAX_RETRIES and
+        type(value['additional_rescans']) is int and 0<=value['additional_rescans']<=SCIENCE_SCAN_MAX_RETRIES and
+        isinstance(value['attempts'],list) and len(value['attempts'])==value['additional_rescans']+1,'Exact bounded LOCAL science scanner evidence required')
+    for index,attempt in enumerate(value['attempts']):
+        contract.require(isinstance(attempt,dict) and set(attempt)=={'attempt','processes','python_processes_checked','process_ids','uninspectable_process_ids'} and
+            type(attempt['attempt']) is int and attempt['attempt']==index,'Complete ordered CIM attempts required')
+        rows=attempt['processes'];missing=inspect_science_processes(rows)
+        contract.require(type(attempt['python_processes_checked']) is int and attempt['python_processes_checked']==len(rows) and
+            isinstance(attempt['process_ids'],list) and all(type(p) is int for p in attempt['process_ids']) and attempt['process_ids']==[r['ProcessId'] for r in rows] and
+            isinstance(attempt['uninspectable_process_ids'],list) and all(type(p) is int for p in attempt['uninspectable_process_ids']) and attempt['uninspectable_process_ids']==missing and
+            (bool(missing) if index<value['additional_rescans'] else not missing),'CIM retry reason or complete per-attempt process accounting differs')
+    rows=value['processes'];check_science_processes(rows)
+    contract.require(rows==value['attempts'][-1]['processes'] and type(value['python_processes_checked']) is int and value['python_processes_checked']==len(rows) and
+        isinstance(value['process_ids'],list) and all(type(p) is int for p in value['process_ids']) and value['process_ids']==[r['ProcessId'] for r in rows],'Complete final science process accounting differs')
 
 
 def assert_no_science_processes():
-    raw=subprocess.run(SCIENCE_SCAN_COMMAND,check=True,capture_output=True,timeout=15,creationflags=getattr(subprocess,'CREATE_NO_WINDOW',0))
-    value=json.loads(raw.stdout.decode('utf-8-sig')) if raw.stdout.strip() else []
-    rows=value if isinstance(value,list) else [value];check_science_processes(rows)
-    result=dict(status='NO_CONFLICTING_SCIENCE_ACTIVE',command=SCIENCE_SCAN_COMMAND,processes=rows,python_processes_checked=len(rows),process_ids=[r['ProcessId'] for r in rows])
-    validate_science_scan(result);return result
+    attempts=[];snapshots=[]
+    for retry in range(SCIENCE_SCAN_MAX_RETRIES+1):
+        rows=[]
+        snapshot=dict(attempt=retry,status='SNAPSHOT_UNAVAILABLE',raw_rows_available=False,processes=None,raw_row_count=None,process_ids=[])
+        snapshots.append(snapshot)
+        try:
+            raw=subprocess.run(SCIENCE_SCAN_COMMAND,check=True,capture_output=True,timeout=15,creationflags=getattr(subprocess,'CREATE_NO_WINDOW',0))
+            value=json.loads(raw.stdout.decode('utf-8-sig')) if raw.stdout.strip() else []
+            rows=value if isinstance(value,list) else [value]
+            snapshot.update(status='SNAPSHOT_ACQUIRED',raw_rows_available=True,processes=rows,raw_row_count=len(rows),
+                process_ids=[r['ProcessId'] for r in rows if isinstance(r,dict) and type(r.get('ProcessId')) is int and r['ProcessId']>0])
+            missing=inspect_science_processes(rows)
+            snapshot.update(status='UNINSPECTABLE_COMMANDLINE' if missing else 'COMPLETE_NO_CONFLICT',uninspectable_process_ids=missing)
+            attempts.append(dict(attempt=retry,processes=rows,python_processes_checked=len(rows),process_ids=[r['ProcessId'] for r in rows],uninspectable_process_ids=missing))
+            if missing:
+                if retry<SCIENCE_SCAN_MAX_RETRIES:continue
+                error=ValueError('Uninspectable Python process closes LOCAL science resource window after bounded rescans; PIDs='+str(missing))
+                raise error
+            result=dict(status='NO_CONFLICTING_SCIENCE_ACTIVE',command=list(SCIENCE_SCAN_COMMAND),scan_method=SCIENCE_SCAN_METHOD,
+                max_additional_rescans=SCIENCE_SCAN_MAX_RETRIES,additional_rescans=retry,attempts=attempts,
+                processes=rows,python_processes_checked=len(rows),process_ids=[r['ProcessId'] for r in rows])
+            validate_science_scan(result);return result
+        except Exception as error:
+            if snapshot['status']=='SNAPSHOT_ACQUIRED':snapshot['status']='SNAPSHOT_REJECTED'
+            snapshot['error_type']=type(error).__name__
+            error.scan_diagnostics=dict(status='UNINSPECTABLE_COMMANDLINE' if snapshot['status']=='UNINSPECTABLE_COMMANDLINE' else 'SNAPSHOT_REJECTED',
+                attempt=retry,max_additional_rescans=SCIENCE_SCAN_MAX_RETRIES,process_ids=snapshot['process_ids'],
+                scan_method=SCIENCE_SCAN_METHOD,command=list(SCIENCE_SCAN_COMMAND),additional_rescans=retry,attempts=snapshots)
+            raise
 
 
 def probability_hex(spec):return struct.pack('!d',spec['sample_rows']/spec['population_rows']).hex()

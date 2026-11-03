@@ -28,6 +28,163 @@ def test_busy_science_guard_covers_actual_ci_model_and_reverse_entrypoints(scrip
     m.check_science_processes([dict(Name='python.exe',ProcessId=124,CommandLine='python code/full_verdict_ssb_local_run.py describe')])
 
 
+def _python_row(pid=123,command='python ordinary_audit.py'):
+    return dict(Name='python.exe',ProcessId=pid,CommandLine=command)
+
+
+def _cim_responses(m,monkeypatch,snapshots):
+    import json
+    from types import SimpleNamespace
+    calls=[];remaining=iter(snapshots)
+    def run(command,**kwargs):
+        calls.append(list(command))
+        value=next(remaining)
+        if isinstance(value,Exception):raise value
+        return SimpleNamespace(stdout=json.dumps(value).encode('utf-8'))
+    monkeypatch.setattr(m.subprocess,'run',run)
+    return calls
+
+
+@pytest.mark.parametrize('snapshots',[
+    [[_python_row(command=None)],[_python_row()]],
+    [[_python_row(command='')],[]],
+    [[_python_row(command=None)],[_python_row(124,command='')],[_python_row(125,command=None)],[_python_row(126)]],
+])
+def test_whole_cim_rescan_keeps_every_raw_attempt_and_only_accepts_complete_fresh_snapshot(monkeypatch,snapshots):
+    m=module();calls=_cim_responses(m,monkeypatch,snapshots)
+    result=m.assert_no_science_processes()
+    assert result['scan_method']=='WHOLE_CIM_RESCAN_ON_UNINSPECTABLE_COMMANDLINE_V1'
+    assert result['max_additional_rescans']==3 and result['additional_rescans']==len(snapshots)-1
+    assert [a['processes'] for a in result['attempts']]==snapshots
+    assert result['processes']==snapshots[-1] and result['python_processes_checked']==len(snapshots[-1])
+    assert result['process_ids']==[r['ProcessId'] for r in snapshots[-1]]
+    assert len(calls)==len(snapshots) and all(c==m.SCIENCE_SCAN_COMMAND for c in calls)
+    m.validate_science_scan(result)
+
+
+def test_whole_cim_rescan_exhaustion_reports_only_pids_and_status_without_skipping(monkeypatch):
+    m=module();calls=_cim_responses(m,monkeypatch,[[_python_row(command=None)]]*4+[[]])
+    with pytest.raises(ValueError,match='Uninspectable') as caught:m.assert_no_science_processes()
+    assert len(calls)==4 and '123' in str(caught.value)
+    diagnostic=caught.value.scan_diagnostics
+    assert {k:diagnostic[k] for k in ('status','attempt','max_additional_rescans','process_ids')}==dict(status='UNINSPECTABLE_COMMANDLINE',attempt=3,max_additional_rescans=3,process_ids=[123])
+
+
+@pytest.mark.parametrize('kind',['exhausted','bad_header','known_conflict','unavailable'])
+def test_failed_cim_scan_retains_every_acquired_snapshot_including_rejected_terminal_rows(monkeypatch,kind):
+    m=module();first=[_python_row(command=None)];private='private_scanner_argument'
+    if kind=='exhausted':snapshots=[first]*4
+    elif kind=='bad_header':snapshots=[first,[dict(Name='python.exe',ProcessId=124,CommandLine='',extra=True)]]
+    elif kind=='known_conflict':snapshots=[first,[_python_row(124,'python full_ssb_local_ci_run.py _worker '+private)]]
+    else:snapshots=[first,PermissionError('CIM unavailable')]
+    calls=_cim_responses(m,monkeypatch,snapshots)
+    with pytest.raises((ValueError,PermissionError)) as caught:m.assert_no_science_processes()
+    diagnostic=caught.value.scan_diagnostics
+    assert diagnostic['scan_method']=='WHOLE_CIM_RESCAN_ON_UNINSPECTABLE_COMMANDLINE_V1'
+    assert diagnostic['command']==m.SCIENCE_SCAN_COMMAND and diagnostic['additional_rescans']==len(snapshots)-1
+    assert len(diagnostic['attempts'])==len(calls)==len(snapshots)
+    for index,(attempt,original) in enumerate(zip(diagnostic['attempts'],snapshots)):
+        assert attempt['attempt']==index
+        if isinstance(original,Exception):
+            assert attempt['raw_rows_available'] is False and attempt['processes'] is None and attempt['status']=='SNAPSHOT_UNAVAILABLE'
+        else:
+            assert attempt['raw_rows_available'] is True and attempt['processes']==original
+            assert attempt['raw_row_count']==len(original)
+    assert private not in str(caught.value)
+
+
+@pytest.mark.parametrize('attempt',[0,1,2,3])
+def test_whole_cim_rescan_known_conflict_in_any_attempt_fails_even_beside_unreadable_row(monkeypatch,attempt):
+    m=module();secret='private_arg_should_not_be_in_error'
+    conflict=_python_row(777,'python full_ssb_local_ci_run.py _worker '+secret)
+    snapshots=[[_python_row(command=None)]]*attempt+[[_python_row(command=None),conflict],[]]
+    calls=_cim_responses(m,monkeypatch,snapshots)
+    with pytest.raises(ValueError,match='science') as caught:m.assert_no_science_processes()
+    assert len(calls)==attempt+1 and '777' in str(caught.value) and secret not in str(caught.value)
+
+
+@pytest.mark.parametrize('rows',[
+    {},None,[dict(Name='python.exe',ProcessId=123)],[_python_row(True)],[_python_row(0)],
+    [dict(Name=123,ProcessId=123,CommandLine='python audit.py')],
+    [dict(Name='java.exe',ProcessId=123,CommandLine='python audit.py')],
+    [_python_row(command=123)],[_python_row(command=False)],[_python_row(),_python_row()],
+    [_python_row(command=None),dict(Name='python.exe',ProcessId=124,CommandLine=[],extra=True)],
+])
+def test_whole_cim_rescan_bad_headers_types_and_duplicate_ids_never_trigger_retry(monkeypatch,rows):
+    m=module();calls=_cim_responses(m,monkeypatch,[rows,[]])
+    with pytest.raises(ValueError):m.assert_no_science_processes()
+    assert len(calls)==1
+
+
+def test_whole_cim_rescan_process_errors_are_not_retried(monkeypatch):
+    m=module();error=PermissionError('CIM unavailable');calls=_cim_responses(m,monkeypatch,[error,[]])
+    with pytest.raises(PermissionError) as caught:m.assert_no_science_processes()
+    assert caught.value is error and len(calls)==1
+
+
+@pytest.mark.parametrize('snapshot',[_python_row(),[]])
+def test_whole_cim_rescan_accepts_original_single_object_and_empty_cim_output_without_extra_snapshot(monkeypatch,snapshot):
+    m=module();calls=_cim_responses(m,monkeypatch,[snapshot])
+    result=m.assert_no_science_processes()
+    expected=[snapshot] if isinstance(snapshot,dict) else []
+    assert result['processes']==expected and result['additional_rescans']==0 and len(result['attempts'])==1 and len(calls)==1
+
+
+def test_whole_cim_rescan_malformed_json_fails_without_retry(monkeypatch):
+    from types import SimpleNamespace
+    m=module();calls=[]
+    def run(*args,**kwargs):calls.append(args);return SimpleNamespace(stdout=b'{not json')
+    monkeypatch.setattr(m.subprocess,'run',run)
+    with pytest.raises(ValueError) as caught:m.assert_no_science_processes()
+    assert len(calls)==1 and caught.value.scan_diagnostics['status']=='SNAPSHOT_REJECTED'
+
+
+def _literal_cim_receipt(m):
+    return dict(status='NO_CONFLICTING_SCIENCE_ACTIVE',command=m.SCIENCE_SCAN_COMMAND,
+        scan_method='WHOLE_CIM_RESCAN_ON_UNINSPECTABLE_COMMANDLINE_V1',max_additional_rescans=3,additional_rescans=1,
+        attempts=[dict(attempt=0,processes=[_python_row(command=None)],python_processes_checked=1,process_ids=[123],uninspectable_process_ids=[123]),
+                  dict(attempt=1,processes=[_python_row(124)],python_processes_checked=1,process_ids=[124],uninspectable_process_ids=[])],
+        processes=[_python_row(124)],python_processes_checked=1,process_ids=[124])
+
+
+def test_offline_cim_scan_audit_revalidates_recorded_rows_without_running_processes(monkeypatch):
+    m=module()
+    def forbidden(*args,**kwargs):raise AssertionError('Offline evidence triggered a live process')
+    monkeypatch.setattr(m.subprocess,'run',forbidden)
+    m.validate_science_scan(_literal_cim_receipt(m))
+
+
+@pytest.mark.parametrize('kind',['method','bound','bool_bound','count','bool_count','attempt_index','bool_index',
+    'attempt_count','bool_attempt_count','attempt_ids','uninspectable_ids','nonterminal_complete','terminal_uninspectable',
+    'duplicate_ids','bad_schema','conflict','last_rows','last_count','bool_last_count','last_ids','missing_attempts','unknown_field','too_many'])
+def test_offline_cim_scan_audit_rejects_self_resealed_incomplete_or_mutated_attempts(kind):
+    m=module();good=_literal_cim_receipt(m);m.validate_science_scan(good)
+    if kind=='method':good['scan_method']='IGNORE_UNREADABLE'
+    if kind=='bound':good['max_additional_rescans']=4
+    if kind=='bool_bound':good['max_additional_rescans']=True
+    if kind=='count':good['additional_rescans']=0
+    if kind=='bool_count':good['additional_rescans']=True
+    if kind=='attempt_index':good['attempts'][0]['attempt']=1
+    if kind=='bool_index':good['attempts'][0]['attempt']=False
+    if kind=='attempt_count':good['attempts'][0]['python_processes_checked']=0
+    if kind=='bool_attempt_count':good['attempts'][0]['python_processes_checked']=True
+    if kind=='attempt_ids':good['attempts'][0]['process_ids']=[]
+    if kind=='uninspectable_ids':good['attempts'][0]['uninspectable_process_ids']=[]
+    if kind=='nonterminal_complete':good['attempts'][0]['processes'][0]['CommandLine']='python audit.py';good['attempts'][0]['uninspectable_process_ids']=[]
+    if kind=='terminal_uninspectable':good['attempts'][1]['processes'][0]['CommandLine']=None
+    if kind=='duplicate_ids':good['attempts'][0]['processes']*=2
+    if kind=='bad_schema':good['attempts'][0]['processes'][0]['extra']=True
+    if kind=='conflict':good['attempts'][0]['processes'][0]['CommandLine']='python full_ssb_local_continuation_run.py supervise'
+    if kind=='last_rows':good['processes']=[]
+    if kind=='last_count':good['python_processes_checked']=0
+    if kind=='bool_last_count':good['python_processes_checked']=True
+    if kind=='last_ids':good['process_ids']=[]
+    if kind=='missing_attempts':del good['attempts']
+    if kind=='unknown_field':good['skip_uninspectable']=True
+    if kind=='too_many':good['additional_rescans']=4;good['attempts']=good['attempts'][:1]*4+good['attempts'][1:]
+    with pytest.raises(ValueError):m.validate_science_scan(good)
+
+
 def load_fixture(m,committed=False):
     rows=[]
     s=m.contract.local_spec();expected={'public.'+t:n for t,n in s['dimension_rows'].items()};expected[s['sample_relation']]=s['sample_rows']
@@ -69,7 +226,7 @@ def test_connection_uses_local_database_and_never_changes_frozen_sf2_globals(mon
         @staticmethod
         def connect(**kw):calls.append(kw);return type('Connection',(),{})()
     monkeypatch.setitem(sys.modules,'psycopg2',Driver)
-    db.connect();assert calls[0]['dbname']=='deepdb_verdict_ssb_local500_v12'
+    db.connect();assert calls[0]['dbname']=='deepdb_verdict_ssb_local500_v13'
     assert 'extra_float_digits=3' in calls[0]['options'] and 'temp_file_limit=1048576' in calls[0]['options']
     assert db.core.DB=='deepdb_verdict_ssb' and db.core.LIMITS['total_new_bytes']==1024**3
     with pytest.raises(ValueError):db.connect('unowned')
@@ -209,9 +366,9 @@ def test_physical_copy_record_and_fragment_memory_bounds_fail_closed():
         with pytest.raises(ValueError):m.copy_physical(_CopyCursor(fragments),'public.customer','"id"',core,None)
 
 
-def test_v12_database_namespace_matches_java_and_preserves_fixed_resource_caps():
+def test_v13_database_namespace_matches_java_and_preserves_fixed_resource_caps():
     m=module();s=m.contract.local_spec()
-    assert s['database']=='deepdb_verdict_ssb_local500_v12'
+    assert s['database']=='deepdb_verdict_ssb_local500_v13'
     java=(ROOT/s['java_source']).read_text(encoding='utf-8')
     assert 'static final String DATABASE="'+s['database']+'";' in java
     assert s['limits']['python_rss_bytes']==512*1024**2 and s['limits']['work_mem_kib']==16384

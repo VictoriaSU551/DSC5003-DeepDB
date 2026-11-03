@@ -16,7 +16,7 @@ Files and interfaces:
 - `code/full_verdict_ssb_local_bridge.java`: new fixed LOCAL DB/n/N context, retaining original JAR/public APIs and one execute per call. Do not modify the SF2 Java source/class.
 - New `code/tests/test_full_verdict_ssb_local*.py`: pure/micro fixtures only in this phase.
 
-Fixed invariants: LOCAL N=3,000,028,242; n=9,996,946; source ID a574cd95f8ba184c809c66e438c88f69ddb1ddcc7b984c9ea99bcbb4c476dcf9; 1,713 author differences; fresh V12 DB deepdb_verdict_ssb_local500_v12; three protected prior databases; full four dimensions; zero-row fact skeleton; fact-only n/N metadata and 100 partitions; 13 raw + six child SUMs per mode = 38 calls; exact13 signed-integer moment oracles; two-SUM difference only, no child population truth or adapter CI. Original p and DeepDB n/p stay separate.
+Fixed invariants: LOCAL N=3,000,028,242; n=9,996,946; source ID a574cd95f8ba184c809c66e438c88f69ddb1ddcc7b984c9ea99bcbb4c476dcf9; 1,713 author differences; fresh V13 DB deepdb_verdict_ssb_local500_v13; three protected prior databases; full four dimensions; zero-row fact skeleton; fact-only n/N metadata and 100 partitions; 13 raw + six child SUMs per mode = 38 calls; exact13 signed-integer moment oracles; two-SUM difference only, no child population truth or adapter CI. Original p and DeepDB n/p stay separate.
 
 Implementation sequence:
 
@@ -38,7 +38,7 @@ Within forbidden DB/process/science and verified native-platform contexts, the c
 
 Single-entry verification cost is explicit: `pilot-plan`, `build_plan`, public `verify_pilot` and public `verify` each call the full parent verifier **once** through frozen replay. A private fresh boundary proof carries this complete evidence through nested pilot/plan checks. Public APIs accept no skip flag or proof/cache. A new public entry always verifies afresh. `pilot` and `run` have two separate fresh boundaries (entry and exit); only final output validation reuses the just-completed exit proof. No result or artifact cache crosses these boundaries. Unique repeated descriptors are checked once within a collector, while conflicting repeats fail. This avoids four full parent validations per public plan/verify without weakening before/after checks. It is a code/fixture count, not a measured runtime promise.
 
-Database and resource behavior is explicit. The LOCAL operation alone creates `deepdb_verdict_ssb_local500_v12`; it refuses an existing database and never adopts/reimports/replaces any prior database, including failed V9/V10/V11 LOCAL databases. The three prior databases are protected by catalog identities, not a claim of per-row protected-data hashing. Only a proven controller-owned stopped project cluster may be started; pg_ctl uses the already reviewed file-handle logging and ownership cleanup. PG11.5 and fixed sealed JDK paths/JAR are verified. Python/Java connections request `extra_float_digits=3`, 16MiB work memory, 1GiB per-backend temp-file limit and 600s statement timeout; JVM heap is384MiB, metaspace192MiB, process RSS cap1GiB, timeout660s. The original shared cluster startup options remain bound in e141; connection-specific values override work memory for these sessions. No global database/system settings are changed.
+Database and resource behavior is explicit. The LOCAL operation alone creates `deepdb_verdict_ssb_local500_v13`; it refuses an existing database and never adopts/reimports/replaces any prior database, including failed V9/V10/V11/V12 LOCAL databases. The three prior databases are protected by catalog identities, not a claim of per-row protected-data hashing. Only a proven controller-owned stopped project cluster may be started; pg_ctl uses the already reviewed file-handle logging and ownership cleanup. PG11.5 and fixed sealed JDK paths/JAR are verified. Python/Java connections request `extra_float_digits=3`, 16MiB work memory, 1GiB per-backend temp-file limit and 600s statement timeout; JVM heap is384MiB, metaspace192MiB, process RSS cap1GiB, timeout660s. The original shared cluster startup options remain bound in e141; connection-specific values override work memory for these sessions. No global database/system settings are changed.
 
 Full four dimensions and the existing fact sample are copied in bounded10000-row chunks. Each committed table has an individual receipt, exact target row count and canonical all-field COPY bytes/row-count/SHA, preserving duplicate rows and string/NULL serialization. The complete import requires the five unique targets (15M customer,1M supplier,1.8M part,2556 dates,9996946 fact rows). The original fact relation remains empty. Only the fact has original uniform sample metadata and100 `verdict_vpart` partitions; dimensions have neither metadata nor auxiliary partition columns. Exact native float8 bits validate n/N. A SHARE lock covers the fact, full dimensions and both metadata tables through all38 serial original calls; before/after all-field and auxiliary COPY, schema, own catalog, partition histograms and protected catalogs must match. These checks are not replaced by an OID or COUNT-only assertion.
 
@@ -333,3 +333,57 @@ identities. New source-bound pilot, plan and ROOT approval are required. Pure
 fixtures cover rotating/renamed resource files, fresh whole-group totals,
 retry exhaustion and strict unrelated-error propagation; no new PG import,
 parent F, model, JVM or actual scientific operation is run by this revision.
+
+V13 handles only a bounded unavailable-command-line observation in the Python
+process scanner. Actual V12 stopped after the date and complete15M customer
+imports had passed strict value/order checks, before the next table and before
+any native query. The scanner raised `Uninspectable Python process`; its raw
+rows were not saved. That evidence identifies the unreadable observation, not
+its cause. A later readable process list cannot prove an exit/birth race or
+justify a process-specific exemption. The failed V12 database and namespace
+remain unaccepted and are never adopted.
+
+The original `SCIENCE_SCAN_COMMAND`, all-process scope and scientific-entrypoint
+conflict regex are unchanged. Only `CommandLine=null` or the empty string, with
+an otherwise valid exact header, name and positive non-boolean integer PID,
+permits another complete fresh CIM snapshot. There are at most3 additional
+snapshots (4 total), with the existing15s subprocess timeout per snapshot.
+Every known command in every snapshot is checked before retrying; a known
+conflict fails even if another row is unreadable. Malformed headers/types,
+duplicate PIDs, command/JSON/process errors, persistent unreadability and
+exhaustion fail immediately or at the fixed bound. There is no per-process
+skip, cached row, rename, special case for another project, or automatic retry
+of a failed scientific namespace. Failure exceptions carry every acquired
+snapshot, including a rejected terminal snapshot, with method/command,
+attempt/count/PID/status metadata. An undecodable or failed subprocess attempt
+explicitly records unavailable rows. Error messages retain only minimal
+PID/status diagnostics, without adding another process's complete argv.
+
+A persisted successful scan receipt retains the raw rows for every snapshot, ordered
+attempt indices, per-attempt row counts/PIDs/unreadable PIDs, final rows/counts,
+the exact command, fixed method
+`WHOLE_CIM_RESCAN_ON_UNINSPECTABLE_COMMANDLINE_V1`, bound3 and actual extra-scan
+count. Offline validation repeats all header, uniqueness and conflict checks
+for every attempt. Each nonterminal attempt must genuinely contain an
+unreadable command, the terminal attempt must be complete and conflict-free,
+and the final accounting must equal that terminal snapshot. Boolean counters,
+missing or extra schema fields and self-resealed inconsistent histories fail.
+The read-only verifier does not run CIM to validate this recorded evidence.
+Some existing pre-import/setup callers discard the returned scan receipt;
+V13 preserves that behavior and does not claim that every check is persisted.
+Once a controller owns its newly created run/pilot directory, the existing
+failure handler atomically writes the exception's complete diagnostic dictionary
+to local ignored `failed_science_scan.json`. This private file may contain raw
+argv from the acquired process rows and is not a public result. If this
+diagnostic write itself fails, the first exception gains a write-failure marker
+and remains the raised error; the existing budget, lifecycle and owned-server
+cleanup paths remain unchanged. A startup scanner failure before directory
+creation has no owned directory or operation and is not claimed persisted.
+
+Only the current spec/Java database literal advances to
+`deepdb_verdict_ssb_local500_v13`. V12 resource rescans, the entire reader/import
+and physical-order/hash gates,38 SQLs, numerical formulas and every resource cap
+are unchanged. V12's9-source/23-parent freeze and Git
+`38d96b589404b69c664c384737e3e7d94cdaedeb` remain the historical boundary. A fresh
+source-bound pilot, plan and ROOT review are required. This implementation runs
+pure/mock tests only, with no actual CIM scan, F, PG, JVM, model or science.

@@ -73,7 +73,10 @@ def test_final_header_cannot_self_reseal_author_pass_or_other_stage_counts():
 
 
 def scan_fixture(m):
-    return dict(status='NO_CONFLICTING_SCIENCE_ACTIVE',command=m.ops.SCIENCE_SCAN_COMMAND,processes=[],python_processes_checked=0,process_ids=[])
+    return dict(status='NO_CONFLICTING_SCIENCE_ACTIVE',command=m.ops.SCIENCE_SCAN_COMMAND,
+        scan_method='WHOLE_CIM_RESCAN_ON_UNINSPECTABLE_COMMANDLINE_V1',max_additional_rescans=3,additional_rescans=0,
+        attempts=[dict(attempt=0,processes=[],python_processes_checked=0,process_ids=[],uninspectable_process_ids=[])],
+        processes=[],python_processes_checked=0,process_ids=[])
 
 
 def write_json(m,path,body):
@@ -179,6 +182,46 @@ def test_first_budget_failure_is_logged_by_both_controllers_without_replacing_or
     assert raised.value is error and reports==[True]
     home=short/s['output']/('runs' if action=='run' else 'measurements')/'first'
     assert m.contract.read(home/'failed_budget.json')==failure and m.contract.read(home/'lifecycle.json')['status']=='TAINTED'
+
+
+@pytest.mark.parametrize('action',['run','pilot'])
+@pytest.mark.parametrize('writer_fails',[False,True])
+def test_owned_scanner_failure_persists_private_history_without_masking_error_or_owned_shutdown(tmp_path,monkeypatch,action,writer_fails):
+    from types import SimpleNamespace
+    m=module();s=m.contract.local_spec();monkeypatch.setattr(m.contract,'ROOT',tmp_path)
+    diagnostic=dict(status='UNINSPECTABLE_COMMANDLINE',attempt=3,max_additional_rescans=3,
+        attempts=[{'attempt':i,'processes':[dict(Name='python.exe',ProcessId=123,CommandLine=None)]} for i in range(4)])
+    error=ValueError('Uninspectable process PIDs=[123]');error.scan_diagnostics=diagnostic
+    events=[];identity={'pid':987};failed_budget={'samples':[],'resource_scan_failure':None}
+    class Budget:
+        def attach(self,db):raise error
+        def close(self):events.append('budget_closed')
+        def report(self):return failed_budget
+    def writer(path,value):
+        if path.name=='failed_science_scan.json' and writer_fails:raise OSError('diagnostic write failed')
+        write_json(m,path,value)
+    def pg_control(action,*args):events.append(action);return {'exit_code':0 if action=='stop' else 3}
+    def start(home,initial,owned):owned['identity']=identity;events.append('owned_started');return {'exit_code':0}
+    core=SimpleNamespace(available_ram=lambda:5*1024**3,atomic_json=writer,pg_control=pg_control,
+        start_owned_server=start,postmaster_identity=lambda:identity)
+    monkeypatch.setattr(m.contract,'load_frozen',lambda:core)
+    monkeypatch.setattr(m.ops,'LocalBudget',lambda *a:Budget())
+    monkeypatch.setattr(m.ops,'LocalDatabase',lambda *a:SimpleNamespace(no_external_clients=lambda:None))
+    monkeypatch.setattr(m.ops,'assert_no_science_processes',lambda:scan_fixture(m))
+    monkeypatch.setattr(m.shutil,'disk_usage',lambda p:SimpleNamespace(free=20*1024**3))
+    plan=dict(spec=s,binding_sha256='a'*64,parent_expected={},lineage={'oracle':[]},queries=[])
+    monkeypatch.setattr(m,'revalidate_plan',lambda p:p);monkeypatch.setattr(m.contract,'build_pilot_plan',lambda p:plan)
+    plan_path=tmp_path/'plan.json';review=tmp_path/'review.json';write_json(m,plan_path,plan)
+    status='APPROVED_LOCAL_VERDICT_EXECUTION' if action=='run' else 'APPROVED_LOCAL_VERDICT_SF2_MEASUREMENT'
+    write_json(m,review,dict(status=status,binding_sha256='a'*64,limits=s['limits']))
+    with pytest.raises(ValueError) as caught:getattr(m,action)(plan_path,review,m.contract.digest(review),'scanner',True)
+    assert caught.value is error and events==['status','owned_started','budget_closed','stop','status']
+    home=tmp_path/s['output']/('runs' if action=='run' else 'measurements')/'scanner'
+    assert m.contract.read(home/'failed_budget.json')==failed_budget
+    assert m.contract.read(home/'lifecycle.json')=={'status':'TAINTED','error':repr(error)}
+    assert m.contract.read(home/'failed_shutdown.json')['stop']['exit_code']==0
+    if writer_fails:assert error.science_scan_diagnostic_write_failed=='OSError'
+    else:assert m.contract.read(home/'failed_science_scan.json')==diagnostic
 
 
 def test_empty_self_resealed_final_map_still_fails_under_forbidden_operations(tmp_path,monkeypatch):
