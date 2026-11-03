@@ -1,4 +1,5 @@
 .venv/
+.venv-*/
 .runtime/
 __pycache__/
 *.py[cod]
@@ -15,6 +16,39 @@ output/results/*
 !output/results/*.csv
 !output/results/*.md
 !output/results/*.txt
+!output/results/fullpaper_*.png
 *.log
 .DS_Store
 .env
+# No redistribution license was found for these original SSB mirror sources.
+# Fetch their pinned archive locally; retain only our adapter and source notices.
+code/vendor/ssb_dbgen/*
+!code/vendor/ssb_dbgen/full_consumer.cpp
+!code/vendor/ssb_dbgen/full_chunk_driver.c
+!code/vendor/ssb_dbgen/full_dimension_driver.c
+!code/vendor/ssb_dbgen/SOURCES.json
+!code/vendor/ssb_dbgen/LICENSE_NOTICE.md
+
+# Reviewed teammate result package; keep future model/data binaries excluded.
+!output/results/guoao_experiments/
+output/results/guoao_experiments/*
+!output/results/guoao_experiments/*.md
+!output/results/guoao_experiments/*.csv
+!output/results/guoao_experiments/settings.json
+!output/results/guoao_experiments/verify_results.py
+!output/results/guoao_experiments/verify_evidence.py
+!output/results/guoao_experiments/figures/
+output/results/guoao_experiments/figures/*
+!output/results/guoao_experiments/figures/en/
+!output/results/guoao_experiments/figures/zh/
+output/results/guoao_experiments/figures/en/*
+output/results/guoao_experiments/figures/zh/*
+!output/results/guoao_experiments/figures/en/*.png
+!output/results/guoao_experiments/figures/zh/*.png
+!output/results/guoao_experiments/evidence/
+output/results/guoao_experiments/evidence/*
+!output/results/guoao_experiments/evidence/*.json
+!output/results/guoao_experiments/evidence/source_snapshots.zip
+!output/results/guoao_experiments/evidence/logs/
+output/results/guoao_experiments/evidence/logs/*
+!output/results/guoao_experiments/evidence/logs/*.log.gz
