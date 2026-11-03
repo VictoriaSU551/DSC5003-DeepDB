@@ -54,6 +54,10 @@ The LOCAL population has 3,000,028,242 rows and 9,996,946 retained fact rows.
 The author comparison still differs in 1,713 of 2,059 truth groups. Both author
 reproduction and full-paper completion remain false in the manifest and report.
 
+Verdict registers the realized `n/N` fraction and scales points by `N/n`.
+Original DeepDB retains its `n/p` normalizer. These are separate policies;
+sharing the retained sample does not equate the two normalizers.
+
 Missing population groups receive 100% relative-error penalties. Extra groups
 remain records outside the truth denominator. An all-truth mean is suppressed
 on engine errors, invalid predictions/metrics or zero truth, for which relative

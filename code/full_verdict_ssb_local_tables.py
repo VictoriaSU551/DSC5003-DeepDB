@@ -285,6 +285,7 @@ def report_bytes(accepted, report, derived):
     lines = ['# LOCAL SSB SF500 Verdict: retained-sample results','',
         'LOCAL generated population: 3,000,028,242 rows; retained fact sample: 9,996,946 rows.',
         '1,713 of 2,059 author truth groups differ. Author reproduction and full-paper completion remain false.','',
+        'Verdict registers the realized n/N sampling fraction and scales points by N/n. Original DeepDB retains its n/p normalizer; the two normalizers are not silently equated.',
         'A fresh complete read-only verifier accepted the source run before this export. No native calls, database access, sampling, training or inference are executed by this exporter.',
         'The 38 original physical calls are recorded separately. The 32 query rows contain 26 RAW results and 6 external two-SUM point adapters; adapters reuse child calls and add no physical calls.',
         'The sample scaling gate uses Q1-Q3 RAW nobound results and Q4 point adapters. Original Q4 compound-SUM behavior remains visible as RAW evidence.',
