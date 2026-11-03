@@ -1,6 +1,6 @@
 {
   "schema": "deepdb_additional_baselines_snapshot_v1",
-  "updated_at_utc": "2026-11-03T14:40:28.354321+00:00",
+  "updated_at_utc": "2026-11-03T21:43:11.842760+00:00",
   "full_paper_reproduction_complete": false,
   "scalar": {
     "status": "PASS_VERIFIED_LOCAL_SCALAR_ORACLE_DERIVED_TABLES",
@@ -375,7 +375,6 @@
     "external_wall_includes_full_parent_pre_post_verification": true,
     "inference_only_latency_claimed": false,
     "derived_tables_export_started": true,
-    "ci10m_golden_status": "PASS_COMPLETE_SMALL_GOLDEN_ONLY_FORMAL_CANDIDATE_METADATA_RUNNING",
     "derived_tables_status": "PASS_VERIFIED_LOCAL_SSB_DERIVED_TABLES",
     "derived_tables_manifest": {
       "path": "output/full/figures/aqp_ssb_local_continuation_82803cb6f9608f78/manifest.json",
@@ -392,7 +391,8 @@
       "all_groups": 2059,
       "training_tables": 5
     },
-    "two_pngs_visually_checked": true
+    "two_pngs_visually_checked": true,
+    "ci10m_golden_status_at_historical_continuation_export": "PASS_COMPLETE_SMALL_GOLDEN_ONLY_FORMAL_CANDIDATE_METADATA_RUNNING"
   },
   "sampling": {
     "status": "PASS_TWO_LOCAL_METHODS_COMPLETE70_EACH_AND_INDEPENDENT_EXPORT",
@@ -726,5 +726,127 @@
       "preserved_prefix_checkpoint_files": 4,
       "scope": "Small SF2 fixture and10Mengineeringcap boundary; separate from actual SF500 formal training"
     }
+  },
+  "verdict_ssb_local500": {
+    "status": "PASS_LOCAL_VERDICT_SAMPLE_SCALING_WITH_EXPLICIT_GAPS",
+    "sample_gate_pass": true,
+    "source_manifest": {
+      "path": "output/results/fullpaper_verdict_ssb_local500_source_manifest.json",
+      "bytes": 4846,
+      "sha256": "271bbe95584bca6d71b18bd4c8e916be92b821074c43bdf661764e9d6eb18388"
+    },
+    "source_acceptance": {
+      "author_different_groups": 1713,
+      "author_reproduction_complete": false,
+      "database_connected": false,
+      "evaluation": {
+        "bytes": 10446163,
+        "path": "output/full/verdict_ssb/local_sf500/runs/sf500_final_v13/evaluation.json",
+        "sha256": "3179a5e6efddda9b35ca001b66e324897f126bd7c64a74768e3eff7c7fea3887"
+      },
+      "evaluation_status": "PASS_LOCAL_VERDICT_SAMPLE_SCALING_WITH_EXPLICIT_GAPS",
+      "evaluation_variant": "CANONICAL_DECODED_GROUP_PROTOTYPE_V1",
+      "final": {
+        "bytes": 84387,
+        "path": "output/full/verdict_ssb/local_sf500/runs/sf500_final_v13/final.json",
+        "sha256": "a288c1be5abc0e1138a4f789c4307de3f17a9e8600a2950aec4bbbc0be980088"
+      },
+      "final_sha256": "a288c1be5abc0e1138a4f789c4307de3f17a9e8600a2950aec4bbbc0be980088",
+      "full_paper_reproduction_complete": false,
+      "group_order_adapter_sha256": "48220a0474a838c8dc9a7cf3fef0e8a84459a05e3fa8e15405307acae430ae5c",
+      "historical_reverse_accepted": false,
+      "original_calls": 38,
+      "parent_canonical": {
+        "bytes": 11205419,
+        "path": "output/full/results/ssb_local_sf500_canonical_aqp_ci.json",
+        "sha256": "f37833fdc2b249e22632f5fa3e0ea98499c748487a43fcd42b0d692768fbeac8"
+      },
+      "parent_formal": {
+        "bytes": 16927309,
+        "path": "output/full/results/ssb_local_sf500_model_aqp_ci.json",
+        "sha256": "da358d52a0005bb28cd606c8e539099bdf242b72d4f6e663db6c0a3f84e15c82"
+      },
+      "parent_reverse": {
+        "bytes": 556575,
+        "path": "output/full/ssb/local_sf500_continuation/runs/87392d7dedf465279272/reverse/verification.json",
+        "sha256": "1d26725c4135159305cc5473d5538b8ad18985de58ec556d1f1bbf826847217e"
+      },
+      "plan": {
+        "bytes": 15693404,
+        "path": "output/full/verdict_ssb/local_sf500/runs/sf500_final_v13/plan.json",
+        "sha256": "9545cc8c76b43b7a13862b29c510e5873a3ec98f9b13213f5ea9d8814b0bf7be"
+      },
+      "point_gate_pass": true,
+      "population_rows": 3000028242,
+      "processes_executed": false,
+      "sample_rows": 9996946,
+      "sampling_ratio": {
+        "denominator": 3000028242,
+        "numerator": 9996946
+      },
+      "scientific_calls_executed": false,
+      "scope": "LOCAL_SSB_SF500_VERDICT_EXISTING_SAMPLE",
+      "status": "PASS_READONLY_LOCAL_VERDICT_EVIDENCE_WITH_AUTHOR_MISMATCH"
+    },
+    "actual_stages": {
+      "imported_tables": 5,
+      "javac": 1,
+      "new_population_sampling": 0,
+      "original_query_calls": 38,
+      "registrations": 1,
+      "sqlite_queries": 0
+    },
+    "row_counts": {
+      "adapter_groups": 1870,
+      "physical_calls": 38,
+      "query_summary": 32,
+      "raw_groups": 4118
+    },
+    "raw_query_rows": 26,
+    "external_point_adapter_rows": 6,
+    "physical_calls": 38,
+    "original_engine_error_calls": 0,
+    "unavailable_native_ci_rows": 807,
+    "native_ci_confidence": 0.95,
+    "deepdb_ci_confidence": 0.9,
+    "composite_adapter_ci_available": false,
+    "peak_budget_bytes": 4120975810,
+    "budget_caps": {
+      "java_rss_bytes": 1073741824,
+      "minimum_available_ram_bytes": 4294967296,
+      "minimum_free_disk_bytes": 19327352832,
+      "native_process_timeout_seconds": 660,
+      "owned_database_bytes": 8589934592,
+      "owned_files_bytes": 1073741824,
+      "positive_temp_bytes": 1073741824,
+      "positive_wal_bytes": 2147483648,
+      "python_rss_bytes": 536870912,
+      "statement_timeout_ms": 600000,
+      "temp_file_limit_kib": 1048576,
+      "total_new_bytes": 12884901888,
+      "work_mem_kib": 16384
+    },
+    "resource_extra_rescans_summed": {
+      "home": 0,
+      "staging": 0,
+      "temp": 0,
+      "wal": 0
+    },
+    "resource_extra_rescans_maximum": {
+      "home": 0,
+      "staging": 0,
+      "temp": 0,
+      "wal": 0
+    },
+    "actual_formal_whole_command_seconds": 2471.9240261,
+    "independent_full_verifier_and_export_whole_seconds": 475.7032246,
+    "native_or_inference_only_latency_claimed": false,
+    "owned_project_postgres_stopped": true,
+    "author_different_groups": 1713,
+    "author_reproduction_complete": false,
+    "retained_sample_execution_only": true,
+    "full_3b_fact_database_imported": false,
+    "no_new_population_sampling": true,
+    "full_paper_reproduction_complete": false
   }
 }

@@ -14,7 +14,7 @@
 | `full/` | 本地运行闭包、来源、正式工件、模型和派生表图。 | 不整体上传；只导出白名单到 `results/` |
 | `models/`、`hdf/`、`logs/`、`tmp/` | 本地模型、预处理、日志和测试夹具。 | 默认不上传；组员审查后日志在其证据包单列 |
 
-SSB的1,713项作者customer连接真值差异保留，LOCAL结果不替代作者母体。LOCAL Verdict SF500待最终验收，见[当前状态](../docs/FULL_REPRODUCTION_STATUS.md)；SF2接入不代替SF500。完整3B数据库、原表建样本和XDB等未执行比较不计完成。
+SSB的1,713项作者customer连接真值差异保留，LOCAL结果不替代作者母体。LOCAL Verdict SF500五表导入、注册及38次物理调用、独立完整只读验收已完成；RAW、外部点适配和缺组/错误分开，见[最终交付](results/FINAL_DELIVERY.md)。完整3B数据库、原表建样本和XDB等未执行比较不计完成。
 
 组员包维护见 [TEAM_EXPERIMENTS.md](../docs/TEAM_EXPERIMENTS.md)，标准库离线复核无需数据/模型：
 
@@ -25,4 +25,4 @@ python -B output/results/guoao_experiments/verify_evidence.py
 
 PASS只表示保存数值与对应证据范围通过，不代表本次重训或重新执行数据库。模型清单不是13个模型本体随包交付。`.gitattributes`关闭原证据包换行转换；新增结果另建目录，不覆盖原包。
 
-GitHub最终在 `main`交付源码和审查后共享结果；数据、模型本体、环境、数据库、PDF和凭据不上传。本地最终目标为根 `README.md`加 `results/`，实际保留集合以最终清单为准，当前不宣称清理完成。若历史来源闭包移除，fullF及其传递依赖入口须明确退役，摘要不能冒充现场完整验收。未确认去留的最终模型先安全保留。
+GitHub最终在 `main`交付源码和审查后共享结果；数据、模型本体、环境、数据库、PDF和凭据不上传。本地最终目标为根 `README.md`加 `results/`，实际保留集合以最终清单为准，实际精简与清理状态见[清理凭据](results/cleanup_status.json)。若历史来源闭包移除，fullF及其传递依赖入口须明确退役，摘要不能冒充现场完整验收。用户已确认最终模型作为结果保留，221个逻辑条目对应220个去重权重文件，按最终清单逐项核SHA。

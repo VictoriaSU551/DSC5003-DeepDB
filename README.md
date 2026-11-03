@@ -5,10 +5,11 @@ Benjamin Hilprecht 等，**DeepDB: Learn from Data, not from Queries!**，VLDB 2
 
 本仓库交付JOB-light基数估计、参数与增量实验、C++推理、Flights 1B、LOCAL SSB SF500的模型/AQP/CI，以及实际完成的比较方法和组员实验。**整篇论文仍未完成复现，`full_paper_complete=False`。** 作者输入缺失、本地母体差异和原规模数据库基线缺口保留，不用完成比例或作者历史数字替代本次实验。
 
-代码和可公开结果的最终交付分支为 `main`；完整阶段整合与审查见 [PR #3](https://github.com/VictoriaSU551/DSC5003-DeepDB/pull/3)。当前公开快照来源于 **2026-11-03** 的封存状态，包含31项派生交付文件，没有 `EVIDENCE_INVALID` 项；PENDING、作者母体失败和输入缺口仍明确列出。
+代码和可公开结果的最终交付分支为 `main`；完整阶段整合与审查见 [PR #3](https://github.com/VictoriaSU551/DSC5003-DeepDB/pull/3)。31项主结果快照来源于 **2026-11-03** 的封存状态，当时没有 `EVIDENCE_INVALID` 项；**2026-11-04** 的[最终账本](output/results/final_delivery.json)另加入LOCAL Verdict SF500实际执行与完整验收。作者母体失败和输入缺口仍明确列出。
 
 ## 查看结果
 
+- [最终交付说明](output/results/FINAL_DELIVERY.md) · [最终账本](output/results/final_delivery.json)
 - [全部已验证阶段、表格和图片](output/results/FULL_PAPER_RESULTS.md) · [摘要与来源哈希](output/results/fullpaper_summary.json)
 - [补充基线及SSB两种预算的实际调用和覆盖](output/results/fullpaper_additional_baselines.json)
 - [详细状态](docs/FULL_REPRODUCTION_STATUS.md) · [运行指南](docs/FULL_RUNNING_GUIDE.md) · [四项作者公开输入缺口](docs/FINAL_PUBLIC_INPUT_GAPS.md)
@@ -23,7 +24,7 @@ Benjamin Hilprecht 等，**DeepDB: Learn from Data, not from Queries!**，VLDB 2
 | LOCAL SSB 1M/table | 五个原模型的continuation复用已验收正向，另做逆序13次载入/26次调用；2,059点、4,118区间端点最大差0，历史失败保留。 |
 | LOCAL SSB 10M/table cap | **另训练五个模型，正式验收、独立逆序及派生表图均通过**。事实表实际9,996,946行；逆序13次模型载入/26次调用，2,059点、4,118端点最大差0；参考CI1,253组可用，806组因样本少于10行排除。 |
 | 其他实际比较方法 | Scalar本地变体、SRS/IBJS各70条；DBEst原引擎的Flights部分覆盖及单维路由；Flights Verdict已有样本执行。原零估计、缺组、不支持项和原错误保留，见[补充结果](output/results/fullpaper_additional_baselines.json)。 |
-| LOCAL Verdict SF500 | 待最终验收，当前边界见[详细状态](docs/FULL_REPRODUCTION_STATUS.md)。SF2接入不能作为SF500完成证明。 |
+| LOCAL Verdict SF500 | 五表导入、注册及38次原始物理调用完成；样本缩放和独立完整验收通过，26行RAW/6行外部双SUM点适配另列。原错误和缺组保留，见[最终交付](output/results/FINAL_DELIVERY.md)。 |
 
 SSB本地母体3,000,028,242行，与作者行数一致，但2,059项作者真值中 **1,713项customer连接真值不同**。LOCAL模型按同一生成母体的独立精确真值评分，作者母体门禁仍失败。两种SSB模型共享实际样本参考，不构成重复抽样CI校准，也不把训练上限写成恰好10M事实行。
 
@@ -68,4 +69,4 @@ output/full/          本地科学运行、模型、完整证据闭包和派生�
 
 GitHub发布代码和审查后的共享结果；大型权重、数据/HDF、环境、数据库、PDF和凭据不提交。新机器需要下载或生成数据并建立环境，清单不等于模型本体随仓库交付。作者算法固定于 `655ada13a043a4226a239b0c0a65bcdefef87a02`，MIT许可证及来源说明保留。
 
-本地最终交付目标为 `README.md`加 `results/`结果包，具体保留文件以最终清单为准；当前不宣称清理完成。若精简移除历史运行闭包，相关完整来源验收入口须明确退役，结果快照不能冒充仍可现场完整复核。新实验另建目录，不覆盖已验证结果。协作规则见 [CONTRIBUTING.md](CONTRIBUTING.md)。
+本地最终交付目标为 `README.md`加 `results/`结果包，具体保留文件以最终清单为准；实际精简与清理状态见[清理凭据](output/results/cleanup_status.json)。若精简移除历史运行闭包，相关完整来源验收入口须明确退役，结果快照不能冒充仍可现场完整复核。新实验另建目录，不覆盖已验证结果。协作规则见 [CONTRIBUTING.md](CONTRIBUTING.md)。

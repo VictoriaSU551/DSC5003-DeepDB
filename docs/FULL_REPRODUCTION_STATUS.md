@@ -1,6 +1,6 @@
 # 完整复现阶段状态
 
-更新：2026-11-03。当前状态为 `INCOMPLETE_FULL_PAPER`，`full_paper_complete=false`。
+更新：2026-11-04。当前状态为 `INCOMPLETE_FULL_PAPER`，`full_paper_complete=false`。
 [公开结果索引](../output/results/FULL_PAPER_RESULTS.md)及[摘要](../output/results/fullpaper_summary.json)来源于 `2026-11-03T14:44:58.354882+00:00` 的封存状态：31项派生交付文件，没有EVIDENCE_INVALID；待完成、作者母体失败和输入缺口仍保留。PASS仅适用于各自命名的实验及验收范围。
 
 ## 已完成并保留的实验
@@ -46,7 +46,7 @@ Flights生成参数未完全绑定作者种子，属同原规模本地母体。D
 
 ## 尚未完成
 
-- **LOCAL Verdict SF500：待最终验收。** v9在 `COPY ... ORDER BY ctid` 的数据库暂存文件触及1GiB上限后失败；有界往返修正及独立v10命名空间待实际完成。实现、模拟测试或SF2证据不能写成SF500成功。
+- **LOCAL Verdict SF500已完成本地已有样本执行及独立验收。** v13五表导入、注册、38次物理调用完成，样本缩放门禁通过；26行RAW与6行外部双SUM点适配、原错误、缺组及95%/90%区别分别保存。v9排序失败、v10往返顺序失败均未计为成功。见[最终交付](../output/results/FINAL_DELIVERY.md)及[来源清单](../output/results/fullpaper_verdict_ssb_local500_source_manifest.json)。这不等于作者母体或完整3B数据库比较完成。
 - **四项作者公开输入缺口**：作者200条泛化成员、Figure5合成数据库配方、Wavelet及Figure12右图材料、Figure12左图DBEst原材料。见 [FINAL_PUBLIC_INPUT_GAPS.md](FINAL_PUBLIC_INPUT_GAPS.md)。
 - **原规模完整数据库基线未执行**：3B事实表仅9个int4列的载荷下界108,001,016,712字节，另需行头/WAL/索引/排序空间。已有样本不替代原表建样本、TABLESAMPLE、XDB或端到端成本，见[资源说明](FULL_BASELINE_FEASIBILITY.md)。
 - 其他作者原配置、完整比较方法和一致预算/计时条件未齐备，保持PENDING/SOURCE_GAP，不记为全论文完成。
@@ -55,4 +55,4 @@ Flights生成参数未完全绑定作者种子，属同原规模本地母体。D
 
 GitHub最终在 `main`交付代码和审查后的共享结果，数据/HDF、模型本体、环境、数据库、PDF和凭据不上传；`reproduction/full-paper`保留扩展开发历史，[PR #3](https://github.com/VictoriaSU551/DSC5003-DeepDB/pull/3)记录整合。
 
-本地最终目标为根 `README.md`加 `results/`结果包，实际保留集合以最终清单为准；当前不宣称清理完成。若精简移除历史来源闭包，须明确退役对应fullF及传递依赖入口，保留结果、哈希、验收时间和退役边界。未确认去留的最终模型先安全保留。已验证结果直接使用，不重复训练或推断。继续工作按[运行指南](FULL_RUNNING_GUIDE.md)，不自动重启TAINTED控制器。
+本地最终目标为根 `README.md`加 `results/`结果包，实际保留集合以最终清单为准；实际精简与清理状态见[清理凭据](../output/results/cleanup_status.json)。若精简移除历史来源闭包，须明确退役对应fullF及传递依赖入口，保留结果、哈希、验收时间和退役边界。用户已确认最终模型作为结果保留，221个逻辑条目对应220个去重权重文件，按最终清单逐项核SHA。已验证结果直接使用，不重复训练或推断。继续工作按[运行指南](FULL_RUNNING_GUIDE.md)，不自动重启TAINTED控制器。

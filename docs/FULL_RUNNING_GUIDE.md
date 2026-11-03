@@ -94,7 +94,7 @@ python -B output/results/guoao_experiments/verify_evidence.py
 
 10M表图与状态消费者通过[固定ROOT相对调用适配](FULL_SSB_LOCAL_CI_ACCEPTANCE.md)调用一次原完整验收器；不改原provider、其余命令参数、来源或数值检查。必须从ROOT运行，不能以旧1M模型或小黄金代替已完成正式10M结果。
 
-Scalar与DBEst专项只读入口、所需run目录见 [Scalar协议](FULL_SCALAR_ORACLE_PROTOCOL.md)、[DBEst路由](FULL_DBEST_FLIGHTS_ROUTES.md)。LOCAL Verdict SF500待最终验收，失败和新尝试边界以[状态页](FULL_REPRODUCTION_STATUS.md)为准；不要重启历史失败控制器。
+Scalar与DBEst专项只读入口、所需run目录见 [Scalar协议](FULL_SCALAR_ORACLE_PROTOCOL.md)、[DBEst路由](FULL_DBEST_FLIGHTS_ROUTES.md)。LOCAL Verdict SF500 v13已完成38次原始物理调用及一次新鲜完整只读验收/导出；[最终交付](../output/results/FINAL_DELIVERY.md)记录范围、原错误和缺组，来源闭包精简后原验收入口退役，不重启已完成或失败控制器。
 
 ## 新科学执行与恢复
 
@@ -118,4 +118,4 @@ Scalar与DBEst专项只读入口、所需run目录见 [Scalar协议](FULL_SCALAR
 | SSB生成与LOCAL模型 | [生成器](FULL_SSB_NATIVE_V2.md)、[LOCAL1M](FULL_SSB_LOCAL_REPLAY.md)、[continuation](FULL_SSB_LOCAL_CONTINUATION.md)、[LOCAL10M](FULL_SSB_LOCAL_CI_PROTOCOL.md)、[逆序](FULL_SSB_LOCAL_CI_REPLAY.md) |
 | 比较方法 | [DBEst](FULL_DBEST_FLIGHTS_ROUTES.md)、[SRS/IBJS](FULL_JOB_SAMPLING_PROTOCOL.md)、[Scalar](FULL_SCALAR_ORACLE_PROTOCOL.md)、[LOCAL Verdict](FULL_VERDICT_LOCAL_SSB_IMPLEMENTATION.md)、[Verdict SF2](FULL_VERDICT_SSB_SF2_AUDIT.md) |
 
-本地最终目标为 `README.md`与 `results/`，当前不宣称清理完成。模型和必要大文件按最终清单处理；来源闭包移除后原fullF及其传递依赖必须退役。源码克隆可重新建立环境和数据，精简结果包仅提供其清单声明内容。
+本地最终目标为 `README.md`与 `results/`，实际精简与清理状态见[清理凭据](../output/results/cleanup_status.json)。模型和必要大文件按最终清单处理；来源闭包移除后原fullF及其传递依赖必须退役。源码克隆可重新建立环境和数据，精简结果包仅提供其清单声明内容。

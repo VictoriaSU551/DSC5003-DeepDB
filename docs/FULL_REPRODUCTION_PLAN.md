@@ -1,6 +1,6 @@
 # DeepDB 复现交付与剩余工作
 
-更新：2026-11-03。目标仍以论文全部实验为对照；当前交付为有明确缺口的已验证部分，**整篇论文未完成**。本文件记录现状和剩余条件，早期过程保留在Git历史、实验协议和本地凭据中。
+更新：2026-11-04。目标仍以论文全部实验为对照；当前交付为有明确缺口的已验证部分，**整篇论文未完成**。本文件记录现状和剩余条件，早期过程保留在Git历史、实验协议和本地凭据中。
 
 依据：[完整协议](FULL_REPRODUCTION_PROTOCOL.md)、[实际状态](FULL_REPRODUCTION_STATUS.md)、[公开结果](../output/results/FULL_PAPER_RESULTS.md)、[最终输入缺口复核](FINAL_PUBLIC_INPUT_GAPS.md)。
 
@@ -22,7 +22,7 @@
 
 ## 完成全论文前仍需的条件
 
-- [ ] LOCAL Verdict SF500取得完整实际执行与只读验收；当前以[状态页](FULL_REPRODUCTION_STATUS.md)为准。失败保留，新尝试使用独立命名空间。
+- [x] LOCAL Verdict SF500 v13五表导入、注册、38次原始物理调用及独立完整只读验收/导出完成；[最终交付](../output/results/FINAL_DELIVERY.md)保留RAW/外部点适配、缺组/错误和作者差异。
 - [ ] 关闭[四项作者输入缺口](FINAL_PUBLIC_INPUT_GAPS.md)：200条成员、Figure5配方、Wavelet/Figure12右图、Figure12左图DBEst材料。替代微基准或历史CSV不能计作完成。
 - [ ] 取得并验证作者SSB母体来源；LOCAL成功不消除1,713项customer连接真值差异，不改真值或绕过执行闩锁。
 - [ ] 具备容量、索引和建样本条件后另做TABLESAMPLE、XDB等原表基线及端到端成本；已有样本不替代3B完整数据库。当前资源下不安排无容量证明的原规模执行。
@@ -32,8 +32,8 @@
 
 - [ ] 经最终审查，通过[PR #3](https://github.com/VictoriaSU551/DSC5003-DeepDB/pull/3)将扩展代码与共享结果整合到 `main`，保留贡献分支与署名。
 - [ ] 同步README、状态、运行入口和结果索引，数字、来源哈希与差异相互对应。
-- [ ] 按最终清单准备本地 `README.md`与 `results/`，复用已验收结果，未确认去留的最终模型不先行删除。
-- [ ] 清理后复核保留文件与哈希；来源闭包移除时，明确退役原fullF和传递依赖入口，保留验收时间及适用边界。
+- 本地归档目标为 `README.md`与 `results/`，复用已验收结果，用户已确认保留221个逻辑模型条目/220个去重权重文件；实际归档与精简状态见[清理凭据](../output/results/cleanup_status.json)。
+- 精简归档须逐文件核SHA并记录来源验收退役边界；实际保留清单、验收和删除结果以本地 `results/` 凭据及[公开清理状态](../output/results/cleanup_status.json)为准。
 
 交付项完成不等于论文缺口关闭。不得报告完成百分比，把代码存在计作实验完成，或把整合/离线导出计为新增科学运行。
 
